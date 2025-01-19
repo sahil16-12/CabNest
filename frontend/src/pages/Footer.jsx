@@ -26,14 +26,7 @@ const Footer = () => {
                 Home
               </Link>
             </li>
-            <li>
-              <Link
-                to="/book-a-cab"
-                className="text-gray-400 hover:text-blue-400 transition duration-200"
-              >
-                Book a Cab
-              </Link>
-            </li>
+
             <li>
               <Link
                 to="/pricing"
@@ -44,10 +37,18 @@ const Footer = () => {
             </li>
             <li>
               <Link
-                to="/contact-us"
+                to="/contact"
                 className="text-gray-400 hover:text-blue-400 transition duration-200"
               >
                 Contact Us
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/about"
+                className="text-gray-400 hover:text-blue-400 transition duration-200"
+              >
+                About Us
               </Link>
             </li>
           </ul>
