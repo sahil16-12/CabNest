@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const SignupPage = () => {
+const Signup = () => {
   const [role, setRole] = useState("Rider");
 
   return (
@@ -68,4 +68,4 @@ const SignupPage = () => {
   );
 };
 
-export default SignupPage;
+export default Signup;
