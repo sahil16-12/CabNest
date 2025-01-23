@@ -1,0 +1,58 @@
+[33mcommit 489966e597dbd6a6302e9f8a64d82d634b8ce4a9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Merge: 3160e97 aa631ac
+Author: sahil16-12 <sahil16december@gmail.com>
+Date:   Thu Jan 23 19:12:09 2025 +0530
+
+    Merge branch 'main' of https://github.com/sahil16-12/CabNest
+
+[33mcommit 3160e979c07daf75abc29bc62b70d89d14b272b0[m
+Author: sahil16-12 <sahil16december@gmail.com>
+Date:   Thu Jan 23 19:11:36 2025 +0530
+
+    Added a driver found pop up
+
+[33mcommit aa631ac45e85202a6491f7529981202c398e12cf[m[33m ([m[1;31morigin/main[m[33m)[m
+Merge: c346688 2e64a11
+Author: sahil-programmer <sahiltarofawala312@gmail.com>
+Date:   Thu Jan 23 18:55:05 2025 +0530
+
+    Merge pull request #1 from sahil16-12/new-backend
+    
+    add backend
+
+[33mcommit 2e64a11fd2b1aea22c7df59520f5e9d14a2ccaaa[m[33m ([m[1;31morigin/new-backend[m[33m)[m
+Author: sahil-programmer <sahiltarofawala312@gmail.com>
+Date:   Thu Jan 23 18:48:07 2025 +0530
+
+    Your commit message
+
+[33mcommit c346688a22021286d8df6d25240b46f5677c8c35[m[33m ([m[1;31morigin/add-backend[m[33m)[m
+Author: sahil16-12 <sahil16december@gmail.com>
+Date:   Sun Jan 19 19:13:46 2025 +0530
+
+    Added about us page and contact us
+
+[33mcommit 8841119af7e014c10a496bb2b5cf8af1a674eda3[m
+Merge: d5ce576 c9c225b
+Author: sahil16-12 <sahil16december@gmail.com>
+Date:   Sun Jan 19 14:51:29 2025 +0530
+
+    Merge branch 'main' of https://github.com/sahil16-12/CabNest
+
+[33mcommit d5ce57623eeac7c4c86a30d401bf9c351677e030[m
+Author: sahil16-12 <sahil16december@gmail.com>
+Date:   Sun Jan 19 14:45:33 2025 +0530
+
+    Added home page, footer, header
+
+[33mcommit c9c225b41dbca0fea247276c117c396b38a1e18a[m
+Author: Shahil Vora Irfan <137672555+sahil16-12@users.noreply.github.com>
+Date:   Sat Jan 18 20:45:22 2025 +0530
+
+    Create README.md
+
+[33mcommit c85a5372e29af63944a9e38b0ba7194fd68cc90c[m
+Author: sahil16-12 <sahil16december@gmail.com>
+Date:   Sat Jan 18 20:44:17 2025 +0530
+
+    Created login,resgister and home page
