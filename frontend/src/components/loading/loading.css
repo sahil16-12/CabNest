@@ -1,0 +1,41 @@
+/* Loading Page Styles */
+.loading-page {
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+    background: linear-gradient(135deg, #e6f0ff, #f9f5ff); /* Soft gradient background */
+}
+
+/* Loader Styles */
+.loader {
+    border: 8px solid #f3f3f3; /* Light grey background for the spinner */
+    border-top: 8px solid #ffd700; /* Gold color for the spinner */
+    border-radius: 50%; /* Circular shape */
+    width: 80px; /* Increased width for a more prominent loader */
+    height: 80px; /* Increased height for a more prominent loader */
+    animation: spin 1s linear infinite; /* Spin animation */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+}
+
+/* Spin Animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Loader Text Styles */
+.loader-text {
+    font-size: 20px; /* Font size for loading text */
+    color: #000; /* Black color for text */
+    margin-top: 15px; /* Space above the text */
+    font-weight: bold; /* Bold text for emphasis */
+    text-align: center; /* Center align text */
+    animation: fadeIn 1s ease-in-out infinite; /* Fade-in animation */
+}
+
+/* Fade-In Animation */
+@keyframes fadeIn {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
