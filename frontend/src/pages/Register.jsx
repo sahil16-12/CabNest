@@ -7,7 +7,7 @@ const Register = () => {
   const [name, setName] = useState(""); // State for name
   const [email, setEmail] = useState(""); // State for email
   const [password, setPassword] = useState(""); // State for password
-  const [role, setRole] = useState(""); // State for role
+  const [role, setRole] = useState(""); // State for role (Rider or Driver)
   const navigate = useNavigate(); // Navigation hook
 
   // Form submit handler
@@ -17,10 +17,10 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold text-center text-gray-900">
-          Register
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-lg shadow-xl transform transition-all duration-500 ease-in-out hover:scale-105">
+        <h2 className="text-3xl font-bold text-center text-gray-900 mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">
+          Welcome to CabNest
         </h2>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name Input */}
@@ -38,7 +38,7 @@ const Register = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
 
@@ -57,11 +57,11 @@ const Register = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
 
-          {/* Role Input */}
+          {/* Role Selection (Rider or Driver) */}
           <div>
             <label
               htmlFor="role"
@@ -69,15 +69,20 @@ const Register = () => {
             >
               Role
             </label>
-            <input
-              type="text"
+            <select
               id="role"
               name="role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
+              className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
+              <option value="" disabled>
+                Select your role
+              </option>
+              <option value="rider">Rider</option>
+              <option value="driver">Driver</option>
+            </select>
           </div>
 
           {/* Password Input */}
@@ -95,7 +100,7 @@ const Register = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
 
@@ -103,10 +108,10 @@ const Register = () => {
           <button
             type="submit"
             disabled={btnLoading}
-            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+            className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white ${
               btnLoading
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
+                : "bg-gradient-to-r from-blue-500 to-purple-600 hover:bg-gradient-to-l"
             } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
           >
             {btnLoading ? "Registering..." : "Register"}
@@ -114,10 +119,10 @@ const Register = () => {
         </form>
 
         {/* Login Link */}
-        <div className="text-center">
+        <div className="text-center mt-4">
           <Link
             to="/login"
-            className="text-sm text-blue-600 hover:text-blue-500"
+            className="text-sm text-blue-600 hover:text-blue-500 transition duration-300 ease-in-out transform hover:scale-105"
           >
             Already have an account? Login here
           </Link>

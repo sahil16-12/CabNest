@@ -1,11 +1,14 @@
 import React from "react";
 import Footer from "./Footer";
 import Header from "./Header";
+import HomePage from "./Home";
+import TaxiLoader from "./TaxiLoader";
 
 const Landing = () => {
   return (
     <>
       <Header></Header>
+      <TaxiLoader />
       <div className="h-screen flex flex-col bg-gray-50">
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
