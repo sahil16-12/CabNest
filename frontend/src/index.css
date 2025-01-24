@@ -1,6 +1,17 @@
-
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Animation for moving the car across the screen */
+@keyframes car-move {
+  0% {
+    transform: translateX(-250%);
+  }
+  100% {
+    transform: translateX(950%);
+  }
+}
+
+.animate-car-move {
+  animation: car-move 8s linear infinite;
+}

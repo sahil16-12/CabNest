@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserData } from "../context/UserContext";
+import { FaEnvelope, FaLock } from "react-icons/fa";
+import "../index.css";
 
 const Login = () => {
   const { loginUser, btnLoading } = UserData();
@@ -14,18 +16,21 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold text-center text-gray-900">Login</h2>
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+      {/* Login Form Card */}
+      <div className="relative z-10 max-w-md w-full bg-white bg-opacity-10 backdrop-blur-lg p-8 rounded-2xl shadow-2xl border border-gray-200">
+        <h2 className="text-4xl font-extrabold text-center text-white mb-6">
+          Welcome Back
+        </h2>
+        <p className="text-center text-sm text-gray-300 mb-8">
+          Login to continue your journey with{" "}
+          <span className="font-bold">CabNest</span>
+        </p>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Email Input */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email
-            </label>
+          <div className="relative">
+            <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="email"
               id="email"
@@ -33,18 +38,14 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="Email Address"
+              className="w-full pl-10 px-4 py-3 rounded-md border border-gray-300 shadow-sm bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-300"
             />
           </div>
 
           {/* Password Input */}
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
+          <div className="relative">
+            <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="password"
               id="password"
@@ -52,7 +53,8 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="Password"
+              className="w-full pl-10 px-4 py-3 rounded-md border border-gray-300 shadow-sm bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-300"
             />
           </div>
 
@@ -60,31 +62,34 @@ const Login = () => {
           <button
             type="submit"
             disabled={btnLoading}
-            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+            className={`w-full py-3 px-4 rounded-lg text-white font-semibold tracking-wide shadow-lg transform transition-all duration-300 ${
               btnLoading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-blue-500 to-purple-500 hover:scale-105 hover:shadow-2xl"
+            }`}
           >
             {btnLoading ? "Logging in..." : "Login"}
           </button>
         </form>
 
         {/* Register Link */}
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
+        <div className="text-center mt-6">
+          <p className="text-sm text-gray-300">
             Don't have an account?{" "}
-            <Link to="/register" className="text-blue-600 hover:text-blue-500">
+            <Link
+              to="/register"
+              className="text-blue-400 hover:underline hover:text-blue-300"
+            >
               Register here
             </Link>
           </p>
         </div>
 
         {/* Forgot Password Link */}
-        <div className="text-center">
+        <div className="text-center mt-4">
           <Link
             to="/forgot"
-            className="text-sm text-blue-600 hover:text-blue-500"
+            className="text-sm text-blue-400 hover:underline hover:text-blue-300"
           >
             Forgot Password?
           </Link>
