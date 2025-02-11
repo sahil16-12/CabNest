@@ -32,6 +32,7 @@ const Landing = () => {
           </div>
         </main>
       </div>
+
       <Footer></Footer>
     </>
   );
