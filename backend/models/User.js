@@ -17,7 +17,7 @@ const schema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin', 'driver', 'rider'],
+        enum: ['driver', 'rider'],
         default: 'rider', // Default is 'rider'
     },
 

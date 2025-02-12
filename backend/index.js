@@ -5,7 +5,7 @@ import userRoutes from './routes/userRoutes.js';
 import DriverRoutes from './routes/DriverRoutes.js';
 import RiderRoutes from './routes/RiderRoutes.js';
 import cors from 'cors';
-import upload from './middlewares/upload.js';
+
 dotenv.config();
 
 const app = express();
@@ -26,4 +26,6 @@ app.get('/', (req, res) => {
 app.use("/api", userRoutes);
 app.use("/api/rider",RiderRoutes);
 app.use("/api/driver",DriverRoutes);
-app.use("/uploads", express.static("uploads"));
+
+
+
