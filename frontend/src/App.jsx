@@ -9,8 +9,13 @@ import Register from "./pages/Register";
 import Verify from "./pages/Verify";
 import HomePage from "./pages/Home";
 import SelectCab from "./pages/SelectCab";
+
 import RideRequestPage from "./pages/RideRequestPage";
 import RideStatusPage from "./pages/RideStatusPage";
+
+import RiderProfile from "./pages/RiderProfile";
+import DriverProfile from "./pages/DriverProfile";
+
 
 const App = () => {
   const { isAuth, user, loading } = UserData();
@@ -25,6 +30,8 @@ const App = () => {
         <Route path="/verify" element={<Verify />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/about" element={<AboutUs />} />
+        <Route path="/rider-profile" element={<RiderProfile />} />
+        <Route path="/driver-profile" element={<DriverProfile />} />
         <Route path="/select-cab" element={<SelectCab />} />
         <Route path="/ride-request" element={<RideRequestPage />} />
         <Route path="/ride-status" element={<RideStatusPage />} />
