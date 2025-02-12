@@ -1,43 +1,99 @@
-import React from "react";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { UserData } from "../context/UserContext";
+import { FaEnvelope, FaLock } from "react-icons/fa";
+import "../index.css";
 
 const Login = () => {
+  const { loginUser, btnLoading } = UserData();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await loginUser(email, password, navigate);
+  };
+
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="w-full max-w-sm bg-white rounded-lg shadow-md p-8">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Login
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+      {/* Login Form Card */}
+      <div className="relative z-10 max-w-md w-full bg-white bg-opacity-10 backdrop-blur-lg p-8 rounded-2xl shadow-2xl border border-gray-200">
+        <h2 className="text-4xl font-extrabold text-center text-white mb-6">
+          Welcome Back
         </h2>
-        <form>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
+        <p className="text-center text-sm text-gray-300 mb-8">
+          Login to continue your journey with{" "}
+          <span className="font-bold">CabNest</span>
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Email Input */}
+          <div className="relative">
+            <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="email"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your email"
+              id="email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="Email Address"
+              className="w-full pl-10 px-4 py-3 rounded-md border border-gray-300 shadow-sm bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-300"
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
+
+          {/* Password Input */}
+          <div className="relative">
+            <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="password"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password"
+              id="password"
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="Password"
+              className="w-full pl-10 px-4 py-3 rounded-md border border-gray-300 shadow-sm bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-300"
             />
           </div>
-          <button className="w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-            Login
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={btnLoading}
+            className={`w-full py-3 px-4 rounded-lg text-white font-semibold tracking-wide shadow-lg transform transition-all duration-300 ${
+              btnLoading
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-blue-500 to-purple-500 hover:scale-105 hover:shadow-2xl"
+            }`}
+          >
+            {btnLoading ? "Logging in..." : "Login"}
           </button>
         </form>
-        <p className="text-sm text-center text-gray-600 mt-4">
-          Don't have an account?{" "}
-          <a href="/signup" className="text-blue-500">
-            Sign Up
-          </a>
-        </p>
+
+        {/* Register Link */}
+        <div className="text-center mt-6">
+          <p className="text-sm text-gray-300">
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              className="text-blue-400 hover:underline hover:text-blue-300"
+            >
+              Register here
+            </Link>
+          </p>
+        </div>
+
+        {/* Forgot Password Link */}
+        <div className="text-center mt-4">
+          <Link
+            to="/forgot"
+            className="text-sm text-blue-400 hover:underline hover:text-blue-300"
+          >
+            Forgot Password?
+          </Link>
+        </div>
       </div>
     </div>
   );
