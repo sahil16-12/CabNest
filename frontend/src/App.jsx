@@ -9,6 +9,8 @@ import Register from "./pages/Register";
 import Verify from "./pages/Verify";
 import HomePage from "./pages/Home";
 import SelectCab from "./pages/SelectCab";
+import RideRequestPage from "./pages/RideRequestPage";
+import RideStatusPage from "./pages/RideStatusPage";
 
 const App = () => {
   const { isAuth, user, loading } = UserData();
@@ -24,6 +26,8 @@ const App = () => {
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/select-cab" element={<SelectCab />} />
+        <Route path="/ride-request" element={<RideRequestPage />} />
+        <Route path="/ride-status" element={<RideStatusPage />} />
       </Routes>
     </Router>
   );
