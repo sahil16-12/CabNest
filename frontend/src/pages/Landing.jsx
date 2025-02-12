@@ -8,7 +8,7 @@ const Landing = () => {
   return (
     <>
       <Header></Header>
-      <TaxiLoader />
+      {/* <TaxiLoader /> */}
       <div className="h-screen flex flex-col bg-gray-50">
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -35,6 +35,7 @@ const Landing = () => {
           </div>
         </main>
       </div>
+
       <Footer></Footer>
     </>
   );
