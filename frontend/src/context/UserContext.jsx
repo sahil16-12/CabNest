@@ -64,7 +64,7 @@ export const UserContextProvider = ({ children }) => {
         activationToken,
       });
       toast.success(data.message);
-      navigate("/login");
+      navigate("/rider-profile");
       localStorage.clear();
     } catch (error) {
       handleError(error, "OTP verification failed.");

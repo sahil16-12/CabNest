@@ -13,15 +13,7 @@ const Register = () => {
   // Form submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const user = await RegisterUser(name, email, password, role);
-
-    if (user) {
-      if (role === "rider") {
-        navigate("/rider-profile"); // Navigate to RiderProfile.jsx
-      } else {
-        navigate("/home"); // Navigate to Home.jsx for drivers
-      }
-    }
+    await RegisterUser(name, email, password, role, navigate); // Pass role to RegisterUser function
   };
 
   return (
