@@ -20,19 +20,18 @@ const carIcon = new L.Icon({
   iconAnchor: [20, 20],
 });
 
-// OSRM API URL for routing
 const OSRM_API_URL = "https://router.project-osrm.org/route/v1/driving/";
 
-// Generate random nearby coordinates
-const generateNearbyCoords = (center, radius = 0.01) => [
+const generateFartherCoords = (center, radius = 0.1) => [
   center[0] + (Math.random() - 0.5) * radius,
   center[1] + (Math.random() - 0.5) * radius,
 ];
 
-// Driver marker component
 const DriverMarker = ({ position }) => {
   const markerRef = useRef(null);
+  const map = useMap();
 
+  // Smooth marker update without map centering
   useEffect(() => {
     if (markerRef.current && position) {
       markerRef.current.setLatLng(position);
@@ -65,6 +64,7 @@ const RideStatusPage = () => {
   const [status, setStatus] = useState("Finding a driver...");
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
+  const movementInterval = useRef(null);
 
   const statusMessages = {
     searching: "Finding a driver...",
@@ -80,8 +80,7 @@ const RideStatusPage = () => {
     car: "Toyota Etios - GJ05AB1234",
     phone: "+91 98765 43210",
     fare: "₹150 - ₹200",
-    position: generateNearbyCoords(pickupCoords),
-    path: [],
+    position: generateFartherCoords(pickupCoords),
   });
 
   const fetchCoordinates = async (address) => {
@@ -96,12 +95,10 @@ const RideStatusPage = () => {
           parseFloat(response.data[0].lat),
           parseFloat(response.data[0].lon),
         ];
-      } else {
-        throw new Error("No coordinates found for the address.");
       }
+      throw new Error("No coordinates found");
     } catch (error) {
-      console.error("Error fetching coordinates:", error);
-      setError("Failed to fetch coordinates. Please check the addresses.");
+      setError("Failed to fetch locations");
       return null;
     }
   };
@@ -111,68 +108,63 @@ const RideStatusPage = () => {
       const response = await axios.get(
         `${OSRM_API_URL}${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&geometries=geojson`
       );
-      if (response.data.routes && response.data.routes.length > 0) {
-        return response.data.routes[0].geometry.coordinates.map((coord) => [
-          coord[1],
-          coord[0],
-        ]);
-      } else {
-        throw new Error("No route found.");
+      if (response.data.routes?.[0]?.geometry?.coordinates) {
+        return response.data.routes[0].geometry.coordinates.map(
+          ([lng, lat]) => [lat, lng]
+        );
       }
+      throw new Error("No route found");
     } catch (error) {
-      console.error("Error fetching route:", error);
-      setError("Failed to fetch the route. Please try again.");
+      setError("Route calculation failed");
       return null;
     }
   };
 
   useEffect(() => {
     const initializeRide = async () => {
-      if (!pickup || !drop) {
-        navigate("/home");
-      }
+      if (!pickup || !drop) return navigate("/home");
 
-      const pickupLocation = await fetchCoordinates(pickup);
-      const dropLocation = await fetchCoordinates(drop);
+      try {
+        const pickupLocation = await fetchCoordinates(pickup);
+        const dropLocation = await fetchCoordinates(drop);
+        if (!pickupLocation || !dropLocation) return;
 
-      if (pickupLocation && dropLocation) {
         setPickupCoords(pickupLocation);
         setDropCoords(dropLocation);
 
         const newDriver = generateDriver(pickupLocation);
         setDriver(newDriver);
-        setStatus(statusMessages.searching);
 
-        // Fetch route from driver's starting position to pickup location
+        // Get initial route
         const initialRoute = await fetchRoute(
           newDriver.position,
           pickupLocation
         );
-        if (initialRoute) {
-          setRoute(initialRoute);
-          simulateMovement(initialRoute, statusMessages.arriving, async () => {
-            setStatus(statusMessages.arrived);
+        if (!initialRoute) return;
 
-            // Fetch route from pickup to drop location
-            const rideRoute = await fetchRoute(pickupLocation, dropLocation);
-            if (rideRoute) {
-              setRoute(rideRoute);
-            }
-          });
-        }
+        setRoute(initialRoute);
+        startMovement(initialRoute, statusMessages.arriving, async () => {
+          setStatus(statusMessages.arrived);
+          const rideRoute = await fetchRoute(pickupLocation, dropLocation);
+          if (rideRoute) setRoute(rideRoute);
+        });
+      } catch (error) {
+        setError("Ride initialization failed");
       }
     };
 
     initializeRide();
+    return () => clearInterval(movementInterval.current);
   }, [pickup, drop]);
 
-  const simulateMovement = (path, statusMessage, onComplete) => {
+  const startMovement = (path, statusMessage, onComplete) => {
+    clearInterval(movementInterval.current);
     setStatus(statusMessage);
     let currentStep = 0;
 
-    const interval = setInterval(() => {
+    movementInterval.current = setInterval(() => {
       if (currentStep >= path.length) {
-        clearInterval(interval);
+        clearInterval(movementInterval.current);
         onComplete?.();
         return;
       }
@@ -180,14 +172,12 @@ const RideStatusPage = () => {
       setDriver((prev) => ({ ...prev, position: path[currentStep] }));
       setProgress((currentStep / path.length) * 100);
       currentStep++;
-    }, 150); // Adjust speed here (150ms per step)
-
-    return () => clearInterval(interval);
+    }, 150);
   };
 
   const startRide = () => {
     setStatus(statusMessages.ongoing);
-    simulateMovement(route, statusMessages.ongoing, () => {
+    startMovement(route, statusMessages.ongoing, () => {
       setStatus(statusMessages.completed);
     });
   };
@@ -211,6 +201,7 @@ const RideStatusPage = () => {
   return (
     <div className="h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       <div className="max-w-2xl mx-auto px-4 pt-8">
+        {/* Status Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -230,29 +221,26 @@ const RideStatusPage = () => {
           </div>
 
           <div className="relative pt-2">
-            <div className="flex mb-2 items-center justify-between">
-              <div className="flex-1">
-                <div className="h-2 bg-gray-200 rounded-full">
-                  <div
-                    className="h-2 bg-green-500 rounded-full transition-all duration-300"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-              </div>
+            <div className="h-2 bg-gray-200 rounded-full">
+              <div
+                className="h-2 bg-green-500 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
             </div>
           </div>
         </motion.div>
 
+        {/* Map Container */}
         <div className="h-96 rounded-xl overflow-hidden shadow-lg">
           <MapContainer
             center={pickupCoords}
-            zoom={12}
+            zoom={13}
             className="h-full w-full"
             zoomControl={false}
           >
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              attribution="&copy; OpenStreetMap contributors"
             />
             <Marker position={pickupCoords}>
               <Popup>Pickup Location</Popup>
@@ -265,6 +253,7 @@ const RideStatusPage = () => {
           </MapContainer>
         </div>
 
+        {/* Driver Details */}
         <motion.div
           className="bg-white rounded-xl shadow-lg p-6 mt-6"
           initial={{ opacity: 0 }}
