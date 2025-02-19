@@ -15,7 +15,9 @@ import RideStatusPage from "./pages/RideStatusPage";
 
 import RiderProfile from "./pages/RiderProfile";
 import DriverProfile from "./pages/DriverProfile";
-
+import RideRequests from "./pages/DriverRideRequests";
+import DriverRideRequests from "./pages/DriverRideRequests";
+import DriverStatus from "./pages/DriverStatus";
 
 const App = () => {
   const { isAuth, user, loading } = UserData();
@@ -35,6 +37,8 @@ const App = () => {
         <Route path="/select-cab" element={<SelectCab />} />
         <Route path="/ride-request" element={<RideRequestPage />} />
         <Route path="/ride-status" element={<RideStatusPage />} />
+        <Route path="/ride-requests" element={<DriverRideRequests />} />
+        <Route path="/driver-status" element={<DriverStatus />} />
       </Routes>
     </Router>
   );
