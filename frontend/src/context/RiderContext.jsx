@@ -1,47 +1,68 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
+import { server } from "../main";
 
 // Create Context
-const RiderContext = createContext();
+export const RiderContext = createContext();
 
-// Provider Component
+// Rider Provider Component
 export const RiderProvider = ({ children }) => {
   const [rider, setRider] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
 
-  // Fetch rider profile
-  const fetchRiderProfile = async (riderId) => {
+  // Fetch rider by ID
+  const getRiderById = async (id) => {
     setLoading(true);
     try {
-      const { data } = await axios.get(`/api/rider/${riderId}`);
-      setRider(data);
+      const response = await axios.get(`${server}/api/riders/${id}`);
+      setRider(response.data);
+      setError(null);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch rider data");
+      setError(err.response?.data?.message || "Error fetching rider");
     }
     setLoading(false);
   };
 
-  // Update rider profile
-  const updateRiderProfile = async (riderId, updatedData) => {
+  // Create a new rider
+  const createRider = async (formData) => {
     setLoading(true);
     try {
-      const { data } = await axios.put(`/api/rider/${riderId}`, updatedData);
-      setRider(data);
+      const response = await axios.post(`${server}/api/rider`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setRider(response.data);
+      setError(null);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to update rider data");
+      setError(err.response?.data?.message || "Error creating rider");
     }
     setLoading(false);
   };
 
-  // Delete rider profile
-  const deleteRiderProfile = async (riderId) => {
+  // Update rider by ID
+  const updateRider = async (id, formData) => {
     setLoading(true);
     try {
-      await axios.delete(`/api/rider/${riderId}`);
+      const response = await axios.put(`/api/riders/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setRider(response.data);
+      setError(null);
+    } catch (err) {
+      setError(err.response?.data?.message || "Error updating rider");
+    }
+    setLoading(false);
+  };
+
+  // Delete rider by ID
+  const deleteRider = async (id) => {
+    setLoading(true);
+    try {
+      await axios.delete(`/api/riders/${id}`);
       setRider(null);
+      setError(null);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to delete rider profile");
+      setError(err.response?.data?.message || "Error deleting rider");
     }
     setLoading(false);
   };
@@ -52,17 +73,13 @@ export const RiderProvider = ({ children }) => {
         rider,
         loading,
         error,
-        fetchRiderProfile,
-        updateRiderProfile,
-        deleteRiderProfile,
+        getRiderById,
+        createRider,
+        updateRider,
+        deleteRider,
       }}
     >
       {children}
     </RiderContext.Provider>
   );
-};
-
-// Custom hook to use RiderContext
-export const useRider = () => {
-  return useContext(RiderContext);
 };

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import axios from "axios";
+import { server } from "../main";
 
 const DriverContext = createContext();
 
@@ -19,20 +20,40 @@ export const DriverProvider = ({ children }) => {
     }
   };
 
-  const updateDriverProfile = async (userId, driverData) => {
+  const createDriverProfile = async (formData) => {
     try {
-      const response = await axios.put(`/api/driver/${userId}`, driverData, {
+      const response = await axios.post(`${server}/api/driver`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setDriver(response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating driver profile:", error);
+      throw error;
+    }
+  };
+
+  const updateDriverProfile = async (userId, formData) => {
+    try {
+      const response = await axios.put(`/api/driver/${userId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setDriver(response.data);
+      return response.data;
     } catch (error) {
       console.error("Error updating driver profile:", error);
+      throw error;
     }
   };
 
   return (
     <DriverContext.Provider
-      value={{ driver, fetchDriverProfile, updateDriverProfile }}
+      value={{
+        driver,
+        fetchDriverProfile,
+        createDriverProfile,
+        updateDriverProfile,
+      }}
     >
       {children}
     </DriverContext.Provider>

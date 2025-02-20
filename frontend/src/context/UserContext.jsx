@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { server } from "../main";
 import { Toaster, toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const UserContext = createContext();
 
@@ -64,8 +65,12 @@ export const UserContextProvider = ({ children }) => {
         activationToken,
       });
       toast.success(data.message);
-      navigate("/login");
-      localStorage.clear();
+      localStorage.setItem("userId", data.userId);
+      if (data.role == "rider") {
+        navigate("/rider-profile");
+      } else {
+        navigate("/driver-profile");
+      }
     } catch (error) {
       handleError(error, "OTP verification failed.");
     } finally {

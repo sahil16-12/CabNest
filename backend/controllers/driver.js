@@ -7,16 +7,16 @@ import { Driver } from "../models/Driver.js";
  */
 export const createDriver = async (req, res) => {
     try {
-        const { user, fullName, phoneNumber, dateOfBirth, vehicle, licenseNumber, address } = req.body;
+        const { _id, fullName, phoneNumber, dateOfBirth,  licenseNumber, address } = req.body;
         const profileImage = req.file ? `/uploads/${req.file.filename}` : ""; // Image path
 
         // Check if driver already exists
-        const existingDriver = await Driver.findOne({ user });
+        const existingDriver = await Driver.findOne({ _id  });
         if (existingDriver) {
             return res.status(400).json({ message: "Driver already registered" });
         }
 
-        const driver = new Driver({ user, fullName, phoneNumber, dateOfBirth, profileImage, vehicle, licenseNumber, address });
+        const driver = new Driver({ _id, fullName, phoneNumber, dateOfBirth, profileImage,  licenseNumber, address });
         await driver.save();
 
         res.status(201).json({ message: "Driver created successfully", driver });

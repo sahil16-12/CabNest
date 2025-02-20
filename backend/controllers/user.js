@@ -57,14 +57,18 @@ if(verify.otp !== otp) return  res.status(400).json({
     message:'Wrong Otp',
 });
 
-await User.create({
+const user=await User.create({
     name: verify.user.name,
     email: verify.user.email,
     password: verify.user.password,
+    role:verify.user.role
 })
+console.log(user._id.toString());
 
 res.json({
     message:"User Register",
+    userId:user._id.toString(),
+    role:user.role,
 })
 })
 

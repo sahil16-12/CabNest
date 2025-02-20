@@ -13,7 +13,7 @@ const Register = () => {
   // Form submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const user = await RegisterUser(name, email, password, role);
+    const user = await RegisterUser(name, email, password, role, navigate);
 
     if (user) {
       if (role === "rider") {

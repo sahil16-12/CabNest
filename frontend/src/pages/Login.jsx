@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { UserData } from "../context/UserContext";
-import { FaEnvelope, FaLock } from "react-icons/fa";
 import "../index.css";
+import { Link, useNavigate } from "react-router-dom";
 
+import { FaEnvelope, FaLock } from "react-icons/fa";
+import { UserData } from "../context/UserContext";
 const Login = () => {
   const { loginUser, btnLoading } = UserData();
   const [email, setEmail] = useState("");

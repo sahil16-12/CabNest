@@ -1,127 +1,120 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useRider } from "../context/RiderContext";
+import { RiderContext } from "../context/RiderContext";
+import { toast } from "react-toastify";
+import { Camera } from "lucide-react";
 
 const RiderProfile = () => {
   const navigate = useNavigate();
-  const { fetchRiderProfile, updateRiderProfile } = useRider();
-  const [profile, setProfile] = useState({
-    profileImage: "",
-    dateOfBirth: "",
-    phoneNumber: "",
-    address: "",
-  });
-
-  // Get user ID from local storage (assuming it's stored after signup)
-  const userId = localStorage.getItem("userId");
+  const { createRider, loading, error } = useContext(RiderContext);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    if (userId) {
-      fetchRiderProfile(userId);
+    const storedUserId = localStorage.getItem("userId");
+    if (!storedUserId) {
+      toast.error("Please complete registration first");
+      navigate("/login");
     }
-  }, [userId]);
-
-  const handleChange = (e) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value });
-  };
-
-  const handleFileChange = (e) => {
-    setProfile({ ...profile, profileImage: e.target.files[0] });
-  };
+    setUserId(storedUserId);
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const formData = new FormData();
-      formData.append("profileImage", profile.profileImage);
-      formData.append("dateOfBirth", profile.dateOfBirth);
-      formData.append("phoneNumber", profile.phoneNumber);
-      formData.append("address", profile.address);
-      formData.append("user", userId);
+    if (!userId) return;
 
-      await updateRiderProfile(userId, formData);
-      navigate("/home"); // Redirect to Home page after completing the profile
-    } catch (error) {
-      console.error("Error updating profile:", error);
+    const formData = new FormData(e.target);
+    formData.append("_id", userId);
+
+    try {
+      await createRider(formData);
+      toast.success("Rider profile created successfully!");
+      localStorage.removeItem("userId");
+      navigate("/home");
+    } catch (err) {
+      toast.error(error || "Failed to create rider profile");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-lg w-full bg-white p-8 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-6">
-          Complete Your Rider Profile
+    <div className="flex items-center justify-center min-h-screen bg-black">
+      <div className="bg-yellow-500 shadow-lg rounded-lg p-8 w-full max-w-md relative">
+        <h2 className="text-2xl font-bold text-center text-black mb-6">
+          Complete Your Profile
         </h2>
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4"
-          encType="multipart/form-data"
-        >
-          {/* Profile Image Upload */}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black mb-1">
               Profile Image
             </label>
-            <input
-              type="file"
-              onChange={handleFileChange}
-              required
-              className="mt-1 w-full border px-3 py-2 rounded-md"
-            />
+            <div className="flex items-center border border-gray-300 rounded-md p-2 bg-white">
+              <Camera className="w-5 h-5 text-gray-500" />
+              <input
+                type="file"
+                name="profileImage"
+                accept="image/*"
+                className="w-full bg-transparent border-none focus:outline-none"
+                required
+              />
+            </div>
           </div>
 
-          {/* Date of Birth */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black mb-1">
               Date of Birth
             </label>
             <input
               type="date"
               name="dateOfBirth"
-              value={profile.dateOfBirth}
-              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md p-2 focus:ring-yellow-500 focus:border-yellow-500"
               required
-              className="mt-1 w-full border px-3 py-2 rounded-md"
             />
           </div>
 
-          {/* Phone Number */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black mb-1">
               Phone Number
             </label>
             <input
-              type="text"
+              type="tel"
               name="phoneNumber"
-              value={profile.phoneNumber}
-              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md p-2 focus:ring-yellow-500 focus:border-yellow-500"
+              placeholder="+1234567890"
               required
-              className="mt-1 w-full border px-3 py-2 rounded-md"
             />
           </div>
 
-          {/* Address */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-black mb-1">
               Address
             </label>
             <input
               type="text"
               name="address"
-              value={profile.address}
-              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md p-2 focus:ring-yellow-500 focus:border-yellow-500"
+              placeholder="Enter your full address"
               required
-              className="mt-1 w-full border px-3 py-2 rounded-md"
             />
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+            disabled={loading}
+            className={`w-full py-3 rounded-lg font-semibold transition duration-300 
+              ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-black text-yellow-500 hover:bg-gray-800"
+              }`}
           >
-            Save & Continue
+            {loading ? "Creating Profile..." : "Complete Registration"}
           </button>
+
+          {error && (
+            <p className="text-red-500 text-sm mt-2 text-center bg-red-100 py-2 rounded-lg">
+              {error}
+            </p>
+          )}
         </form>
       </div>
     </div>

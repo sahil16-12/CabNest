@@ -11,16 +11,16 @@ const unlinkAsync = promisify(fs.unlink);
  * @access  Public
  */
 export const createRider = TryCatch(async (req, res) => {
-    const { user, dateOfBirth, phoneNumber, address } = req.body;
+    const { _id, dateOfBirth, phoneNumber, address } = req.body;
     const profileImage = req.file?.path;
 
     // Check if rider already exists
-    const existingRider = await Rider.findOne({ user });
+    const existingRider = await Rider.findOne({ _id});
     if (existingRider) {
         return res.status(400).json({ message: "Rider already registered" });
     }
 
-    const rider = await Rider.create({ user, dateOfBirth, phoneNumber, address, profileImage });
+    const rider = await Rider.create({ _id, dateOfBirth, phoneNumber, address, profileImage });
 
     res.status(201).json({ message: "Rider created successfully", rider });
 });

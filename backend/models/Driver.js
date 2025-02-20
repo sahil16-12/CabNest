@@ -1,11 +1,10 @@
 import mongoose from "mongoose";
 
 const driverSchema = new mongoose.Schema({
-    user: {
+    _id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User", // Reference to the User model
         required: true,
-        unique: true,
     },
     fullName: {
         type: String,
@@ -23,20 +22,16 @@ const driverSchema = new mongoose.Schema({
         type: String, // URL or file path of profile image
         default: "", 
     },
-    vehicle: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Vehicle", // Reference to the Vehicle model
-        required: true,
-    },
+
     licenseNumber: {
         type: String,
         required: true,
         unique: true,
     },
     address: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Address", // Reference to the Address model
+        type: String,
         required: true,
+        unique: true,
     },
 }, {
     timestamps: true,
