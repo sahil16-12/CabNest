@@ -11,6 +11,8 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import AvailableDrivers from "./AvailableDrivers";
 import { useNavigate } from "react-router-dom";
+import { UserData } from "../context/UserContext";
+
 const center = [22.3072, 73.1812]; // Default center
 
 const geocodeLatLng = async (lat, lng) => {
@@ -80,6 +82,8 @@ const HomePage = () => {
   const [showDrivers, setShowDrivers] = useState(false);
   const driversRef = useRef(null);
   const navigate = useNavigate();
+  const { isAuth } = UserData();
+
   useEffect(() => {
     if (markers.pickup && markers.drop) {
       calculateDistance(markers.pickup, markers.drop);
@@ -89,12 +93,12 @@ const HomePage = () => {
 
   const handleBookCab = () => {
     if (!pickup) {
-      alert("Please select pickup location"); // Show alert if empty
+      alert("Please select pickup location");
       return;
     }
 
     if (!drop) {
-      alert("Please select drop location"); // Show alert if empty
+      alert("Please select drop location");
       return;
     }
 
@@ -107,7 +111,7 @@ const HomePage = () => {
           block: "start",
         });
       }
-    }, 100); // Small delay ensures it's in the DOM
+    }, 100);
   };
 
   const handleConfirmBooking = (driver) => {
@@ -194,7 +198,6 @@ const HomePage = () => {
     shadowSize: [41, 41],
   });
 
-  // Function to handle marker dragging
   const handleMarkerDrag = (e, type) => {
     const newLatLng = e.target.getLatLng();
     if (type === "pickup") {
@@ -212,154 +215,169 @@ const HomePage = () => {
     }
   };
 
+  if (!isAuth) {
+    navigate("/login");
+    return null;
+  }
+
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <header className="bg-gray-900 text-white p-6 flex items-center justify-between">
-        <div className="flex items-center">
-          <h1 className="text-2xl font-bold text-blue-400">CabNest</h1>
-        </div>
-      </header>
+    <>
+      {isAuth == true && (
+        <div className="min-h-screen flex flex-col bg-gray-50">
+          <header className="bg-gray-900 text-white p-6 flex items-center justify-between">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold text-blue-400">CabNest</h1>
+            </div>
+          </header>
 
-      <div className="flex flex-col md:flex-row flex-grow p-6">
-        <div className="w-full md:w-1/3 p-6 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-semibold text-blue-600 mb-6">
-            Enter Trip Details
-          </h2>
+          <div className="flex flex-col md:flex-row flex-grow p-6">
+            <div className="w-full md:w-1/3 p-6 bg-white shadow-lg rounded-lg">
+              <h2 className="text-2xl font-semibold text-blue-600 mb-6">
+                Enter Trip Details
+              </h2>
 
-          <label className="block mb-2 text-gray-600">Pickup Location</label>
-          <input
-            type="text"
-            value={pickup}
-            onChange={(e) => handleLocationChange(e.target.value, "pickup")}
-            className="w-full border border-gray-300 rounded-md p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter pickup location"
-          />
-
-          <button
-            onClick={setPickupToCurrentLocation}
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 mb-4"
-          >
-            Set Pickup to Current Location
-          </button>
-
-          <div className="flex justify-center items-center my-4">
-            <button
-              onClick={swapLocations}
-              className="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600"
-              title="Swap Locations"
-            >
-              ⇅
-            </button>
-          </div>
-
-          <label className="block mb-2 text-gray-600">Drop Location</label>
-          <input
-            type="text"
-            value={drop}
-            onChange={(e) => handleLocationChange(e.target.value, "drop")}
-            className="w-full border border-gray-300 rounded-md p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter drop location"
-          />
-
-          <div className="mt-4 text-gray-700">
-            <p className="text-lg">
-              <strong>Total Distance:</strong>{" "}
-              {distance ? `${distance} km` : "N/A"}
-            </p>
-          </div>
-
-          <div className="mt-6">
-            <div className="flex justify-between">
-              <button
-                onClick={clearMarkers}
-                className="bg-red-500 text-white py-2 px-6 rounded-md hover:bg-red-600"
-              >
-                Clear Map
-              </button>
+              <label className="block mb-2 text-gray-600">
+                Pickup Location
+              </label>
+              <input
+                type="text"
+                value={pickup}
+                onChange={(e) => handleLocationChange(e.target.value, "pickup")}
+                className="w-full border border-gray-300 rounded-md p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter pickup location"
+              />
 
               <button
-                onClick={handleBookCab}
-                className="bg-green-500 text-white py-2 px-6 rounded-md hover:bg-green-600"
+                onClick={setPickupToCurrentLocation}
+                className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 mb-4"
               >
-                Book a Cab
+                Set Pickup to Current Location
               </button>
+
+              <div className="flex justify-center items-center my-4">
+                <button
+                  onClick={swapLocations}
+                  className="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600"
+                  title="Swap Locations"
+                >
+                  ⇅
+                </button>
+              </div>
+
+              <label className="block mb-2 text-gray-600">Drop Location</label>
+              <input
+                type="text"
+                value={drop}
+                onChange={(e) => handleLocationChange(e.target.value, "drop")}
+                className="w-full border border-gray-300 rounded-md p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter drop location"
+              />
+
+              <div className="mt-4 text-gray-700">
+                <p className="text-lg">
+                  <strong>Total Distance:</strong>{" "}
+                  {distance ? `${distance} km` : "N/A"}
+                </p>
+              </div>
+
+              <div className="mt-6">
+                <div className="flex justify-between">
+                  <button
+                    onClick={clearMarkers}
+                    className="bg-red-500 text-white py-2 px-6 rounded-md hover:bg-red-600"
+                  >
+                    Clear Map
+                  </button>
+
+                  <button
+                    onClick={handleBookCab}
+                    className="bg-green-500 text-white py-2 px-6 rounded-md hover:bg-green-600"
+                  >
+                    Book a Cab
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full md:w-2/3 p-6 flex justify-center items-center">
+              <div className="w-full h-[500px] bg-white rounded-lg shadow-xl overflow-hidden">
+                <MapContainer
+                  center={center}
+                  zoom={12}
+                  style={{
+                    height: "100%",
+                    width: "100%",
+                    borderRadius: "12px",
+                  }}
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                  <MapEvents
+                    setMarkers={setMarkers}
+                    markers={markers}
+                    setPickup={setPickup}
+                    setDrop={setDrop}
+                  />
+                  {markers.pickup && (
+                    <Marker
+                      position={markers.pickup}
+                      icon={blueIcon}
+                      draggable={true}
+                      eventHandlers={{
+                        dragend: (e) => handleMarkerDrag(e, "pickup"),
+                      }}
+                    >
+                      <Popup>{pickup}</Popup>
+                    </Marker>
+                  )}
+                  {markers.drop && (
+                    <Marker
+                      position={markers.drop}
+                      icon={blueIcon}
+                      draggable={true}
+                      eventHandlers={{
+                        dragend: (e) => handleMarkerDrag(e, "drop"),
+                      }}
+                    >
+                      <Popup>{drop}</Popup>
+                    </Marker>
+                  )}
+                  {route.length > 0 && (
+                    <Polyline
+                      positions={route.map((point) => [point.lat, point.lng])}
+                      color="red"
+                      weight={4}
+                    />
+                  )}
+                </MapContainer>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="w-full md:w-2/3 p-6 flex justify-center items-center">
-          <div className="w-full h-[500px] bg-white rounded-lg shadow-xl overflow-hidden">
-            <MapContainer
-              center={center}
-              zoom={12}
-              style={{ height: "100%", width: "100%", borderRadius: "12px" }}
+          {showDrivers && (
+            <div
+              className="w-full p-6 bg-white shadow-lg rounded-lg mb-6"
+              ref={driversRef}
             >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              <AvailableDrivers
+                distance={distance}
+                onClose={() => setShowDrivers(false)}
+                onBook={handleConfirmBooking}
               />
-              <MapEvents
-                setMarkers={setMarkers}
-                markers={markers}
-                setPickup={setPickup}
-                setDrop={setDrop}
-              />
-              {markers.pickup && (
-                <Marker
-                  position={markers.pickup}
-                  icon={blueIcon}
-                  draggable={true}
-                  eventHandlers={{
-                    dragend: (e) => handleMarkerDrag(e, "pickup"),
-                  }}
-                >
-                  <Popup>{pickup}</Popup>
-                </Marker>
-              )}
-              {markers.drop && (
-                <Marker
-                  position={markers.drop}
-                  icon={blueIcon}
-                  draggable={true}
-                  eventHandlers={{
-                    dragend: (e) => handleMarkerDrag(e, "drop"),
-                  }}
-                >
-                  <Popup>{drop}</Popup>
-                </Marker>
-              )}
-              {route.length > 0 && (
-                <Polyline
-                  positions={route.map((point) => [point.lat, point.lng])}
-                  color="red" // Route in red
-                  weight={4}
-                />
-              )}
-            </MapContainer>
-          </div>
-        </div>
-      </div>
+            </div>
+          )}
 
-      {showDrivers && (
-        <div
-          className="w-full p-6 bg-white shadow-lg rounded-lg mb-6"
-          ref={driversRef}
-        >
-          <AvailableDrivers
-            distance={distance}
-            onClose={() => setShowDrivers(false)}
-            onBook={handleConfirmBooking}
-          />
+          <footer className="bg-gray-900 text-white p-4 text-center">
+            <p className="text-lg">
+              © 2025 <span className="text-blue-400">CabNest</span>. All rights
+              reserved.
+            </p>
+          </footer>
         </div>
       )}
-
-      <footer className="bg-gray-900 text-white p-4 text-center">
-        <p className="text-lg">
-          © 2025 <span className="text-blue-400">CabNest</span>. All rights
-          reserved.
-        </p>
-      </footer>
-    </div>
+    </>
   );
 };
 

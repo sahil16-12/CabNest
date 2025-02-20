@@ -601,10 +601,10 @@ const RideStatusPage = () => {
             )}
             {status === statusMessages.completed && (
               <button
-                onClick={() => navigate("/home")}
+                onClick={() => navigate("/Payment")}
                 className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
               >
-                Finish Ride
+                Make Payment
               </button>
             )}
           </div>

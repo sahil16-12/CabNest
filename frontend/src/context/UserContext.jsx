@@ -28,7 +28,7 @@ export const UserContextProvider = ({ children }) => {
       localStorage.setItem("token", data.token);
       setUser(data.user);
       setIsAuth(true);
-      navigate("/home");
+      navigate("/");
     } catch (error) {
       handleError(error, "Login failed.");
       setIsAuth(false);
