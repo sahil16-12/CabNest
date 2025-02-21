@@ -18,10 +18,11 @@ import DriverProfile from "./pages/DriverProfile";
 import RideRequests from "./pages/DriverRideRequests";
 import DriverRideRequests from "./pages/DriverRideRequests";
 import DriverStatus from "./pages/DriverStatus";
+import ProfilePage from "./pages/ProfilePage";
 
 const App = () => {
   const { isAuth, user, loading } = UserData();
-
+  localStorage.setItem("user", user);
   return (
     <Router>
       <Routes>
@@ -39,6 +40,7 @@ const App = () => {
         <Route path="/ride-status" element={<RideStatusPage />} />
         <Route path="/ride-requests" element={<DriverRideRequests />} />
         <Route path="/driver-status" element={<DriverStatus />} />
+        <Route path="/profile-page" element={<ProfilePage user={user} />} />
       </Routes>
     </Router>
   );

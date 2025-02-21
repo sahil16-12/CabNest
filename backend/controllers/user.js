@@ -68,6 +68,7 @@ console.log(user._id.toString());
 res.json({
     message:"User Register",
     userId:user._id.toString(),
+    user:user,
     role:user.role,
 })
 })
@@ -110,6 +111,7 @@ export const loginUser = TryCatch(async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role:user.role
       },
     });
   });

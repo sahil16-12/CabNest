@@ -27,6 +27,7 @@ export const UserContextProvider = ({ children }) => {
       toast.success(data.message);
       localStorage.setItem("token", data.token);
       setUser(data.user);
+
       setIsAuth(true);
       navigate("/");
     } catch (error) {
@@ -65,6 +66,7 @@ export const UserContextProvider = ({ children }) => {
         activationToken,
       });
       toast.success(data.message);
+      setUser(data.user);
       localStorage.setItem("userId", data.userId);
       if (data.role == "rider") {
         navigate("/rider-profile");
@@ -93,6 +95,14 @@ export const UserContextProvider = ({ children }) => {
       setLoading(false);
     }
   }
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("activationToken");
+    setUser(null);
+    setIsAuth(false);
+    toast.success("Logged out successfully");
+  };
 
   useEffect(() => {
     fetchUser();
@@ -111,6 +121,7 @@ export const UserContextProvider = ({ children }) => {
         RegisterUser,
         verifyOtp,
         fetchUser,
+        logout,
       }}
     >
       {children}

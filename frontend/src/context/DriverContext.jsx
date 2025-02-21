@@ -13,7 +13,7 @@ export const DriverProvider = ({ children }) => {
 
   const fetchDriverProfile = async (userId) => {
     try {
-      const response = await axios.get(`/api/driver/${userId}`);
+      const response = await axios.get(`${server}/api/driver/${userId}`);
       setDriver(response.data);
     } catch (error) {
       console.error("Error fetching driver profile:", error);
@@ -35,9 +35,13 @@ export const DriverProvider = ({ children }) => {
 
   const updateDriverProfile = async (userId, formData) => {
     try {
-      const response = await axios.put(`/api/driver/${userId}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axios.put(
+        `${server}/api/driver/${userId}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       setDriver(response.data);
       return response.data;
     } catch (error) {

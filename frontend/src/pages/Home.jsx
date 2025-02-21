@@ -12,6 +12,7 @@ import L from "leaflet";
 import AvailableDrivers from "./AvailableDrivers";
 import { useNavigate } from "react-router-dom";
 import { UserData } from "../context/UserContext";
+import ProfilePage from "./ProfilePage";
 
 const center = [22.3072, 73.1812]; // Default center
 
@@ -83,7 +84,7 @@ const HomePage = () => {
   const driversRef = useRef(null);
   const navigate = useNavigate();
   const { isAuth } = UserData();
-
+  const [showProfile, setShowProfile] = useState(false);
   useEffect(() => {
     if (markers.pickup && markers.drop) {
       calculateDistance(markers.pickup, markers.drop);

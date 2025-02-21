@@ -15,8 +15,10 @@ export const RiderProvider = ({ children }) => {
   const getRiderById = async (id) => {
     setLoading(true);
     try {
-      const response = await axios.get(`${server}/api/riders/${id}`);
+      const response = await axios.get(`${server}/api/rider/${id}`);
       setRider(response.data);
+      // console.log(response.data);
+      localStorage.setItem("rider", response.rider);
       setError(null);
     } catch (err) {
       setError(err.response?.data?.message || "Error fetching rider");
@@ -43,7 +45,7 @@ export const RiderProvider = ({ children }) => {
   const updateRider = async (id, formData) => {
     setLoading(true);
     try {
-      const response = await axios.put(`/api/riders/${id}`, formData, {
+      const response = await axios.put(`${server}/api/rider/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setRider(response.data);
@@ -58,7 +60,7 @@ export const RiderProvider = ({ children }) => {
   const deleteRider = async (id) => {
     setLoading(true);
     try {
-      await axios.delete(`/api/riders/${id}`);
+      await axios.delete(`${server}/api/riders/${id}`);
       setRider(null);
       setError(null);
     } catch (err) {

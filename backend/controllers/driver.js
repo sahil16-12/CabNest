@@ -46,7 +46,7 @@ export const getAllDrivers = async (req, res) => {
  */
 export const getDriverById = async (req, res) => {
     try {
-        const driver = await Driver.findById(req.params.id).populate("user vehicle");
+        const driver = await Driver.findById(req.params.id);
         if (!driver) return res.status(404).json({ message: "Driver not found" });
 
         res.status(200).json(driver);
@@ -62,12 +62,12 @@ export const getDriverById = async (req, res) => {
  */
 export const updateDriver = async (req, res) => {
     try {
-        const { fullName, phoneNumber, dateOfBirth, vehicle, licenseNumber, address } = req.body;
+        const { fullName, phoneNumber, dateOfBirth, licenseNumber, address } = req.body;
         const profileImage = req.file ? `/uploads/${req.file.filename}` : undefined;
 
         const updatedDriver = await Driver.findByIdAndUpdate(
             req.params.id,
-            { fullName, phoneNumber, dateOfBirth, profileImage, vehicle, licenseNumber, address },
+            { fullName, phoneNumber, dateOfBirth, profileImage, licenseNumber, address },
             { new: true }
         );
 
