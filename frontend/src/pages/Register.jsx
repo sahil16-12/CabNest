@@ -1,140 +1,244 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { UserData } from "../context/UserContext"; // Import UserData context
+import { motion } from "framer-motion";
+import { UserData } from "../context/UserContext";
+import { FaCarSide, FaUser, FaShieldAlt } from "react-icons/fa";
+import zxcvbn from "zxcvbn";
+import "../index.css";
 
 const Register = () => {
-  const { RegisterUser, btnLoading } = UserData(); // Use context for registering user
-  const [name, setName] = useState(""); // State for name
-  const [email, setEmail] = useState(""); // State for email
-  const [password, setPassword] = useState(""); // State for password
-  const [role, setRole] = useState(""); // State for role (Rider or Driver)
-  const navigate = useNavigate(); // Navigation hook
+  const { RegisterUser, btnLoading } = UserData();
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "",
+  });
+  const navigate = useNavigate();
 
-  // Form submit handler
+  const passwordStrength = zxcvbn(formData.password).score;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (step < 3) return setStep(step + 1);
+    const { name, email, password, role } = formData;
     const user = await RegisterUser(name, email, password, role, navigate);
+    if (user) navigate(role === "rider" ? "/rider-profile" : "/home");
+  };
 
-    if (user) {
-      if (role === "rider") {
-        navigate("/rider-profile"); // Navigate to RiderProfile.jsx
-      } else {
-        navigate("/home"); // Navigate to Home.jsx for drivers
-      }
-    }
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-lg shadow-xl transform transition-all duration-500 ease-in-out hover:scale-105">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">
-          Welcome to CabNest
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name Input */}
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Username
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-space-900 via-space-800 to-space-700 relative overflow-hidden">
+      <div className="relative z-10 w-full max-w-2xl bg-white bg-opacity-90 backdrop-blur-xl rounded-3xl shadow-2xl border border-opacity-30 border-gray-200 p-12 mx-4">
+        {/* Progress Steps */}
+        <div className="flex justify-center mb-8">
+          {[1, 2, 3].map((num) => (
+            <div key={num} className="flex items-center">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  step >= num
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 border border-gray-300 text-gray-500"
+                }`}
+              >
+                {num}
+              </div>
+              {num < 3 && <div className="w-12 h-1 bg-gray-300 mx-2"></div>}
+            </div>
+          ))}
+        </div>
 
-          {/* Email Input */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Step 1: Personal Info */}
+          {step === 1 && (
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-6"
             >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-          </div>
+              <div className="relative">
+                <input
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-6 py-4 bg-white rounded-xl border-2 border-gray-200 text-gray-800 placeholder-transparent focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all peer"
+                  placeholder=" "
+                />
+                <label className="absolute left-6 top-2 text-sm text-gray-700 pointer-events-none transition-all duration-300 ease-out peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-sm">
+                  Username
+                </label>
+                <FaUser className="absolute right-6 top-5 text-gray-400" />
+              </div>
 
-          {/* Role Selection (Rider or Driver) */}
-          <div>
-            <label
-              htmlFor="role"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Role
-            </label>
-            <select
-              id="role"
-              name="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              required
-              className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            >
-              <option value="" disabled>
-                Select your role
-              </option>
-              <option value="rider">Rider</option>
-              <option value="driver">Driver</option>
-            </select>
-          </div>
+              <div className="relative">
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-6 py-4 bg-white rounded-xl border-2 border-gray-200 text-gray-800 placeholder-transparent focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all peer"
+                  placeholder=" "
+                />
+                <label className="absolute left-6 top-2 text-sm text-gray-700 pointer-events-none transition-all duration-300 ease-out peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-sm">
+                  Email Address
+                </label>
+              </div>
+            </motion.div>
+          )}
 
-          {/* Password Input */}
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
+          {/* Step 2: Role Selection */}
+          {step === 2 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="grid grid-cols-2 gap-6"
             >
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-          </div>
+              {[
+                {
+                  role: "rider",
+                  title: "Rider",
+                  icon: FaCarSide,
+                  desc: "Book rides, track drivers, and manage trips",
+                },
+                {
+                  role: "driver",
+                  title: "Driver",
+                  icon: FaShieldAlt,
+                  desc: "Offer rides, manage bookings, and earn money",
+                },
+              ].map(({ role, title, icon: Icon, desc }) => (
+                <motion.div
+                  key={role}
+                  whileHover={{ scale: 1.02 }}
+                  onClick={() => setFormData({ ...formData, role })}
+                  className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
+                    formData.role === role
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200 hover:border-blue-300"
+                  }`}
+                >
+                  <Icon
+                    className={`text-4xl mb-4 ${
+                      formData.role === role ? "text-blue-500" : "text-gray-500"
+                    }`}
+                  />
+                  <h3
+                    className={`text-xl font-bold mb-2 ${
+                      formData.role === role ? "text-blue-500" : "text-gray-800"
+                    }`}
+                  >
+                    {title}
+                  </h3>
+                  <p
+                    className={`${
+                      formData.role === role ? "text-blue-600" : "text-gray-600"
+                    }`}
+                  >
+                    {desc}
+                  </p>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={btnLoading}
-            className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white ${
-              btnLoading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-blue-500 to-purple-600 hover:bg-gradient-to-l"
-            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-          >
-            {btnLoading ? "Registering..." : "Register"}
-          </button>
+          {/* Step 3: Password & Terms */}
+          {step === 3 && (
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-6"
+            >
+              <div className="relative">
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-6 py-4 bg-white rounded-xl border-2 border-gray-200 text-gray-800 placeholder-transparent focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all peer"
+                  placeholder=" "
+                />
+                <label className="absolute left-6 top-2 text-sm text-gray-700 pointer-events-none transition-all duration-300 ease-out peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-sm">
+                  Create Password
+                </label>
+
+                {/* Password Strength Meter */}
+                <div className="flex gap-1 mt-3">
+                  {[...Array(4)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`h-1 w-full rounded-full ${
+                        passwordStrength > i
+                          ? i < 2
+                            ? "bg-red-400"
+                            : i < 3
+                            ? "bg-yellow-400"
+                            : "bg-green-400"
+                          : "bg-gray-200"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  required
+                  className="w-5 h-5 accent-blue-500 rounded border-2 border-gray-300 focus:ring-blue-500"
+                />
+                <label className="ml-3 text-gray-700">
+                  I agree to the{" "}
+                  <a href="#" className="text-blue-500 hover:underline">
+                    Terms of Service
+                  </a>{" "}
+                  and{" "}
+                  <a href="#" className="text-blue-500 hover:underline">
+                    Privacy Policy
+                  </a>
+                </label>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-between">
+            {step > 1 && (
+              <button
+                type="button"
+                onClick={() => setStep(step - 1)}
+                className="px-8 py-3 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+              >
+                Back
+              </button>
+            )}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              disabled={btnLoading}
+              className={`ml-auto px-8 py-3 rounded-lg font-semibold ${
+                btnLoading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-blue-500 to-purple-500 hover:shadow-xl"
+              } text-white transition-all`}
+            >
+              {step === 3 ? "Create Account" : "Continue"}
+            </motion.button>
+          </div>
         </form>
 
-        {/* Login Link */}
-        <div className="text-center mt-4">
-          <Link
-            to="/login"
-            className="text-sm text-blue-600 hover:text-blue-500 transition duration-300 ease-in-out transform hover:scale-105"
-          >
-            Already have an account? Login here
+        <p className="text-center mt-8 text-gray-600">
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-500 hover:underline">
+            Sign In
           </Link>
-        </div>
+        </p>
       </div>
     </div>
   );

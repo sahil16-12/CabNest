@@ -60,11 +60,13 @@ const Footer = () => {
           <ul className="space-y-3">
             <li className="text-gray-400">
               <span className="font-semibold text-white">Phone:</span> +91
-              9898557401
+              9898557401,
+              8866239180
             </li>
             <li className="text-gray-400">
               <span className="font-semibold text-white">Email:</span>{" "}
-              sahil16december@gmail.com
+              sahil16december@gmail.com,
+              sahiltarofawala59@gmail.com
             </li>
             <li className="text-gray-400">
               <span className="font-semibold text-white">Address:</span> D-2,

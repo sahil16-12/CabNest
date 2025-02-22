@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDriver } from "../context/DriverContext";
 import { Camera, Upload, X } from "lucide-react";
+import { motion } from "framer-motion";
 
 const DriverProfile = () => {
   const navigate = useNavigate();
@@ -91,24 +92,32 @@ const DriverProfile = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="max-w-lg w-full bg-yellow-500 p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-center text-black mb-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
+      {/* Main Form */}
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-lg w-full bg-white p-8 rounded-xl shadow-2xl"
+      >
+        <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
           Complete Your Driver Profile
         </h2>
         <form
           onSubmit={handleSubmit}
-          className="space-y-4"
+          className="space-y-6"
           encType="multipart/form-data"
         >
           {/* Profile Image Upload */}
           <div>
-            <label className="block text-sm font-medium text-black mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Profile Image
             </label>
-            <div
-              className="flex items-center justify-center border border-gray-300 rounded-md p-2 bg-white cursor-pointer"
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setIsModalOpen(true)}
+              className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 cursor-pointer"
             >
               {previewImage ? (
                 <img
@@ -117,14 +126,14 @@ const DriverProfile = () => {
                   className="w-24 h-24 rounded-full object-cover"
                 />
               ) : (
-                <Camera className="w-12 h-12 text-gray-500" />
+                <Camera className="w-12 h-12 text-gray-400" />
               )}
-            </div>
+            </motion.div>
           </div>
 
           {/* Full Name */}
           <div>
-            <label className="block text-sm font-medium text-black mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Full Name
             </label>
             <input
@@ -133,13 +142,13 @@ const DriverProfile = () => {
               value={profile.fullName}
               onChange={handleChange}
               required
-              className="mt-1 w-full border border-gray-300 p-2 rounded-md focus:ring-yellow-500 focus:border-yellow-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
 
           {/* Date of Birth */}
           <div>
-            <label className="block text-sm font-medium text-black mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Date of Birth
             </label>
             <input
@@ -148,11 +157,13 @@ const DriverProfile = () => {
               value={profile.dateOfBirth}
               onChange={handleChange}
               required
-              className="mt-1 w-full border border-gray-300 p-2 rounded-md focus:ring-yellow-500 focus:border-yellow-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
+
+          {/* Phone Number */}
           <div>
-            <label className="block text-sm font-medium text-black mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Phone Number
             </label>
             <input
@@ -161,12 +172,13 @@ const DriverProfile = () => {
               value={profile.phoneNumber}
               onChange={handleChange}
               required
-              className="mt-1 w-full border border-gray-300 p-2 rounded-md focus:ring-yellow-500 focus:border-yellow-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
 
+          {/* License Number */}
           <div>
-            <label className="block text-sm font-medium text-black mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               License Number
             </label>
             <input
@@ -175,13 +187,13 @@ const DriverProfile = () => {
               value={profile.licenseNumber}
               onChange={handleChange}
               required
-              className="mt-1 w-full border border-gray-300 p-2 rounded-md focus:ring-yellow-500 focus:border-yellow-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
 
           {/* Address */}
           <div>
-            <label className="block text-sm font-medium text-black mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Address
             </label>
             <input
@@ -190,48 +202,67 @@ const DriverProfile = () => {
               value={profile.address}
               onChange={handleChange}
               required
-              className="mt-1 w-full border border-gray-300 p-2 rounded-md focus:ring-yellow-500 focus:border-yellow-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
 
-          <button
+          {/* Submit Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             type="submit"
-            className="w-full bg-black text-yellow-500 py-2 rounded-md hover:bg-gray-800 transition duration-300"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-all"
           >
             Save & Continue
-          </button>
+          </motion.button>
         </form>
-      </div>
+      </motion.div>
 
+      {/* Image Upload Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+        >
+          <motion.div
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1 }}
+            className="bg-white p-6 rounded-xl shadow-lg w-96"
+          >
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold">Upload Profile Photo</h3>
+              <h3 className="text-xl font-bold text-gray-900">
+                Upload Profile Photo
+              </h3>
               <button onClick={() => setIsModalOpen(false)}>
-                <X className="w-6 h-6 text-gray-500" />
+                <X className="w-6 h-6 text-gray-500 hover:text-gray-700" />
               </button>
             </div>
             <div className="space-y-4">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleCameraClick}
-                className="w-full flex items-center justify-center space-x-2 bg-yellow-500 text-black py-2 rounded-md hover:bg-yellow-600 transition duration-300"
+                className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-all"
               >
                 <Camera className="w-5 h-5" />
                 <span>Take Photo</span>
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => fileInputRef.current.click()}
-                className="w-full flex items-center justify-center space-x-2 bg-yellow-500 text-black py-2 rounded-md hover:bg-yellow-600 transition duration-300"
+                className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-all"
               >
                 <Upload className="w-5 h-5" />
                 <span>Upload from Computer</span>
-              </button>
+              </motion.button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
 
+      {/* Hidden File Input */}
       <input
         type="file"
         ref={fileInputRef}

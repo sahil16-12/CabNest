@@ -4,7 +4,14 @@ import { RiderContext } from "../context/RiderContext";
 import { DriverProvider, useDriver } from "../context/DriverContext";
 import { UserData } from "../context/UserContext";
 import { toast } from "react-hot-toast";
-import { Camera, Upload, X } from "lucide-react";
+import {
+  Camera,
+  Upload,
+  X,
+  Edit3,
+  CheckCircle,
+  ShieldCheck,
+} from "lucide-react";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -101,7 +108,9 @@ const ProfilePage = () => {
     try {
       const formPayload = new FormData();
       for (const key in formData) {
-        formPayload.append(key, formData[key]);
+        if (formData[key] !== undefined && formData[key] !== null) {
+          formPayload.append(key, formData[key]);
+        }
       }
 
       if (user.role === "rider") {
@@ -130,167 +139,274 @@ const ProfilePage = () => {
   const normalizedImagePath = currentProfile.profileImage.replace(/\\/g, "/");
 
   return (
-    <div className="max-w-4xl mx-auto p-4 bg-black text-yellow-500">
-      {/* Profile Header */}
-      <div className="flex flex-col items-center md:flex-row md:items-start space-y-6 md:space-y-0 md:space-x-8">
-        {/* Profile Picture */}
-        <div className="relative w-32 h-32 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-yellow-500 shadow-lg">
-          <img
-            src={`http://localhost:5000/${normalizedImagePath}`}
-            alt="Profile"
-            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-            onError={(e) => {
-              e.target.src = "https://via.placeholder.com/150"; // Fallback image
-            }}
-          />
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-gray-100">
+      {/* Profile Header with Stats */}
+      <div className="relative bg-gray-800 py-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            {/* Profile Picture with Verification Badge */}
+            <div className="relative group">
+              <div className="w-32 h-32 rounded-full border-4 border-yellow-400/50 hover:border-yellow-400 transition-all duration-300 overflow-hidden shadow-xl">
+                <img
+                  src={`http://localhost:5000/${normalizedImagePath}`}
+                  alt="Profile"
+                  className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    e.target.src = "https://via.placeholder.com/150";
+                  }}
+                />
+              </div>
+              {user?.role === "driver" && currentProfile?.verified && (
+                <div className="absolute bottom-0 right-0 bg-green-500 rounded-full p-1.5 shadow-lg">
+                  <ShieldCheck className="w-6 h-6 text-white" />
+                </div>
+              )}
+            </div>
 
-        {/* Profile Info */}
-        <div className="flex-1 text-center md:text-left">
-          <h1 className="text-3xl font-bold">
-            {user?.role === "driver" ? currentProfile.fullName : user?.name}
-          </h1>
-          <p className="text-gray-300">{user?.email}</p>
-          <p className="text-gray-300">{currentProfile.phoneNumber}</p>
-          <p className="text-gray-300">{currentProfile.address}</p>
-          {user?.role === "driver" && (
-            <p className="text-gray-300">{currentProfile.licenseNumber}</p>
-          )}
+            {/* Profile Info with Stats */}
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center gap-4">
+                <h1 className="text-3xl font-bold tracking-tight">
+                  {user?.role === "driver"
+                    ? currentProfile.fullName
+                    : user?.name}
+                </h1>
+                <span className="bg-yellow-400/20 text-yellow-400 px-3 py-1 rounded-full text-sm font-medium">
+                  {user?.role?.toUpperCase()}
+                </span>
+              </div>
 
-          {/* Edit Button */}
-          <button
-            onClick={handleEditClick}
-            className="mt-4 px-6 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 transition-colors animate-pulse"
-          >
-            Edit Profile
-          </button>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-gray-700/30 p-4 rounded-xl">
+                  <p className="text-sm text-gray-400">Trips Completed</p>
+                  <p className="text-2xl font-bold">
+                    {currentProfile.tripsCount || 0}
+                  </p>
+                </div>
+                {user?.role === "driver" && (
+                  <>
+                    <div className="bg-gray-700/30 p-4 rounded-xl">
+                      <p className="text-sm text-gray-400">Rating</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl font-bold">
+                          {currentProfile.rating?.toFixed(1) || "4.9"}
+                        </span>
+                        <div className="text-yellow-400">★</div>
+                      </div>
+                    </div>
+                    <div className="bg-gray-700/30 p-4 rounded-xl">
+                      <p className="text-sm text-gray-400">Experience</p>
+                      <p className="text-2xl font-bold">
+                        {currentProfile.yearsExperience || 2}+ yrs
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Edit Form */}
-      {isEditing && (
-        <form onSubmit={handleUpdateProfile} className="mt-8 space-y-6">
-          {user?.role === "driver" && (
-            <div>
-              <label className="block text-gray-200 mb-2">Full Name</label>
-              <input
-                type="text"
-                value={formData.fullName || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, fullName: e.target.value })
-                }
-                className="w-full p-3 border border-yellow-500 rounded-lg focus:ring-2 focus:ring-yellow-500"
-                required
-              />
-            </div>
-          )}
-          <div>
-            <label className="block text-gray-200 mb-2">Phone Number</label>
-            <input
-              type="tel"
-              value={formData.phoneNumber || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, phoneNumber: e.target.value })
-              }
-              className="w-full p-3 border border-yellow-500 rounded-lg focus:ring-2 focus:ring-yellow-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-gray-200 mb-2">Address</label>
-            <input
-              type="text"
-              value={formData.address || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, address: e.target.value })
-              }
-              className="w-full p-3 border border-yellow-500 rounded-lg focus:ring-2 focus:ring-yellow-500"
-              required
-            />
-          </div>
-          {user?.role === "driver" && (
-            <div>
-              <label className="block text-gray-200 mb-2">License Number</label>
-              <input
-                type="text"
-                value={formData.licenseNumber || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, licenseNumber: e.target.value })
-                }
-                className="w-full p-3 border border-yellow-500 rounded-lg focus:ring-2 focus:ring-yellow-500"
-                required
-              />
-            </div>
-          )}
-          <div>
-            <label className="block text-gray-200 mb-2">Profile Photo</label>
-            <div className="flex gap-4">
-              {/* Upload from computer */}
-              <label
-                className="px-6 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 transition-colors cursor-pointer"
-                onClick={() => setIsModalOpen(true)}
+      {/* Profile Details Section */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Personal Information Card */}
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold">Personal Information</h2>
+              <button
+                onClick={handleEditClick}
+                className="flex items-center gap-2 text-yellow-400 hover:text-yellow-300 transition-colors"
               >
-                Change Image
-              </label>
-            </div>
-          </div>
-          {/* Image Preview */}
-          {previewImage && (
-            <div className="mt-4">
-              <label className="block text-gray-200 mb-2">Preview</label>
-              <img
-                src={previewImage}
-                alt="Preview"
-                className="w-32 h-32 rounded-full object-cover border-4 border-yellow-500"
-              />
-            </div>
-          )}
-          <div className="flex gap-4">
-            <button
-              type="submit"
-              disabled={updateLoading}
-              className="px-6 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 disabled:bg-gray-400 transition-colors flex items-center animate-bounce"
-            >
-              {updateLoading ? "Saving..." : "Save Changes"}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setIsEditing(false);
-                setPreviewImage("");
-              }}
-              className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
-
-      {/* Modal for Upload or Take Photo */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold">Upload Profile Photo</h3>
-              <button onClick={() => setIsModalOpen(false)}>
-                <X className="w-6 h-6 text-gray-500" />
+                <Edit3 className="w-5 h-5" />
+                Edit
               </button>
             </div>
+
             <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <CheckCircle className="w-6 h-6 text-green-400" />
+                <div>
+                  <p className="text-sm text-gray-400">Verified Email</p>
+                  <p className="font-medium">{user?.email}</p>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-700/50 my-4" />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-400">Phone Number</p>
+                  <p className="font-medium">
+                    {currentProfile.phoneNumber || "Not provided"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">Address</p>
+                  <p className="font-medium">
+                    {currentProfile.address || "Not provided"}
+                  </p>
+                </div>
+                {user?.role === "driver" && (
+                  <div>
+                    <p className="text-sm text-gray-400">License Number</p>
+                    <p className="font-medium">
+                      {currentProfile.licenseNumber}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Edit Form Section */}
+          {isEditing && (
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
+              <form onSubmit={handleUpdateProfile} className="space-y-6">
+                <div className="space-y-4">
+                  {user?.role === "driver" && (
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm text-gray-400">Full Name</label>
+                      <input
+                        type="text"
+                        value={formData.fullName || ""}
+                        onChange={(e) =>
+                          setFormData({ ...formData, fullName: e.target.value })
+                        }
+                        className="bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                        required
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm text-gray-400">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      value={formData.phoneNumber || ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          phoneNumber: e.target.value,
+                        })
+                      }
+                      className="bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                      required
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm text-gray-400">Address</label>
+                    <input
+                      type="text"
+                      value={formData.address || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
+                      }
+                      className="bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                      required
+                    />
+                  </div>
+
+                  {user?.role === "driver" && (
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm text-gray-400">
+                        License Number
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.licenseNumber || ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            licenseNumber: e.target.value,
+                          })
+                        }
+                        className="bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                        required
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm text-gray-400">
+                      Profile Photo
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setIsModalOpen(true)}
+                      className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-left hover:bg-gray-700 transition-colors"
+                    >
+                      Change Image
+                    </button>
+                  </div>
+
+                  {previewImage && (
+                    <div className="mt-4">
+                      <label className="text-sm text-gray-400">Preview</label>
+                      <img
+                        src={previewImage}
+                        alt="Preview"
+                        className="w-32 h-32 rounded-full object-cover border-4 border-yellow-400"
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-4 pt-4">
+                    <button
+                      type="submit"
+                      disabled={updateLoading}
+                      className="flex items-center justify-center gap-2 w-full bg-yellow-400 text-gray-900 py-3 rounded-lg font-medium hover:bg-yellow-300 transition-colors"
+                    >
+                      {updateLoading ? "Saving..." : "Save Changes"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(false)}
+                      className="w-full border border-gray-600 text-gray-300 py-3 rounded-lg hover:border-gray-500 hover:text-gray-100 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Enhanced Image Upload Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-gray-800 rounded-2xl w-full max-w-md p-6 mx-4">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold">Update Profile Photo</h3>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-400 hover:text-gray-200 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
               <button
                 onClick={handleCameraClick}
-                className="w-full flex items-center justify-center space-x-2 bg-yellow-500 text-black py-2 rounded-md hover:bg-yellow-600 transition duration-300"
+                className="flex items-center justify-center gap-3 p-6 bg-gray-700/50 hover:bg-gray-700 rounded-xl transition-colors"
               >
-                <Camera className="w-5 h-5" />
-                <span>Take Photo</span>
+                <Camera className="w-8 h-8 text-yellow-400" />
+                <span className="font-medium">Take Photo</span>
               </button>
+
               <button
                 onClick={() => fileInputRef.current.click()}
-                className="w-full flex items-center justify-center space-x-2 bg-yellow-500 text-black py-2 rounded-md hover:bg-yellow-600 transition duration-300"
+                className="flex items-center justify-center gap-3 p-6 bg-gray-700/50 hover:bg-gray-700 rounded-xl transition-colors"
               >
-                <Upload className="w-5 h-5" />
-                <span>Upload from Computer</span>
+                <Upload className="w-8 h-8 text-yellow-400" />
+                <span className="font-medium">Upload Photo</span>
               </button>
             </div>
           </div>
