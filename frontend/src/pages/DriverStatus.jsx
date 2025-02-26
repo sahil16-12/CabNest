@@ -604,7 +604,7 @@ const DriverStatus = () => {
             )}
             {status === statusMessages.completed && (
               <button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/ride-completed")}
                 className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl font-bold 
                   transform transition-all hover:scale-105 shadow-md"
               >

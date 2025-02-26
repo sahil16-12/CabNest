@@ -349,7 +349,7 @@ const HomePage = () => {
                     <Polyline
                       positions={route.map((point) => [point.lat, point.lng])}
                       color="red"
-                      weight={4}
+                      weight={3}
                     />
                   )}
                 </MapContainer>

@@ -12,8 +12,12 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "@iconify/react": "^5.2.0",
     "@react-leaflet/core": "^2.0.0",
-    "axios": "^1.7.9",
+    "@react-pdf/renderer": "^4.2.2",
+    "@stripe/react-stripe-js": "^3.1.1",
+    "@stripe/stripe-js": "^5.7.0",
+    "axios": "^1.8.1",
     "framer-motion": "^12.4.7",
     "leaflet": "^1.9.4",
     "leaflet-defaulticon-compatibility": "^0.1.2",

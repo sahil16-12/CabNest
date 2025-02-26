@@ -29,7 +29,7 @@ export const UserContextProvider = ({ children }) => {
       setUser(data.user);
 
       setIsAuth(true);
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       handleError(error, "Login failed.");
       setIsAuth(false);

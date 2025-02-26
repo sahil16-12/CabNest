@@ -11,18 +11,24 @@ const unlinkAsync = promisify(fs.unlink);
  * @access  Public
  */
 export const createRider = TryCatch(async (req, res) => {
-    const { _id, dateOfBirth, phoneNumber, address } = req.body;
-    const profileImage = req.file?.path;
+  const { _id, dateOfBirth, phoneNumber, address } = req.body;
+  const profileImage = req.file?.path;
 
-    // Check if rider already exists
-    const existingRider = await Rider.findOne({ _id});
-    if (existingRider) {
-        return res.status(400).json({ message: "Rider already registered" });
-    }
+  // Check if rider already exists
+  const existingRider = await Rider.findOne({ _id });
+  if (existingRider) {
+    return res.status(400).json({ message: "Rider already registered" });
+  }
 
-    const rider = await Rider.create({ _id, dateOfBirth, phoneNumber, address, profileImage });
+  const rider = await Rider.create({
+    _id,
+    dateOfBirth,
+    phoneNumber,
+    address,
+    profileImage,
+  });
 
-    res.status(201).json({ message: "Rider created successfully", rider });
+  res.status(201).json({ message: "Rider created successfully", rider });
 });
 
 /**
@@ -31,10 +37,10 @@ export const createRider = TryCatch(async (req, res) => {
  * @access  Public
  */
 export const getRiderById = TryCatch(async (req, res) => {
-    const rider = await Rider.findById(req.params.id);
-    if (!rider) return res.status(404).json({ message: "Rider not found" });
+  const rider = await Rider.findById(req.params.id);
+  if (!rider) return res.status(404).json({ message: "Rider not found" });
 
-    res.status(200).json(rider);
+  res.status(200).json(rider);
 });
 
 /**
@@ -43,24 +49,24 @@ export const getRiderById = TryCatch(async (req, res) => {
  * @access  Private
  */
 export const updateRider = TryCatch(async (req, res) => {
-    const { dateOfBirth, phoneNumber, address } = req.body;
-    const newProfileImage = req.file?.path;
+  const { dateOfBirth, phoneNumber, address } = req.body;
+  const newProfileImage = req.file?.path;
 
-    const rider = await Rider.findById(req.params.id);
-    if (!rider) return res.status(404).json({ message: "Rider not found" });
+  const rider = await Rider.findById(req.params.id);
+  if (!rider) return res.status(404).json({ message: "Rider not found" });
 
-    if (newProfileImage && rider.profileImage) {
-        await unlinkAsync(rider.profileImage).catch(() => {});
-    }
+  if (newProfileImage && rider.profileImage) {
+    await unlinkAsync(rider.profileImage).catch(() => {});
+  }
 
-    rider.dateOfBirth = dateOfBirth;
-    rider.phoneNumber = phoneNumber;
-    rider.address = address;
-    if (newProfileImage) rider.profileImage = newProfileImage;
+  rider.dateOfBirth = dateOfBirth;
+  rider.phoneNumber = phoneNumber;
+  rider.address = address;
+  if (newProfileImage) rider.profileImage = newProfileImage;
 
-    await rider.save();
+  await rider.save();
 
-    res.status(200).json({ message: "Rider updated successfully", rider });
+  res.status(200).json({ message: "Rider updated successfully", rider });
 });
 
 /**
@@ -69,13 +75,13 @@ export const updateRider = TryCatch(async (req, res) => {
  * @access  Private
  */
 export const deleteRider = TryCatch(async (req, res) => {
-    const rider = await Rider.findById(req.params.id);
-    if (!rider) return res.status(404).json({ message: "Rider not found" });
+  const rider = await Rider.findById(req.params.id);
+  if (!rider) return res.status(404).json({ message: "Rider not found" });
 
-    if (rider.profileImage) {
-        await unlinkAsync(rider.profileImage).catch(() => {});
-    }
+  if (rider.profileImage) {
+    await unlinkAsync(rider.profileImage).catch(() => {});
+  }
 
-    await rider.deleteOne();
-    res.status(200).json({ message: "Rider deleted successfully" });
+  await rider.deleteOne();
+  res.status(200).json({ message: "Rider deleted successfully" });
 });

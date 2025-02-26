@@ -153,7 +153,9 @@ const Login = () => {
           {/* Social Login */}
           <div className="relative flex items-center py-4">
             <div className="flex-grow border-t border-gray-300"></div>
-            <span className="flex-shrink mx-4 text-gray-500">Or continue with</span>
+            <span className="flex-shrink mx-4 text-gray-500">
+              Or continue with
+            </span>
             <div className="flex-grow border-t border-gray-300"></div>
           </div>
 
@@ -177,7 +179,7 @@ const Login = () => {
           <p className="text-center text-gray-600">
             New to CabNest?{" "}
             <Link
-              to="/register"
+              to="/signup"
               className="text-blue-500 hover:text-blue-600 font-semibold"
             >
               Create Account

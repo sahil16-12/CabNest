@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
@@ -15,10 +14,11 @@ import RideStatusPage from "./pages/RideStatusPage";
 
 import RiderProfile from "./pages/RiderProfile";
 import DriverProfile from "./pages/DriverProfile";
-import RideRequests from "./pages/DriverRideRequests";
-import DriverRideRequests from "./pages/DriverRideRequests";
 import DriverStatus from "./pages/DriverStatus";
 import ProfilePage from "./pages/ProfilePage";
+import DriverDashboard from "./pages/DriverDashboard";
+import DriverRideRequests from "./pages/DriverRideRequests";
+import RideCompletionPage from "./pages/RideCompleted";
 
 const App = () => {
   const { isAuth, user, loading } = UserData();
@@ -38,9 +38,11 @@ const App = () => {
         <Route path="/select-cab" element={<SelectCab />} />
         <Route path="/ride-request" element={<RideRequestPage />} />
         <Route path="/ride-status" element={<RideStatusPage />} />
+        <Route path="/driver-dashboard" element={<DriverDashboard />} />
         <Route path="/ride-requests" element={<DriverRideRequests />} />
         <Route path="/driver-status" element={<DriverStatus />} />
         <Route path="/profile-page" element={<ProfilePage user={user} />} />
+        <Route path="/ride-completed" element={<RideCompletionPage />} />
       </Routes>
     </Router>
   );
