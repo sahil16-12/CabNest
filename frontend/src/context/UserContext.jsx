@@ -12,10 +12,10 @@ export const UserContextProvider = ({ children }) => {
   const [btnLoading, setBtnLoading] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const handleError = (error, fallbackMessage) => {
-    console.error(error);
-    toast.error(error.response?.data?.message || fallbackMessage);
-  };
+  // const handleError = (error, fallbackMessage) => {
+  //   console.error(error);
+  //   toast.error(error.response?.data?.message || fallbackMessage);
+  // };
 
   async function loginUser(email, password, navigate) {
     setBtnLoading(true);
@@ -28,6 +28,7 @@ export const UserContextProvider = ({ children }) => {
       localStorage.setItem("token", data.token);
       setUser(data.user);
 
+      localStorage.setItem("user", JSON.stringify(user));
       setIsAuth(true);
       navigate("/home");
     } catch (error) {

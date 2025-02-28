@@ -3,7 +3,7 @@ import { UserData } from "../context/UserContext";
 import { useState } from "react"; // Import useState for dropdown functionality
 
 const Header = () => {
-  const { isAuth, logout } = UserData(); // Destructure logout from UserData
+  const { isAuth, logout, user } = UserData(); // Destructure logout from UserData
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown
 
   const handleLogout = () => {
@@ -45,8 +45,17 @@ const Header = () => {
           >
             Contact
           </Link>
-
-          {isAuth && (
+          <nav>
+            {user?.role === "admin" && (
+              <Link
+                onClick={handleLogout}
+                className="text-gray-400 hover:text-blue-400 transition duration-200"
+              >
+                Logout
+              </Link>
+            )}
+          </nav>
+          {isAuth && !user?.role === "admin" && (
             <div className="relative">
               {/* Profile Dropdown Trigger */}
               <button
@@ -97,6 +106,12 @@ const Header = () => {
         >
           Book a Cab
         </Link>
+
+        <nav>
+          {user?.role === "admin" && (
+            <Link to="/admin/dashboard">Admin Dashboard</Link>
+          )}
+        </nav>
 
         {/* Mobile Menu Icon */}
         <button

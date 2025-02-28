@@ -94,14 +94,14 @@ export const loginUser = TryCatch(async (req, res) => {
         message: "User password is missing in the database",
       });
     }
-  
+  if(!(user.role=="admin")){
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
       return res.status(400).json({
         message: "Incorrect password",
       });
     }
-  
+  }
     const token = generateToken(user._id);
   
     res.status(200).json({
