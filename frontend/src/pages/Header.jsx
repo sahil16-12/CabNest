@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { UserData } from "../context/UserContext";
-import { useState } from "react"; // Import useState for dropdown functionality
+import { useState } from "react";
 
 const Header = () => {
   const { isAuth, logout, user } = UserData(); // Destructure logout from UserData
