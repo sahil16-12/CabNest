@@ -55,7 +55,7 @@ const Header = () => {
               </Link>
             )}
           </nav>
-          {isAuth && !user?.role === "admin" && (
+          {isAuth && !(user?.role === "admin") && (
             <div className="relative">
               {/* Profile Dropdown Trigger */}
               <button
