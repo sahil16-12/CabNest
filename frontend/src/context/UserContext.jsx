@@ -17,12 +17,13 @@ export const UserContextProvider = ({ children }) => {
   //   toast.error(error.response?.data?.message || fallbackMessage);
   // };
 
-  async function loginUser(email, password, navigate) {
+  async function loginUser(email, password, currentLocation, navigate) {
     setBtnLoading(true);
     try {
       const { data } = await axios.post(`${server}/api/user/login`, {
         email,
         password,
+        currentLocation,
       });
       toast.success(data.message);
       localStorage.setItem("token", data.token);

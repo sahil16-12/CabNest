@@ -203,7 +203,7 @@ export const updateRideStatus = async (req, res) => {
     if (status === "completed" || status === "canceled") {
       if (updatedRide.driverId) {
         await Driver.findByIdAndUpdate(updatedRide.driverId, {
-          status: "available",
+          status: "online",
         });
       }
     }

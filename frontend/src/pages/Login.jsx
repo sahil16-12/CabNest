@@ -15,7 +15,26 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await loginUser(email, password, navigate);
+
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const currentLocation = [
+          position.coords.longitude,
+          position.coords.latitude,
+        ];
+
+        await loginUser(email, password, currentLocation, navigate);
+      },
+      (error) => {
+        console.error("Error fetching location:", error);
+        alert("Unable to retrieve location. Please enable location services.");
+      }
+    );
   };
 
   const particlesInit = async (main) => {

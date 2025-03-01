@@ -24,7 +24,7 @@ const Register = () => {
     if (step < 3) return setStep(step + 1);
     const { name, email, password, role } = formData;
     const user = await RegisterUser(name, email, password, role, navigate);
-    if (user) navigate(role === "rider" ? "/rider-profile" : "/home");
+    if (user) navigate("/login");
   };
 
   const handleChange = (e) => {

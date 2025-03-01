@@ -883,6 +883,8 @@ const RideBookPage = () => {
             distance={distance}
             duration={duration}
             fare={fare}
+            pickup={markers.pickup}
+            drop={markers.drop}
             onClose={() => setShowDrivers(false)}
             onBook={handleConfirmBooking}
           />
