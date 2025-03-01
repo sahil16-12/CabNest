@@ -78,7 +78,7 @@ const Landing = () => {
             </div>
           )}
 
-          {/* Quick Booking Form */}
+          {/* Quick Booking Form
           <div className="mt-12 max-w-4xl mx-auto bg-white rounded-lg p-6 shadow-xl">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 flex items-center gap-2">
@@ -101,7 +101,7 @@ const Landing = () => {
                 Book Now
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 

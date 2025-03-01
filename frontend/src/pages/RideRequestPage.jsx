@@ -12,7 +12,7 @@ const RideRequestPage = () => {
   const drop = location.state?.drop || null;
   useEffect(() => {
     if (!driver || !pickup || !drop) {
-      navigate("/home"); // Redirect to home if no driver is selected
+      navigate("/ride-book"); // Redirect to home if no driver is selected
     } else {
       setTimeout(() => {
         setShowBuffer(false);

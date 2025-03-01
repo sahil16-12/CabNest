@@ -30,9 +30,9 @@ export const UserContextProvider = ({ children }) => {
 
       localStorage.setItem("user", JSON.stringify(user));
       setIsAuth(true);
-      navigate("/home");
+      navigate("/");
     } catch (error) {
-      handleError(error, "Login failed.");
+      //handleError(error, "Login failed.");
       setIsAuth(false);
     } finally {
       setBtnLoading(false);
@@ -52,7 +52,7 @@ export const UserContextProvider = ({ children }) => {
       localStorage.setItem("activationToken", data.activationToken);
       navigate("/verify");
     } catch (error) {
-      handleError(error, "Registration failed.");
+      //handleError(error, "Registration failed.");
     } finally {
       setBtnLoading(false);
     }
@@ -75,7 +75,7 @@ export const UserContextProvider = ({ children }) => {
         navigate("/driver-profile");
       }
     } catch (error) {
-      handleError(error, "OTP verification failed.");
+      //handleError(error, "OTP verification failed.");
     } finally {
       setBtnLoading(false);
     }
@@ -90,7 +90,7 @@ export const UserContextProvider = ({ children }) => {
       setUser(data.user);
       setIsAuth(true);
     } catch (error) {
-      handleError(error, "Failed to fetch user data.");
+      //handleError(error, "Failed to fetch user data.");
       setIsAuth(false);
     } finally {
       setLoading(false);

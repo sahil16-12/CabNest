@@ -1,14 +1,15 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import { connectDb } from './database/db.js';
-import userRoutes from './routes/userRoutes.js';
-import DriverRoutes from './routes/DriverRoutes.js';
-import RiderRoutes from './routes/RiderRoutes.js';
-import AdminRoutes from './routes/AdminRoutes.js';
-import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { User } from './models/User.js';
+import express from "express";
+import dotenv from "dotenv";
+import { connectDb } from "./database/db.js";
+import userRoutes from "./routes/userRoutes.js";
+import DriverRoutes from "./routes/DriverRoutes.js";
+import RiderRoutes from "./routes/RiderRoutes.js";
+import AdminRoutes from "./routes/AdminRoutes.js";
+import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+import { User } from "./models/User.js";
+import rideRoutes from "./routes/RideRoutes.js";
 // Configure environment variables
 dotenv.config();
 
@@ -21,22 +22,23 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({ origin: "http://localhost:5173" }));
 
 // Serve static files from the "uploads" directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Routes
-app.get('/', (req, res) => {
-  res.send('Server is up and running...');
+app.get("/", (req, res) => {
+  res.send("Server is up and running...");
 });
-app.use('/api', userRoutes);
-app.use('/api/rider', RiderRoutes);
-app.use('/api/driver', DriverRoutes);
-app.use('/api/admin',AdminRoutes)
+app.use("/api", userRoutes);
+app.use("/api/rider", RiderRoutes);
+app.use("/api/driver", DriverRoutes);
+app.use("/api/admin", AdminRoutes);
+app.use("/api/ride", rideRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
+  res.status(500).json({ message: "Something went wrong!" });
 });
 // const createAdminUser = async () => {
 //   try {
@@ -55,14 +57,14 @@ app.use((err, req, res, next) => {
 // }
 // createAdminUser();
 // Start the server
+
 const port = process.env.PORT || 5000;
 connectDb()
   .then(() => {
-    
     app.listen(port, () => {
-      console.log('Server is running on http://localhost:' + port);
+      console.log("Server is running on http://localhost:" + port);
     });
   })
   .catch((err) => {
-    console.error('Database connection failed:', err);
+    console.error("Database connection failed:", err);
   });

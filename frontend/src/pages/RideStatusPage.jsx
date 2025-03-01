@@ -445,7 +445,7 @@ const RideStatusPage = () => {
 
   useEffect(() => {
     const initializeRide = async () => {
-      if (!pickup || !drop) return navigate("/home");
+      if (!pickup || !drop) return navigate("/ride-book");
 
       try {
         const pickupLocation = await fetchCoordinates(pickup);
