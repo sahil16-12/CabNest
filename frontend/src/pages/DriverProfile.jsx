@@ -11,7 +11,6 @@ const DriverProfile = () => {
   const { createDriverProfile } = useDriver();
   const { setIsAuth } = UserData();
   const [profile, setProfile] = useState({
-    // fullName: "",
     phoneNumber: "",
     dateOfBirth: "",
     profileImage: "",
@@ -103,7 +102,7 @@ const DriverProfile = () => {
       toast.success("Driver profile created successfully!");
       localStorage.removeItem("userId");
       setIsAuth(true);
-      navigate("/home");
+      navigate("/login");
     } catch (error) {
       console.error("Error saving profile:", error);
       alert("Failed to save profile. Please check the provided information.");
