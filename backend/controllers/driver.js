@@ -9,7 +9,7 @@ export const createDriver = async (req, res) => {
     try {
         const {
             _id,
-            fullName,
+            // fullName,
             phoneNumber,
             dateOfBirth,
             licenseNumber,
@@ -33,7 +33,7 @@ export const createDriver = async (req, res) => {
         // Create new driver with vehicle details
         const driver = new Driver({
             _id,
-            fullName,
+            // fullName,
             phoneNumber,
             dateOfBirth,
             profileImage,
@@ -93,7 +93,7 @@ export const getDriverById = async (req, res) => {
 export const updateDriver = async (req, res) => {
     try {
         const {
-            fullName,
+            // fullName,
             phoneNumber,
             dateOfBirth,
             licenseNumber,
@@ -111,7 +111,7 @@ export const updateDriver = async (req, res) => {
         const updatedDriver = await Driver.findByIdAndUpdate(
             req.params.id,
             {
-                fullName,
+                // fullName,
                 phoneNumber,
                 dateOfBirth,
                 profileImage,

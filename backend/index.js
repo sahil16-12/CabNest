@@ -12,11 +12,14 @@ import { User } from "./models/User.js";
 import rideRoutes from "./routes/RideRoutes.js";
 // Configure environment variables
 dotenv.config();
-
+import Razorpay from 'razorpay';
 // Convert the module URL to a directory path
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
+export const instance=new Razorpay({
+  key_id: process.env.KEY_ID,
+  key_secret: process.env.KEY_SECRET
+})
 // Initialize Express app
 const app = express();
 

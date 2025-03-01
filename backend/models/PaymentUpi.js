@@ -19,4 +19,4 @@ import mongoose from "mongoose";
 
  });
 
- export const Payment=mongoose.model("PaymentUpi",schema);
+ export const PaymentUpi=mongoose.model("PaymentUpi",schema);

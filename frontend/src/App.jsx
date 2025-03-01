@@ -20,6 +20,8 @@ import DriverDashboard from "./pages/DriverDashboard";
 import DriverRideRequests from "./pages/DriverRideRequests";
 import RideCompletionPage from "./pages/RideCompleted";
 import AdminDashboard from "./pages/AdminDashBoard";
+import TempPay from "./pages/TempPay";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 const App = () => {
   const { isAuth, user, loading } = UserData();
@@ -45,6 +47,8 @@ const App = () => {
         <Route path="/profile-page" element={<ProfilePage user={user} />} />
         <Route path="/ride-completed" element={<RideCompletionPage />} />
         <Route path="/admin/dashBoard" element={<AdminDashboard />} />
+        <Route path="/rider/payment" element={<TempPay />} />
+        <Route path="/payment-successfull/:id" element={<PaymentSuccess />} />
       </Routes>
     </Router>
   );
