@@ -3,17 +3,26 @@ import { useNavigate } from "react-router-dom";
 import { useDriver } from "../context/DriverContext";
 import { Camera, Upload, X } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import { UserData } from "../context/UserContext";
 
 const DriverProfile = () => {
   const navigate = useNavigate();
   const { createDriverProfile } = useDriver();
+  const { setIsAuth } = UserData();
   const [profile, setProfile] = useState({
-    fullName: "",
+    // fullName: "",
     phoneNumber: "",
     dateOfBirth: "",
     profileImage: "",
     licenseNumber: "",
     address: "",
+    vehicleMake: "",
+    vehicleModel: "",
+    vehicleYear: "",
+    vehicleColor: "",
+    vehicleType: "",
+    regNumber: "",
   });
   const [previewImage, setPreviewImage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -75,15 +84,25 @@ const DriverProfile = () => {
       if (profile.profileImage instanceof File) {
         formData.append("profileImage", profile.profileImage);
       }
+      console.log(profile);
       // Append other fields
-      formData.append("fullName", profile.fullName);
+      // formData.append("fullName", profile.fullName);
       formData.append("phoneNumber", profile.phoneNumber);
       formData.append("dateOfBirth", profile.dateOfBirth);
       formData.append("licenseNumber", profile.licenseNumber);
       formData.append("address", profile.address);
+      formData.append("vehicleMake", profile.vehicleMake);
+      formData.append("vehicleModel", profile.vehicleModel);
+      formData.append("vehicleYear", profile.vehicleYear);
+      formData.append("vehicleColor", profile.vehicleColor);
+      formData.append("vehicleType", profile.vehicleType);
+      formData.append("regNumber", profile.regNumber);
       formData.append("_id", userId);
 
       await createDriverProfile(formData);
+      toast.success("Driver profile created successfully!");
+      localStorage.removeItem("userId");
+      setIsAuth(true);
       navigate("/home");
     } catch (error) {
       console.error("Error saving profile:", error);
@@ -132,7 +151,7 @@ const DriverProfile = () => {
           </div>
 
           {/* Full Name */}
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Full Name
             </label>
@@ -144,7 +163,7 @@ const DriverProfile = () => {
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
-          </div>
+          </div> */}
 
           {/* Date of Birth */}
           <div>
@@ -200,6 +219,102 @@ const DriverProfile = () => {
               type="text"
               name="address"
               value={profile.address}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            />
+          </div>
+
+          {/* Vehicle Make */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Vehicle Make
+            </label>
+            <input
+              type="text"
+              name="vehicleMake"
+              value={profile.vehicleMake}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            />
+          </div>
+
+          {/* Vehicle Model */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Vehicle Model
+            </label>
+            <input
+              type="text"
+              name="vehicleModel"
+              value={profile.vehicleModel}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            />
+          </div>
+
+          {/* Vehicle Year */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Vehicle Year
+            </label>
+            <input
+              type="number"
+              name="vehicleYear"
+              value={profile.vehicleYear}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            />
+          </div>
+
+          {/* Vehicle Color */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Vehicle Color
+            </label>
+            <input
+              type="text"
+              name="vehicleColor"
+              value={profile.vehicleColor}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            />
+          </div>
+
+          {/* Vehicle Type */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Vehicle Type
+            </label>
+            <select
+              name="vehicleType"
+              value={profile.vehicleType}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            >
+              <option value="">Select Vehicle Type</option>
+              <option value="bike">Bike</option>
+              <option value="auto">Auto</option>
+              <option value="car">Car</option>
+              {/* <option value="truck">Truck</option> */}
+              <option value="scooter">Scooter</option>
+            </select>
+          </div>
+
+          {/* Registration Number */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Registration Number
+            </label>
+            <input
+              type="text"
+              name="regNumber"
+              value={profile.regNumber}
               onChange={handleChange}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"

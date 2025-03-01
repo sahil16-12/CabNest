@@ -6,10 +6,6 @@ const driverSchema = new mongoose.Schema({
         ref: "User", // Reference to the User model
         required: true,
     },
-    fullName: {
-        type: String,
-        required: true,
-    },
     phoneNumber: {
         type: String,
         required: true,
@@ -22,7 +18,6 @@ const driverSchema = new mongoose.Schema({
         type: String, // URL or file path of profile image
         default: "", 
     },
-
     licenseNumber: {
         type: String,
         required: true,
@@ -32,6 +27,32 @@ const driverSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
+    },
+    vehicleMake: {
+        type: String,
+        required: true,
+    },
+    vehicleModel: {
+        type: String,
+        required: true,
+    },
+    vehicleYear: {
+        type: Number,
+        required: true,
+    },
+    vehicleColor: {
+        type: String,
+        required: true,
+    },
+    vehicleType: {
+        type: String,
+        required: true,
+        enum: ["bike", "auto", "car", "scooter"], // Allowed vehicle types
+    },
+    regNumber: {
+        type: String,
+        required: true,
+        unique: true, // Ensure registration numbers are unique
     },
 }, {
     timestamps: true,

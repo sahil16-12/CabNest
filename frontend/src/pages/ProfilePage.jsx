@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { RiderContext } from "../context/RiderContext";
-import { DriverProvider, useDriver } from "../context/DriverContext";
+import { useDriver } from "../context/DriverContext";
 import { UserData } from "../context/UserContext";
 import { toast } from "react-hot-toast";
 import {
@@ -39,6 +39,15 @@ const ProfilePage = () => {
   const isLoading = user?.role === "rider" ? riderLoading : driverLoading;
   const currentProfile = user?.role === "rider" ? rider : driver;
 
+  const vehicleFields = [
+    { label: "Vehicle Make", value: currentProfile?.vehicleMake },
+    { label: "Vehicle Model", value: currentProfile?.vehicleModel },
+    { label: "Vehicle Year", value: currentProfile?.vehicleYear },
+    { label: "Vehicle Color", value: currentProfile?.vehicleColor },
+    { label: "Vehicle Type", value: currentProfile?.vehicleType },
+    { label: "Registration Number", value: currentProfile?.regNumber },
+  ];
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -50,7 +59,7 @@ const ProfilePage = () => {
       }
     };
     fetchProfile();
-  }, [user?.id, user?.role]);
+  }, [user?._id, user?.role]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -136,8 +145,8 @@ const ProfilePage = () => {
   if (!currentProfile)
     return <div className="text-center py-8">No profile found</div>;
 
-  const normalizedImagePath = currentProfile.profileImage.replace(/\\/g, "/");
-
+  const normalizedImagePath = currentProfile.profileImage?.replace(/\\/g, "/");
+  console.log(normalizedImagePath);
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-gray-100">
       {/* Profile Header with Stats */}
@@ -167,9 +176,7 @@ const ProfilePage = () => {
             <div className="flex-1 space-y-2">
               <div className="flex items-center gap-4">
                 <h1 className="text-3xl font-bold tracking-tight">
-                  {user?.role === "driver"
-                    ? currentProfile.fullName
-                    : user?.name}
+                  {user?.name}
                 </h1>
                 <span className="bg-yellow-400/20 text-yellow-400 px-3 py-1 rounded-full text-sm font-medium">
                   {user?.role?.toUpperCase()}
@@ -183,7 +190,7 @@ const ProfilePage = () => {
                     {currentProfile.tripsCount || 0}
                   </p>
                 </div>
-                {user?.role === "driver" && (
+                {/* {user?.role === "driver" && (
                   <>
                     <div className="bg-gray-700/30 p-4 rounded-xl">
                       <p className="text-sm text-gray-400">Rating</p>
@@ -201,7 +208,7 @@ const ProfilePage = () => {
                       </p>
                     </div>
                   </>
-                )}
+                )} */}
               </div>
             </div>
           </div>
@@ -249,12 +256,22 @@ const ProfilePage = () => {
                   </p>
                 </div>
                 {user?.role === "driver" && (
-                  <div>
-                    <p className="text-sm text-gray-400">License Number</p>
-                    <p className="font-medium">
-                      {currentProfile.licenseNumber}
-                    </p>
-                  </div>
+                  <>
+                    <div>
+                      <p className="text-sm text-gray-400">License Number</p>
+                      <p className="font-medium">
+                        {currentProfile.licenseNumber || "Not provided"}
+                      </p>
+                    </div>
+                    {vehicleFields.map((field) => (
+                      <div key={field.label}>
+                        <p className="text-sm text-gray-400">{field.label}</p>
+                        <p className="font-medium">
+                          {field.value || "Not provided"}
+                        </p>
+                      </div>
+                    ))}
+                  </>
                 )}
               </div>
             </div>
@@ -265,7 +282,7 @@ const ProfilePage = () => {
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
               <form onSubmit={handleUpdateProfile} className="space-y-6">
                 <div className="space-y-4">
-                  {user?.role === "driver" && (
+                  {/* {user?.role === "driver" && (
                     <div className="flex flex-col gap-1">
                       <label className="text-sm text-gray-400">Full Name</label>
                       <input
@@ -278,7 +295,7 @@ const ProfilePage = () => {
                         required
                       />
                     </div>
-                  )}
+                  )} */}
 
                   <div className="flex flex-col gap-1">
                     <label className="text-sm text-gray-400">
@@ -312,23 +329,139 @@ const ProfilePage = () => {
                   </div>
 
                   {user?.role === "driver" && (
-                    <div className="flex flex-col gap-1">
-                      <label className="text-sm text-gray-400">
-                        License Number
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.licenseNumber || ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            licenseNumber: e.target.value,
-                          })
-                        }
-                        className="bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
-                        required
-                      />
-                    </div>
+                    <>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-400">
+                          License Number
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.licenseNumber || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              licenseNumber: e.target.value,
+                            })
+                          }
+                          className="bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                          required
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-400">
+                          Vehicle Make
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.vehicleMake || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              vehicleMake: e.target.value,
+                            })
+                          }
+                          className="bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                          required
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-400">
+                          Vehicle Model
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.vehicleModel || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              vehicleModel: e.target.value,
+                            })
+                          }
+                          className="bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                          required
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-400">
+                          Vehicle Year
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.vehicleYear || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              vehicleYear: e.target.value,
+                            })
+                          }
+                          className="bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                          required
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-400">
+                          Vehicle Color
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.vehicleColor || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              vehicleColor: e.target.value,
+                            })
+                          }
+                          className="bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                          required
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-400">
+                          Vehicle Type
+                        </label>
+                        <select
+                          value={formData.vehicleType || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              vehicleType: e.target.value,
+                            })
+                          }
+                          className="bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                          required
+                        >
+                          <option value="">Select Vehicle Type</option>
+                          <option value="bike">Bike</option>
+                          <option value="auto">Auto</option>
+                          <option value="car">Car</option>
+                          {/* <option value="truck">Truck</option> */}
+                          <option value="scooter">Scooter</option>
+                        </select>
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-400">
+                          Registration Number
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.regNumber || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              regNumber: e.target.value,
+                            })
+                          }
+                          className="bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                          required
+                        />
+                      </div>
+                    </>
                   )}
 
                   <div className="flex flex-col gap-1">

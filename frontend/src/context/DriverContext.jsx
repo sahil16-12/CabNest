@@ -11,6 +11,7 @@ export const useDriver = () => {
 export const DriverProvider = ({ children }) => {
   const [driver, setDriver] = useState(null);
 
+  // Fetch driver profile by user ID
   const fetchDriverProfile = async (userId) => {
     try {
       const response = await axios.get(`${server}/api/driver/${userId}`);
@@ -20,19 +21,22 @@ export const DriverProvider = ({ children }) => {
     }
   };
 
+  // Create a new driver profile
   const createDriverProfile = async (formData) => {
     try {
       const response = await axios.post(`${server}/api/driver`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setDriver(response.data);
+      console.log(response.data);
       return response.data;
     } catch (error) {
-      console.error("Error creating driver profile:", error);
+      console.error("Error creating driver profile:", error.message);
       throw error;
     }
   };
 
+  // Update an existing driver profile
   const updateDriverProfile = async (userId, formData) => {
     try {
       const response = await axios.put(

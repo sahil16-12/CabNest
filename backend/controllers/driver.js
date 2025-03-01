@@ -7,16 +7,46 @@ import { Driver } from "../models/Driver.js";
  */
 export const createDriver = async (req, res) => {
     try {
-        const { _id, fullName, phoneNumber, dateOfBirth,  licenseNumber, address } = req.body;
+        const {
+            _id,
+            fullName,
+            phoneNumber,
+            dateOfBirth,
+            licenseNumber,
+            address,
+            vehicleMake,
+            vehicleModel,
+            vehicleYear,
+            vehicleColor,
+            vehicleType,
+            regNumber,
+        } = req.body;
+
         const profileImage = req.file ? `/uploads/${req.file.filename}` : ""; // Image path
 
         // Check if driver already exists
-        const existingDriver = await Driver.findOne({ _id  });
+        const existingDriver = await Driver.findOne({ _id });
         if (existingDriver) {
             return res.status(400).json({ message: "Driver already registered" });
         }
 
-        const driver = new Driver({ _id, fullName, phoneNumber, dateOfBirth, profileImage,  licenseNumber, address });
+        // Create new driver with vehicle details
+        const driver = new Driver({
+            _id,
+            fullName,
+            phoneNumber,
+            dateOfBirth,
+            profileImage,
+            licenseNumber,
+            address,
+            vehicleMake,
+            vehicleModel,
+            vehicleYear,
+            vehicleColor,
+            vehicleType,
+            regNumber,
+        });
+
         await driver.save();
 
         res.status(201).json({ message: "Driver created successfully", driver });
@@ -32,7 +62,7 @@ export const createDriver = async (req, res) => {
  */
 export const getAllDrivers = async (req, res) => {
     try {
-        const drivers = await Driver.find().populate("user vehicle");
+        const drivers = await Driver.find().populate("user"); // Populate user if needed
         res.status(200).json(drivers);
     } catch (error) {
         res.status(500).json({ message: "Error fetching drivers", error: error.message });
@@ -62,13 +92,39 @@ export const getDriverById = async (req, res) => {
  */
 export const updateDriver = async (req, res) => {
     try {
-        const { fullName, phoneNumber, dateOfBirth, licenseNumber, address } = req.body;
+        const {
+            fullName,
+            phoneNumber,
+            dateOfBirth,
+            licenseNumber,
+            address,
+            vehicleMake,
+            vehicleModel,
+            vehicleYear,
+            vehicleColor,
+            vehicleType,
+            regNumber,
+        } = req.body;
+
         const profileImage = req.file ? `/uploads/${req.file.filename}` : undefined;
 
         const updatedDriver = await Driver.findByIdAndUpdate(
             req.params.id,
-            { fullName, phoneNumber, dateOfBirth, profileImage, licenseNumber, address },
-            { new: true }
+            {
+                fullName,
+                phoneNumber,
+                dateOfBirth,
+                profileImage,
+                licenseNumber,
+                address,
+                vehicleMake,
+                vehicleModel,
+                vehicleYear,
+                vehicleColor,
+                vehicleType,
+                regNumber,
+            },
+            { new: true } // Return the updated document
         );
 
         if (!updatedDriver) return res.status(404).json({ message: "Driver not found" });

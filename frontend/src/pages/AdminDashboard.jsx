@@ -251,11 +251,31 @@ const AdminDashboard = () => {
                 {selectedUser.role === "driver" && (
                   <div className="space-y-4">
                     <p className="text-gray-700">
-                      <strong>Full Name:</strong> {selectedUser.fullName}
+                      <strong>License Number:</strong>{" "}
+                      {selectedUser.licenseNumber}
                     </p>
                     <p className="text-gray-700">
                       <strong>License Number:</strong>{" "}
-                      {selectedUser.licenseNumber}
+                      {selectedUser.vehicleMake}
+                    </p>
+                    <p className="text-gray-700">
+                      <strong>License Number:</strong>{" "}
+                      {selectedUser.vehicleModel}
+                    </p>
+                    <p className="text-gray-700">
+                      <strong>License Number:</strong>{" "}
+                      {selectedUser.vehicleYear}
+                    </p>
+                    <p className="text-gray-700">
+                      <strong>License Number:</strong>{" "}
+                      {selectedUser.vehicleColor}
+                    </p>
+                    <p className="text-gray-700">
+                      <strong>License Number:</strong>{" "}
+                      {selectedUser.vehicleType}
+                    </p>
+                    <p className="text-gray-700">
+                      <strong>License Number:</strong> {selectedUser.regNumber}
                     </p>
                   </div>
                 )}
