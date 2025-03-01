@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { UserData } from "../context/UserContext";
-import { useState } from "react"; // Import useState for dropdown functionality
+import { useState } from "react";
 
 const Header = () => {
   const { isAuth, logout, user } = UserData(); // Destructure logout from UserData
@@ -28,7 +28,7 @@ const Header = () => {
             Home
           </Link>
           <Link
-            to="/home"
+            to="/ride-book"
             className="text-gray-400 hover:text-blue-400 transition duration-200"
           >
             Book a Cab
@@ -101,7 +101,7 @@ const Header = () => {
 
         {/* Call-to-Action Button */}
         <Link
-          to="/home"
+          to="/ride-book"
           className="hidden md:inline-block bg-blue-500 hover:bg-blue-600 text-white py-2 px-6 rounded-md transition duration-200"
         >
           Book a Cab

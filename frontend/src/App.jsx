@@ -6,7 +6,7 @@ import AboutUs from "./pages/AboutUs";
 import { UserData } from "./context/UserContext";
 import Register from "./pages/Register";
 import Verify from "./pages/Verify";
-import HomePage from "./pages/Home";
+import RideBookPage from "./pages/RideBookPage";
 import SelectCab from "./pages/SelectCab";
 
 import RideRequestPage from "./pages/RideRequestPage";
@@ -29,7 +29,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/home" element={<HomePage />} />
+        <Route path="/ride-book" element={<RideBookPage />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/contact" element={<ContactUs />} />

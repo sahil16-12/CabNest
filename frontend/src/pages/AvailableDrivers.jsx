@@ -1,7 +1,7 @@
-const AvailableDrivers = ({ distance, onClose, onBook }) => {
+const AvailableDrivers = ({ distance, duration, fare, onClose, onBook }) => {
   const drivers = [
     {
-      id: 1,
+      _id: "67bef1dc363c13d183d79b01",
       name: "Rajesh Kumar",
       carModel: "Toyota Etios",
       license: "GJ05AB1234",
@@ -11,7 +11,7 @@ const AvailableDrivers = ({ distance, onClose, onBook }) => {
         "https://images.unsplash.com/photo-1557862921-37829c790f19?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
     },
     {
-      id: 2,
+      _id: "67bef1dc363c13d183d79b02",
       name: "Vikram Singh",
       carModel: "Maruti Suzuki Dzire",
       license: "GJ01CD5678",
@@ -21,7 +21,7 @@ const AvailableDrivers = ({ distance, onClose, onBook }) => {
         "https://images.unsplash.com/photo-1557862921-37829c790f19?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
     },
     {
-      id: 3,
+      _id: "67bef1dc363c13d183d79b03",
       name: "Anil Patel",
       carModel: "Honda City",
       license: "GJ03EF9012",
@@ -44,7 +44,7 @@ const AvailableDrivers = ({ distance, onClose, onBook }) => {
       <div className="grid gap-4 md:grid-cols-2">
         {drivers.map((driver) => (
           <div
-            key={driver.id}
+            key={driver._id}
             className="border rounded-lg p-4 hover:shadow-lg transition-shadow"
           >
             <div className="flex items-center mb-4">

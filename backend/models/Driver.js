@@ -1,21 +1,26 @@
 import mongoose from "mongoose";
 
-const driverSchema = new mongoose.Schema({
+const driverSchema = new mongoose.Schema(
+  {
     _id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User", // Reference to the User model
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // Reference to the User model
+      required: true,
+    },
+    fullName: {
+      type: String,
+      required: true,
     },
     phoneNumber: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     dateOfBirth: {
-        type: Date,
-        required: true,
+      type: Date,
+      required: true,
     },
     profileImage: {
-        type: String, // URL or file path of profile image
+        type: String, 
         default: "", 
     },
     licenseNumber: {
@@ -24,9 +29,9 @@ const driverSchema = new mongoose.Schema({
         unique: true,
     },
     address: {
-        type: String,
-        required: true,
-        unique: true,
+      type: String,
+      required: true,
+      unique: true,
     },
     vehicleMake: {
         type: String,
@@ -54,8 +59,15 @@ const driverSchema = new mongoose.Schema({
         required: true,
         unique: true, // Ensure registration numbers are unique
     },
+    status: {
+        type: String,
+        enum: ["online", "busy", "offline"],
+        default: "offline",
+      },
+  
 }, {
     timestamps: true,
-});
+  }
+);
 
 export const Driver = mongoose.model("Driver", driverSchema);
