@@ -12,14 +12,12 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import { Driver } from "./models/Driver.js";
-
+import Razorpay from 'razorpay';
 // Configure environment variables
 dotenv.config();
-<<<<<<< HEAD
-import Razorpay from 'razorpay';
+
 // Convert the module URL to a directory path
-=======
->>>>>>> d06ac743277c97308141f6c85061ae25e0df947e
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 export const instance=new Razorpay({

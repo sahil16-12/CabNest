@@ -8,8 +8,6 @@ import { Driver } from "../models/Driver.js";
 export const createDriver = async (req, res) => {
     try {
         const {
-            _id,
-            fullName,
             phoneNumber,
             dateOfBirth,
             licenseNumber,
@@ -20,20 +18,21 @@ export const createDriver = async (req, res) => {
             vehicleColor,
             vehicleType,
             regNumber,
+            _id,
         } = req.body;
-
-        const profileImage = req.file ? `/uploads/${req.file.filename}` : ""; // Image path
-
+        console.log(req.body);
+        const profileImage = req.file?.path; // Image path
+        console.log(profileImage)
         // Check if driver already exists
-        const existingDriver = await Driver.findOne({ user });
-        if (existingDriver) {
-            return res.status(400).json({ message: "Driver already registered" });
-        }
-
+        // const existingDriver = await Driver.findOne({req.body. _id });
+        // if (existingDriver) {
+        //     return res.status(400).json({ message: "Driver already registered" });
+        // }
+        console.log("ss");
+       
         // Create new driver with vehicle details
         const driver = new Driver({
             _id,
-            fullName,
             phoneNumber,
             dateOfBirth,
             profileImage,

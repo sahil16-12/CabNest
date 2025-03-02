@@ -4,7 +4,7 @@ const driverSchema = new mongoose.Schema(
   {
     _id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "User", // Reference to the User model
       required: true,
     },
     phoneNumber: {
@@ -15,19 +15,14 @@ const driverSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    status: {
-      type: String,
-      enum: ["online", "busy", "offline"],
-      default: "offline",
-    },
     profileImage: {
-      type: String,
-      default: "",
+        type: String, 
+        default: "", 
     },
     licenseNumber: {
-      type: String,
-      required: true,
-      unique: true,
+        type: String,
+        required: true,
+        unique: true,
     },
     address: {
       type: String,
@@ -35,51 +30,40 @@ const driverSchema = new mongoose.Schema(
       unique: true,
     },
     vehicleMake: {
-      type: String,
-      required: true,
+        type: String,
+        required: true,
     },
     vehicleModel: {
-      type: String,
-      required: true,
+        type: String,
+        required: true,
     },
     vehicleYear: {
-      type: Number,
-      required: true,
+        type: Number,
+        required: true,
     },
     vehicleColor: {
-      type: String,
-      required: true,
+        type: String,
+        required: true,
     },
     vehicleType: {
-      type: String,
-      required: true,
-      enum: ["bike", "auto", "car", "scooter"],
+        type: String,
+        required: true,
+        enum: ["bike", "auto", "car", "scooter"], // Allowed vehicle types
     },
     regNumber: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    currentLocation: {
-      type: {
         type: String,
-        enum: ["Point"],
-        default: "Point",
-      },
-      coordinates: {
-        type: [Number], // [longitude, latitude]
-        default: [0, 0],
-      },
+        required: true,
+        unique: true, // Ensure registration numbers are unique
     },
-    lastLocationUpdate: {
-      type: Date,
-      default: null,
-    },
-  },
-  {
+    status: {
+        type: String,
+        enum: ["online", "busy", "offline"],
+        default: "offline",
+      },
+  
+}, {
     timestamps: true,
   }
 );
 
-driverSchema.index({ currentLocation: "2dsphere" });
 export const Driver = mongoose.model("Driver", driverSchema);

@@ -83,7 +83,7 @@ const DriverProfile = () => {
       if (profile.profileImage instanceof File) {
         formData.append("profileImage", profile.profileImage);
       }
-      console.log(profile);
+      console.log(profile.profileImage);
       // Append other fields
       // formData.append("fullName", profile.fullName);
       formData.append("phoneNumber", profile.phoneNumber);
