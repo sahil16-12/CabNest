@@ -1,7 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
 import { createServer } from "http";
-import { Server } from "socket.io";
 import { connectDb } from "./database/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import DriverRoutes from "./routes/DriverRoutes.js";
@@ -11,8 +10,13 @@ import rideRoutes from "./routes/RideRoutes.js";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+<<<<<<< HEAD
 import { Driver } from "./models/Driver.js";
 import Razorpay from 'razorpay';
+=======
+import { setupSocket } from "./socket.js";
+
+>>>>>>> 2265ebd39d1412e774d45fb35096a08ff39867a3
 // Configure environment variables
 dotenv.config();
 
@@ -27,9 +31,6 @@ export const instance=new Razorpay({
 // Initialize Express app
 const app = express();
 const server = createServer(app); // Create an HTTP server for Socket.io
-const io = new Server(server, {
-  cors: { origin: "http://localhost:5173" }, // Adjust if frontend is hosted elsewhere
-});
 
 // Middleware
 app.use(express.json());
@@ -45,7 +46,7 @@ app.use("/api/rider", RiderRoutes);
 app.use("/api/driver", DriverRoutes);
 app.use("/api/admin", AdminRoutes);
 app.use("/api/ride", rideRoutes);
-
+setupSocket(server); // Initialize WebSocket
 // const createAdminUser = async () => {
 //   try {
 //       const newAdmin = new User({
@@ -63,33 +64,6 @@ app.use("/api/ride", rideRoutes);
 // }
 // createAdminUser();
 // Start the server
-
-// WebSocket Connection Handling
-io.on("connection", (socket) => {
-  console.log(`Driver connected: ${socket.id}`);
-
-  socket.on("updateLocation", async ({ driverId, latitude, longitude }) => {
-    try {
-      // Update driver location in MongoDB
-      await Driver.findByIdAndUpdate(driverId, {
-        currentLocation: {
-          type: "Point",
-          coordinates: [longitude, latitude],
-        },
-        lastLocationUpdate: new Date(),
-      });
-
-      // Notify all riders about updated driver locations
-      io.emit("driverLocationUpdated", { driverId, latitude, longitude });
-    } catch (error) {
-      console.error("Error updating driver location:", error);
-    }
-  });
-
-  socket.on("disconnect", () => {
-    console.log(`Driver disconnected: ${socket.id}`);
-  });
-});
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -1,4 +1,5 @@
 import { User } from "../models/User.js";
+import { Driver } from "../models/Driver.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import TryCatch from "../middlewares/TryCatch.js";
@@ -73,7 +74,6 @@ export const verifyUser = TryCatch(async (req, res) => {
     role: user.role,
   });
 });
-
 export const loginUser = TryCatch(async (req, res) => {
   const { email, password, currentLocation } = req.body;
 
@@ -109,7 +109,7 @@ export const loginUser = TryCatch(async (req, res) => {
 
   if (user.role === "driver") {
     // Update driver location and status
-    await Driver.findOneAndUpdate(
+    const te = await Driver.findOneAndUpdate(
       { _id: user._id },
       {
         $set: {
@@ -123,6 +123,7 @@ export const loginUser = TryCatch(async (req, res) => {
       },
       { new: true }
     );
+    console.log(te + "driver");
   }
 
   res.status(200).json({
@@ -136,7 +137,6 @@ export const loginUser = TryCatch(async (req, res) => {
     },
   });
 });
-
 // Helper function to generate JWT token
 const generateToken = (userId) => {
   return jwt.sign({ _id: userId }, process.env.JWT_SECRET, {

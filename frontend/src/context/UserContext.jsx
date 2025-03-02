@@ -31,7 +31,14 @@ export const UserContextProvider = ({ children }) => {
 
       localStorage.setItem("user", JSON.stringify(user));
       setIsAuth(true);
-      navigate("/");
+      console.log("Role is " + data.user.role);
+      if (data.user.role === "rider") {
+        navigate("/");
+      } else if (data.user.role === "driver") {
+        localStorage.setItem("driver", data.user.id);
+        console.log("Id is " + data.user.id);
+        navigate("/driver-dashboard");
+      }
     } catch (error) {
       //handleError(error, "Login failed.");
       setIsAuth(false);

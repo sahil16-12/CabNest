@@ -28,7 +28,6 @@ export const DriverProvider = ({ children }) => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setDriver(response.data);
-      console.log(response.data);
       return response.data;
     } catch (error) {
       console.error("Error creating driver profile:", error.message);

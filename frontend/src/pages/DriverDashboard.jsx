@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { io } from "socket.io-client";
 import {
   MapPin,
   DollarSign,
@@ -33,6 +34,7 @@ const DriverDashboard = () => {
     lat: 22.3072,
     lng: 73.1812,
   });
+  const [driverId, setDriverId] = useState(null);
   const [weeklyEarnings, setWeeklyEarnings] = useState([
     { day: "Mon", amount: 65 },
     { day: "Tue", amount: 75 },
@@ -90,6 +92,37 @@ const DriverDashboard = () => {
       urgent: false,
     },
   ]);
+  useEffect(() => {
+    const driverData = localStorage.getItem("driver");
+    if (driverData && driverData._id) {
+      setDriverId(driverData._id);
+    }
+    const socket = io("http://localhost:5000"); // Adjust for production
+
+    if ("geolocation" in navigator) {
+      navigator.geolocation.watchPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+
+          // Send location update to backend
+          socket.emit("updateLocation", { driverId, latitude, longitude });
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+
+    return () => {
+      socket.disconnect(); // Cleanup on component unmount
+    };
+  }, []);
 
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
