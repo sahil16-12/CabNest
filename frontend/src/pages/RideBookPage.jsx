@@ -396,7 +396,7 @@ import {
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import AvailableDrivers from "./AvailableDrivers";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserData } from "../context/UserContext";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -728,7 +728,9 @@ const RideBookPage = () => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <header className="bg-gray-900 text-white p-6 flex items-center justify-between">
         <div className="flex items-center">
-          <h1 className="text-2xl font-bold text-blue-400">CabNest</h1>
+          <Link to={"/"} className="text-2xl font-bold text-blue-400">
+            CabNest
+          </Link>
         </div>
         <div className="flex items-center">
           <span className="mr-3">{user?.name}</span>

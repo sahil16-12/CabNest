@@ -29,20 +29,19 @@ export const createDriver = async (req, res) => {
       return res.status(400).json({ message: "Driver already registered" });
     }
 
-    // Ensure unique licenseNumber, address, and regNumber
+    // Ensure unique licenseNumber and regNumber
     const duplicate = await Driver.findOne({
-      $or: [{ licenseNumber }, { address }, { regNumber }],
+      $or: [{ licenseNumber }, { regNumber }],
     });
     if (duplicate) {
       return res.status(400).json({
-        message:
-          "License number, address, or registration number already in use",
+        message: "License number or registration number already in use",
       });
     }
 
     // Create new driver
     const driver = new Driver({
-      _id: new mongoose.Types.ObjectId(_id),
+      _id,
       phoneNumber,
       dateOfBirth,
       status: "offline",
@@ -79,8 +78,8 @@ export const createDriver = async (req, res) => {
  */
 export const getAllDrivers = async (req, res) => {
   try {
-    const drivers = await Driver.find().populate("user");
-    res.status(200).json(drivers);
+    const drivers = await Driver.find().populate("_id");
+    res.status(200).json({ drivers });
   } catch (error) {
     res
       .status(500)
