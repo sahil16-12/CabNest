@@ -10,13 +10,13 @@ import rideRoutes from "./routes/RideRoutes.js";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-<<<<<<< HEAD
+
 import { Driver } from "./models/Driver.js";
 import Razorpay from 'razorpay';
-=======
+
 import { setupSocket } from "./socket.js";
 
->>>>>>> 2265ebd39d1412e774d45fb35096a08ff39867a3
+
 // Configure environment variables
 dotenv.config();
 
