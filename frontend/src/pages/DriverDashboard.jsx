@@ -1,38 +1,34 @@
-import React, { useState, useEffect, useRef } from "react";
-import { io } from "socket.io-client";
+import React, { useRef, useEffect } from "react";
 import {
   MapPin,
   DollarSign,
-  Users,
   Navigation,
   Car,
   ArrowUpRight,
+  User,
+  Power,
 } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { useDriverDashboardC } from "../context/DriverDashboardContext.";
 
 const DriverDashboard = () => {
-  const [earnings, setEarnings] = useState(87.5);
-  const [completedRides, setCompletedRides] = useState(5);
-  const [totalDistance, setTotalDistance] = useState(42.7);
-  const [currentLocation, setCurrentLocation] = useState({
-    lat: 22.3072,
-    lng: 73.1812,
-  });
-  const [weeklyEarnings, setWeeklyEarnings] = useState([
-    { day: "Mon", amount: 65 },
-    { day: "Tue", amount: 75 },
-    { day: "Wed", amount: 90 },
-    { day: "Thu", amount: 55 },
-    { day: "Fri", amount: 87.5 },
-    { day: "Sat", amount: 120 },
-    { day: "Sun", amount: 0 },
-  ]);
+  // Use the driver dashboard context
+  const {
+    earnings,
+    totalDistance,
+    overallRating,
+    currentLocation,
+    isAvailable,
+    toggleAvailability,
+    isLoading,
+  } = useDriverDashboardC();
 
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
 
+  // Initialize the map
   useEffect(() => {
     if (mapRef.current && !mapInstanceRef.current) {
       mapInstanceRef.current = L.map(mapRef.current).setView(
@@ -76,8 +72,9 @@ const DriverDashboard = () => {
         }
       };
     }
-  }, []);
+  }, [currentLocation]);
 
+  // Update the map marker and pan to the new location
   useEffect(() => {
     if (mapInstanceRef.current && markerRef.current) {
       markerRef.current.setLatLng([currentLocation.lat, currentLocation.lng]);
@@ -85,127 +82,134 @@ const DriverDashboard = () => {
     }
   }, [currentLocation]);
 
-  useEffect(() => {
-    const getLocation = () => {
-      const randomLat = currentLocation.lat + (Math.random() - 0.5) * 0.005;
-      const randomLng = currentLocation.lng + (Math.random() - 0.5) * 0.005;
-      setCurrentLocation({ lat: randomLat, lng: randomLng });
-    };
-
-    const interval = setInterval(getLocation, 10000);
-    return () => clearInterval(interval);
-  }, [currentLocation]);
-
-  const maxEarning = Math.max(...weeklyEarnings.map((day) => day.amount));
+  // Show loading state
+  // if (isLoading) {
+  //   return (
+  //     <div className="flex h-screen bg-gray-100 items-center justify-center">
+  //       <div className="text-xl font-bold text-gray-800">Loading...</div>
+  //     </div>
+  //   );
+  // }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-100">
       <div className="flex-1 overflow-auto">
         <main className="px-6 py-8">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-2xl font-bold text-gray-800">
+              Driver Dashboard
+            </h1>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={toggleAvailability}
+                className={`flex items-center px-4 py-2 rounded-full text-sm font-medium ${
+                  isAvailable
+                    ? "bg-green-500 text-white"
+                    : "bg-red-500 text-white"
+                }`}
+              >
+                <Power className="h-4 w-4 mr-2" />
+                {isAvailable ? "Available" : "Unavailable"}
+              </button>
+              <a
+                href="/profile"
+                className="flex items-center px-4 py-2 rounded-full bg-blue-500 text-white text-sm font-medium"
+              >
+                <User className="h-4 w-4 mr-2" />
+                Profile
+              </a>
+            </div>
+          </div>
+
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-md p-6 text-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {/* Daily Earnings */}
+            <div className="bg-white rounded-xl shadow-md p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-blue-100 text-sm font-medium">
-                    Today&apos;s Earnings
+                  <h3 className="text-gray-500 text-sm font-medium">
+                    Daily Earnings
                   </h3>
-                  <p className="text-3xl font-bold mt-2">
-                    ₹{earnings.toFixed(2)}
+                  <p className="text-3xl font-bold text-gray-800 mt-2">
+                    ₹{earnings.daily.toFixed(2)}
                   </p>
-                  <span className="text-blue-100 text-sm flex items-center mt-2">
+                  <span className="text-green-500 text-sm flex items-center mt-2">
                     <ArrowUpRight className="h-4 w-4 mr-1" />
                     12% more than yesterday
                   </span>
                 </div>
-                <div className="p-3 rounded-full bg-blue-400 bg-opacity-30">
+                <div className="p-3 rounded-full bg-blue-100 text-blue-600">
                   <DollarSign className="h-6 w-6" />
                 </div>
               </div>
             </div>
 
+            {/* Weekly Earnings */}
             <div className="bg-white rounded-xl shadow-md p-6">
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-gray-500 text-sm font-medium">
-                    Completed Rides
+                    Weekly Earnings
                   </h3>
                   <p className="text-3xl font-bold text-gray-800 mt-2">
-                    {completedRides}
+                    ₹{earnings.weekly.toFixed(2)}
                   </p>
-                  <span className="text-green-500 text-sm flex items-center mt-2">
-                    <Check className="h-4 w-4 mr-1" />
-                    All rides rated 5 stars
-                  </span>
                 </div>
                 <div className="p-3 rounded-full bg-blue-100 text-blue-600">
-                  <Users className="h-6 w-6" />
+                  <DollarSign className="h-6 w-6" />
                 </div>
               </div>
             </div>
 
+            {/* Monthly Earnings */}
             <div className="bg-white rounded-xl shadow-md p-6">
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-gray-500 text-sm font-medium">
-                    Distance Traveled
+                    Monthly Earnings
+                  </h3>
+                  <p className="text-3xl font-bold text-gray-800 mt-2">
+                    ₹{earnings.monthly.toFixed(2)}
+                  </p>
+                </div>
+                <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+                  <DollarSign className="h-6 w-6" />
+                </div>
+              </div>
+            </div>
+
+            {/* Total Distance Covered */}
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-gray-500 text-sm font-medium">
+                    Total Distance
                   </h3>
                   <p className="text-3xl font-bold text-gray-800 mt-2">
                     {totalDistance} <span className="text-lg">mi</span>
                   </p>
-                  <span className="text-blue-600 text-sm flex items-center mt-2">
-                    <Navigation className="h-4 w-4 mr-1" />
-                    Today&apos;s activity
-                  </span>
                 </div>
                 <div className="p-3 rounded-full bg-blue-100 text-blue-600">
                   <Car className="h-6 w-6" />
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Weekly Earnings Chart */}
-          <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-800">
-                Weekly Earnings
-              </h2>
-              <button className="text-sm text-blue-600 hover:text-blue-800 flex items-center">
-                View Details <ChevronRight className="h-4 w-4 ml-1" />
-              </button>
-            </div>
-
-            <div className="h-64">
-              <div className="flex items-end h-48 space-x-8 px-4">
-                {weeklyEarnings.map((day, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col items-center flex-1"
-                  >
-                    <div
-                      className={`w-full rounded-t-lg ${
-                        day.day === "Fri" ? "bg-blue-600" : "bg-blue-400"
-                      }`}
-                      style={{
-                        height: `${(day.amount / maxEarning) * 100}%`,
-                        minHeight: day.amount > 0 ? "10%" : "1%",
-                      }}
-                    ></div>
-                    <p className="text-xs font-medium text-gray-600 mt-2">
-                      {day.day}
-                    </p>
-                    <p
-                      className={`text-xs ${
-                        day.day === "Fri"
-                          ? "font-bold text-blue-600"
-                          : "text-gray-500"
-                      }`}
-                    >
-                      ₹{day.amount}
-                    </p>
-                  </div>
-                ))}
+            {/* Overall Rating */}
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-gray-500 text-sm font-medium">
+                    Overall Rating
+                  </h3>
+                  <p className="text-3xl font-bold text-gray-800 mt-2">
+                    {overallRating}/5
+                  </p>
+                </div>
+                <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+                  <Navigation className="h-6 w-6" />
+                </div>
               </div>
             </div>
           </div>

@@ -75,6 +75,28 @@ const driverSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    earnings: {
+      daily: {
+        type: Number,
+        default: 0,
+      },
+      weekly: {
+        type: Number,
+        default: 0,
+      },
+      monthly: {
+        type: Number,
+        default: 0,
+      },
+    },
+    totalDistance: {
+      type: Number,
+      default: 0,
+    },
+    overallRating: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
