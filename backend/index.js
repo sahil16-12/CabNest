@@ -10,13 +10,24 @@ import rideRoutes from "./routes/RideRoutes.js";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+
+import { Driver } from "./models/Driver.js";
+import Razorpay from 'razorpay';
+
 import { setupSocket } from "./socket.js";
+
 
 // Configure environment variables
 dotenv.config();
+
+// Convert the module URL to a directory path
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
+export const instance=new Razorpay({
+  key_id: process.env.KEY_ID,
+  key_secret: process.env.KEY_SECRET
+})
 // Initialize Express app
 const app = express();
 const server = createServer(app); // Create an HTTP server for Socket.io

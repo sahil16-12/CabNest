@@ -83,6 +83,9 @@ const DriverProfile = () => {
       if (profile.profileImage instanceof File) {
         formData.append("profileImage", profile.profileImage);
       }
+
+      console.log(profile.profileImage);
+
       // Append other fields
       // formData.append("fullName", profile.fullName);
       formData.append("phoneNumber", profile.phoneNumber);
@@ -99,7 +102,7 @@ const DriverProfile = () => {
 
       await createDriverProfile(formData);
       toast.success("Driver profile created successfully!");
-      localStorage.removeItem("userId");
+      // localStorage.removeItem("userId");
       setIsAuth(true);
       navigate("/login");
     } catch (error) {

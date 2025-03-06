@@ -5,15 +5,18 @@ import { UserContextProvider } from "./context/UserContext.jsx";
 import { RiderProvider } from "./context/RiderContext.jsx";
 import { DriverProvider } from "./context/DriverContext.jsx";
 import { AdminProvider } from "./context/AdminContext.jsx";
+import { DriverDashboardProvider } from "./context/DriverDashboardContext..jsx";
 export const server = "http://localhost:5000";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <UserContextProvider>
       <RiderProvider>
         <DriverProvider>
-          <AdminProvider>
-            <App />
-          </AdminProvider>
+          <DriverDashboardProvider>
+            <AdminProvider>
+              <App />
+            </AdminProvider>
+          </DriverDashboardProvider>
         </DriverProvider>
       </RiderProvider>
     </UserContextProvider>

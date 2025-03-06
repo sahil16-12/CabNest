@@ -8,7 +8,6 @@ import { Driver } from "../models/Driver.js";
 export const createDriver = async (req, res) => {
   try {
     const {
-      _id,
       phoneNumber,
       dateOfBirth,
       licenseNumber,
@@ -19,15 +18,10 @@ export const createDriver = async (req, res) => {
       vehicleColor,
       vehicleType,
       regNumber,
+      _id,
     } = req.body;
 
-    const profileImage = req.file ? `/uploads/${req.file.filename}` : ""; // Image path
-
-    // Check if driver already exists
-    const existingDriver = await Driver.findOne({ _id });
-    if (existingDriver) {
-      return res.status(400).json({ message: "Driver already registered" });
-    }
+    const profileImage = req.file?.path; // Image path
 
     // Ensure unique licenseNumber and regNumber
     const duplicate = await Driver.findOne({
@@ -78,8 +72,8 @@ export const createDriver = async (req, res) => {
  */
 export const getAllDrivers = async (req, res) => {
   try {
-    const drivers = await Driver.find().populate("_id");
-    res.status(200).json({ drivers });
+    const drivers = await Driver.find();
+    res.status(200).json(drivers);
   } catch (error) {
     res
       .status(500)
@@ -95,8 +89,9 @@ export const getAllDrivers = async (req, res) => {
 export const getDriverById = async (req, res) => {
   try {
     const driver = await Driver.findById(req.params.id);
-    if (!driver) return res.status(404).json({ message: "Driver not found" });
-
+    if (!driver) {
+      return res.status(404).json({ message: "Driver not found" });
+    }
     res.status(200).json(driver);
   } catch (error) {
     res
@@ -147,8 +142,9 @@ export const updateDriver = async (req, res) => {
       { new: true } // Return the updated document
     );
 
-    if (!updatedDriver)
+    if (!updatedDriver) {
       return res.status(404).json({ message: "Driver not found" });
+    }
 
     res
       .status(200)
@@ -168,8 +164,9 @@ export const updateDriver = async (req, res) => {
 export const deleteDriver = async (req, res) => {
   try {
     const driver = await Driver.findByIdAndDelete(req.params.id);
-    if (!driver) return res.status(404).json({ message: "Driver not found" });
-
+    if (!driver) {
+      return res.status(404).json({ message: "Driver not found" });
+    }
     res.status(200).json({ message: "Driver deleted successfully" });
   } catch (error) {
     res

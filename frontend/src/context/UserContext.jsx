@@ -39,6 +39,7 @@ export const UserContextProvider = ({ children }) => {
         console.log("Id is " + data.user.id);
         navigate("/driver-dashboard");
       }
+      navigate("/");
     } catch (error) {
       //handleError(error, "Login failed.");
       setIsAuth(false);
