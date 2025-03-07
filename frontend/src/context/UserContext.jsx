@@ -2,20 +2,14 @@ import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { server } from "../main";
 import { Toaster, toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 
 const UserContext = createContext();
 
 export const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isAuth, setIsAuth] = useState(!!localStorage.getItem("token"));
+  const [isAuth, setIsAuth] = useState(!!sessionStorage.getItem("token"));
   const [btnLoading, setBtnLoading] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  // const handleError = (error, fallbackMessage) => {
-  //   console.error(error);
-  //   toast.error(error.response?.data?.message || fallbackMessage);
-  // };
 
   async function loginUser(email, password, currentLocation, navigate) {
     setBtnLoading(true);
@@ -26,22 +20,18 @@ export const UserContextProvider = ({ children }) => {
         currentLocation,
       });
       toast.success(data.message);
-      localStorage.setItem("token", data.token);
+      sessionStorage.setItem("token", data.token);
       setUser(data.user);
-
-      localStorage.setItem("user", JSON.stringify(user));
       setIsAuth(true);
-      console.log("Role is " + data.user.role);
       if (data.user.role === "rider") {
         navigate("/");
       } else if (data.user.role === "driver") {
-        localStorage.setItem("driver", data.user.id);
+        sessionStorage.setItem("driver", data.user.id);
         console.log("Id is " + data.user.id);
         navigate("/driver-dashboard");
       }
       navigate("/");
     } catch (error) {
-      //handleError(error, "Login failed.");
       setIsAuth(false);
     } finally {
       setBtnLoading(false);
@@ -58,10 +48,10 @@ export const UserContextProvider = ({ children }) => {
         password,
       });
       toast.success(data.message);
-      localStorage.setItem("activationToken", data.activationToken);
+      sessionStorage.setItem("activationToken", data.activationToken);
       navigate("/verify");
     } catch (error) {
-      //handleError(error, "Registration failed.");
+      // Handle registration error if needed
     } finally {
       setBtnLoading(false);
     }
@@ -69,7 +59,7 @@ export const UserContextProvider = ({ children }) => {
 
   async function verifyOtp(otp, navigate) {
     setBtnLoading(true);
-    const activationToken = localStorage.getItem("activationToken");
+    const activationToken = sessionStorage.getItem("activationToken");
     try {
       const { data } = await axios.post(`${server}/api/user/verify`, {
         otp,
@@ -77,14 +67,14 @@ export const UserContextProvider = ({ children }) => {
       });
       toast.success(data.message);
       setUser(data.user);
-      localStorage.setItem("userId", data.userId);
-      if (data.role == "rider") {
+      sessionStorage.setItem("userId", data.userId);
+      if (data.role === "rider") {
         navigate("/rider-profile");
       } else {
         navigate("/driver-profile");
       }
     } catch (error) {
-      //handleError(error, "OTP verification failed.");
+      // Handle OTP verification error if needed
     } finally {
       setBtnLoading(false);
     }
@@ -94,21 +84,21 @@ export const UserContextProvider = ({ children }) => {
     setLoading(true);
     try {
       const { data } = await axios.get(`${server}/api/user/me`, {
-        headers: { token: localStorage.getItem("token") },
+        headers: { token: sessionStorage.getItem("token") },
       });
       setUser(data.user);
       setIsAuth(true);
     } catch (error) {
-      //handleError(error, "Failed to fetch user data.");
       setIsAuth(false);
     } finally {
       setLoading(false);
     }
   }
+
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("activationToken");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userId");
+    sessionStorage.removeItem("activationToken");
     setUser(null);
     setIsAuth(false);
     toast.success("Logged out successfully");

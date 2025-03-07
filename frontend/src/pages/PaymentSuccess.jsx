@@ -35,7 +35,7 @@ const PaymentSuccess = () => {
             Reference no - <span className="text-purple-600">{params.id}</span>
           </p>
           <Link
-            to={`/home`}
+            to={`/`}
             className="inline-block bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition duration-300"
           >
             Go to Dashboard

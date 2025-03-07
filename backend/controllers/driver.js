@@ -72,8 +72,33 @@ export const createDriver = async (req, res) => {
  */
 export const getAllDrivers = async (req, res) => {
   try {
-    const drivers = await Driver.find();
-    res.status(200).json(drivers);
+    const { pickupLat, pickupLng } = req.query;
+
+    if (!pickupLat || !pickupLng) {
+      return res
+        .status(400)
+        .json({ message: "Pickup location coordinates are required" });
+    }
+
+    // Convert string coordinates to numbers
+    const lat = parseFloat(pickupLat);
+    const lng = parseFloat(pickupLng);
+
+    // Find online drivers within 5km radius of pickup location
+    const drivers = await Driver.find({
+      status: "online",
+      currentLocation: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [lng, lat], // GeoJSON uses [longitude, latitude] format
+          },
+          $maxDistance: 10000, // 5km in meters
+        },
+      },
+    }).populate("_id");
+    console.log(drivers);
+    res.status(200).json({ drivers });
   } catch (error) {
     res
       .status(500)

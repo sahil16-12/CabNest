@@ -113,7 +113,7 @@ const DriverDashboard = () => {
                 {isAvailable ? "Available" : "Unavailable"}
               </button>
               <a
-                href="/profile"
+                href="/profile-page"
                 className="flex items-center px-4 py-2 rounded-full bg-blue-500 text-white text-sm font-medium"
               >
                 <User className="h-4 w-4 mr-2" />

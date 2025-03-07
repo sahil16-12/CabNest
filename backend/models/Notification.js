@@ -1,35 +1,50 @@
+// models/Notification.js
 import mongoose from "mongoose";
 
-const notificationSchema = new mongoose.Schema({
+const notificationSchema = new mongoose.Schema(
+  {
+    sender: {
+      // Rider who sent the request
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     recipient: {
-        type: mongoose.Schema.Types.ObjectId,
-        refPath: "recipientType", // Dynamically references Rider or Driver
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: "recipientType",
+      required: true,
     },
     recipientType: {
-        type: String,
-        enum: ["Rider", "Driver"],
-        required: true,
+      type: String,
+      enum: ["Rider", "Driver"],
+      required: true,
     },
     message: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     type: {
-        type: String,
-        enum: ["ride_request", "payment", "feedback", "general"],
-        required: true,
+      type: String,
+      enum: ["ride_request", "payment", "feedback", "general"],
+      required: true,
     },
     ride: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Ride", // Optional reference to a related ride
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Ride",
+    },
+    status: {
+      type: String,
+      enum: ["pending", "accepted", "rejected"],
+      default: "pending",
     },
     isRead: {
-        type: Boolean,
-        default: false,
+      type: Boolean,
+      default: false,
     },
-}, {
-    timestamps: true, // Auto-generates createdAt and updatedAt
-});
+  },
+  {
+    timestamps: true,
+  }
+);
 
 export const Notification = mongoose.model("Notification", notificationSchema);

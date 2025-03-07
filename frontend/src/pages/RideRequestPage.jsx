@@ -7,24 +7,30 @@ const RideRequestPage = () => {
   const [showBuffer, setShowBuffer] = useState(true);
   const [rideConfirmed, setRideConfirmed] = useState(false);
 
-  const driver = location.state?.driver || null; // Get driver from navigation state
-  const pickup = location.state?.pickup || null;
-  const drop = location.state?.drop || null;
+  // Extract driver and ride from navigation state
+  const driver = location.state?.driver || null;
+  const ride = location.state?.ride || null;
+
+  // Extract pickup and drop locations from ride if available
+  const pick = ride?.pickup.coordinates;
+  const Drop = ride?.drop.coordinates;
+
   useEffect(() => {
-    if (!driver || !pickup || !drop) {
-      navigate("/ride-book"); // Redirect to home if no driver is selected
+    // If either driver or ride is missing, redirect back to ride booking page
+    if (!driver || !ride) {
+      navigate("/ride-book");
     } else {
+      // Simulate backend delay and ride confirmation
       setTimeout(() => {
         setShowBuffer(false);
         setRideConfirmed(true);
-      }, 3000); // Simulating backend delay
+      }, 3000); // 3 seconds delay for confirmation simulation
 
       setTimeout(() => {
-        console.log("IN RIDE REWUEST {0} - {1}", pickup, drop);
-        navigate("/ride-status", { state: { driver, pickup, drop } }); // Redirect to ride status page after confirmation
-      }, 5000); // After 2s of confirmation, redirect to ride status
+        navigate("/ride-status", { state: { driver, pick, Drop, ride } });
+      }, 5000); // Redirect after an additional 2 seconds (total 5 seconds)
     }
-  }, [driver, drop, pickup, navigate]);
+  }, [driver, ride, navigate]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

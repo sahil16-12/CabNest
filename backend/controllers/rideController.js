@@ -45,7 +45,7 @@ export const requestRide = async (req, res) => {
       distance,
       rideType = "standard",
     } = req.body;
-    console.log(riderId, driverId, pickup, drop, distance, rideType);
+    console.log("DTA" + riderId, driverId, pickup, drop, distance, rideType);
     // Validate required fields
     if (!riderId || !pickup || !drop || !distance) {
       return res.status(400).json({

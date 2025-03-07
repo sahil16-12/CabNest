@@ -17,7 +17,6 @@ export const RiderProvider = ({ children }) => {
     try {
       const response = await axios.get(`${server}/api/rider/${id}`);
       setRider(response.data);
-      // console.log(response.data);
       localStorage.setItem("rider", response.rider);
       setError(null);
     } catch (err) {
