@@ -26,7 +26,7 @@ const AvailableDrivers = ({
           params: {
             pickupLat: pickup?.lat, // Assuming coordinates are [longitude, latitude]
             pickupLng: pickup?.lng,
-            //vehicleType: "car", // Can be parameterized based on user selection
+            vehicleType: "car", // Can be parameterized based on user selection
           },
         });
 
@@ -116,7 +116,7 @@ const AvailableDrivers = ({
   return (
     <div className="relative w-full mt-4 p-4 bg-white shadow-lg rounded-lg max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-2xl font-bold text-blue-600">Available Rides</h3>
+        <h3 className="text-2xl font-bold text-blue-600">Select a driver</h3>
         <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
           ✕
         </button>

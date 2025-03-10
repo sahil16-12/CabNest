@@ -14,7 +14,7 @@ const RiderProfile = () => {
   const fileInputRef = useRef(null);
   const { isAuth, setIsAuth } = UserData();
   useEffect(() => {
-    const storedUserId = localStorage.getItem("userId");
+    const storedUserId = sessionStorage.getItem("userId");
     if (!storedUserId) {
       toast.error("Please complete registration first");
       navigate("/login");
@@ -80,9 +80,9 @@ const RiderProfile = () => {
     try {
       await createRider(formData);
       toast.success("Rider profile created successfully!");
-      localStorage.removeItem("userId");
+      sessionStorage.removeItem("userId");
       setIsAuth(true);
-      navigate("/home");
+      navigate("/login");
     } catch (err) {
       toast.error(error || "Failed to create rider profile");
     }

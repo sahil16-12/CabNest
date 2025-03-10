@@ -17,6 +17,8 @@ import DriverRideRequests from "./pages/DriverRideRequests";
 import RideCompletionPage from "./pages/RideCompleted";
 import AdminDashboard from "./pages/AdminDashBoard";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import RideWaitingPage from "./pages/RideWaitingPage";
+import ActiveRidePage from "./pages/ActiveRidePage";
 
 const App = () => {
   return (
@@ -40,6 +42,8 @@ const App = () => {
         <Route path="/ride-completed" element={<RideCompletionPage />} />
         <Route path="/admin/dashBoard" element={<AdminDashboard />} />
         <Route path="/payment-successfull/:id" element={<PaymentSuccess />} />
+        <Route path="/ride-waiting" element={<RideWaitingPage />} />
+        <Route path="/active-ride" element={<ActiveRidePage />} />
       </Routes>
     </Router>
   );

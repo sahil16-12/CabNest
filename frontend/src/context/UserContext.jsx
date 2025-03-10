@@ -10,7 +10,6 @@ export const UserContextProvider = ({ children }) => {
   const [isAuth, setIsAuth] = useState(!!sessionStorage.getItem("token"));
   const [btnLoading, setBtnLoading] = useState(false);
   const [loading, setLoading] = useState(true);
-
   async function loginUser(email, password, currentLocation, navigate) {
     setBtnLoading(true);
     try {
@@ -24,10 +23,13 @@ export const UserContextProvider = ({ children }) => {
       setUser(data.user);
       setIsAuth(true);
       if (data.user.role === "rider") {
+        sessionStorage.setItem("rider", JSON.stringify(data.user));
         navigate("/");
       } else if (data.user.role === "driver") {
-        sessionStorage.setItem("driver", data.user.id);
-        console.log("Id is " + data.user.id);
+        const response = await axios.get(
+          `${server}/api/driver/${data.user.id}`
+        );
+        sessionStorage.setItem("driver", JSON.stringify(response.data));
         navigate("/driver-dashboard");
       }
       navigate("/");

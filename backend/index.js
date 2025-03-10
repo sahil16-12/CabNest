@@ -1,6 +1,5 @@
 import express from "express";
 import dotenv from "dotenv";
-import { createServer } from "http";
 import { connectDb } from "./database/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import DriverRoutes from "./routes/DriverRoutes.js";
@@ -10,12 +9,11 @@ import rideRoutes from "./routes/RideRoutes.js";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-
+import { Server } from "socket.io";
+import { createServer } from "http";
 import { Driver } from "./models/Driver.js";
-import Razorpay from 'razorpay';
-
-import { setupSocket } from "./socket.js";
-
+import Razorpay from "razorpay";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 // Configure environment variables
 dotenv.config();
@@ -24,13 +22,62 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-export const instance=new Razorpay({
+export const instance = new Razorpay({
   key_id: process.env.KEY_ID,
-  key_secret: process.env.KEY_SECRET
-})
+  key_secret: process.env.KEY_SECRET,
+});
 // Initialize Express app
 const app = express();
 const server = createServer(app); // Create an HTTP server for Socket.io
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // Update with frontend URL
+    methods: ["GET", "POST"],
+  },
+});
+const connectedUsers = new Map();
+io.connectedUsers = connectedUsers;
+io.on("connection", (socket) => {
+  console.log("New Client connected:", socket.id);
+
+  // Listen for driver location updates
+  socket.on("updateLocation", async ({ driverId, latitude, longitude }) => {
+    try {
+      await Driver.findByIdAndUpdate(driverId, {
+        currentLocation: {
+          type: "Point",
+          coordinates: [longitude, latitude],
+        },
+        lastLocationUpdate: new Date(),
+      });
+
+      console.log(`Updated location for driver ${driverId}`);
+    } catch (error) {
+      console.error("Error updating driver location:", error);
+    }
+  });
+  // Handle driver connection
+  socket.on("register-driver", (driverId) => {
+    connectedUsers.set(driverId.toString(), socket.id);
+    console.log(`Driver ${driverId} connected`);
+  });
+  // Register rider socket
+  socket.on("register-rider", (riderId) => {
+    connectedUsers.set(riderId.toString(), socket.id);
+    console.log(`Rider ${riderId} connected`);
+  });
+  socket.on("disconnect", () => {
+    console.log("A driver disconnected:", socket.id);
+    for (const [userId, socketId] of connectedUsers.entries()) {
+      if (socketId === socket.id) {
+        connectedUsers.delete(userId);
+        break;
+      }
+    }
+  });
+});
+
+app.set("io", io);
 
 // Middleware
 app.use(express.json());
@@ -46,7 +93,8 @@ app.use("/api/rider", RiderRoutes);
 app.use("/api/driver", DriverRoutes);
 app.use("/api/admin", AdminRoutes);
 app.use("/api/ride", rideRoutes);
-setupSocket(server); // Initialize WebSocket
+app.use("/api/notifications", notificationRoutes);
+
 // const createAdminUser = async () => {
 //   try {
 //       const newAdmin = new User({
