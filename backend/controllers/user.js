@@ -123,7 +123,6 @@ export const loginUser = TryCatch(async (req, res) => {
       },
       { new: true }
     );
-    console.log(te + "driver");
   }
 
   res.status(200).json({

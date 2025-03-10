@@ -11,10 +11,14 @@ import {
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import axios from "axios";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import { server } from "../main";
+<<<<<<< HEAD
 import { useDriverDashboardC } from "../context/DriverDashboardContext.";
+=======
+import { Phone, MessageSquare, AlertTriangle, X } from "lucide-react";
+>>>>>>> 51c0debbe052732b37b9b17cf5697e6d796a499c
 
 // Fix for default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -26,46 +30,51 @@ L.Icon.Default.mergeOptions({
 
 // Custom icons
 const carIcon = new L.Icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/2583/2583344.png",
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/3097/3097144.png", // Modern taxi/cab icon
   iconSize: [40, 40],
   iconAnchor: [20, 20],
+  popupAnchor: [0, -20],
+  className: "car-icon-pulse",
 });
-
 const pickupIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-  iconSize: [35, 35],
-  iconAnchor: [17, 35],
+  iconSize: [38, 38],
+  iconAnchor: [19, 38],
+  popupAnchor: [0, -38],
 });
 
 const dropIcon = new L.Icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/447/447031.png",
-  iconSize: [35, 35],
-  iconAnchor: [17, 35],
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+  iconSize: [38, 38],
+  iconAnchor: [19, 38],
+  popupAnchor: [0, -38],
 });
 
 const driverStartIcon = new L.Icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/149/149060.png",
-  iconSize: [30, 30],
-  iconAnchor: [15, 30],
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+  iconSize: [38, 38],
+  iconAnchor: [19, 38],
+  popupAnchor: [0, -38],
 });
 
 const OSRM_API_URL = "https://router.project-osrm.org/route/v1/driving/";
 
-const DriverMarker = ({ position, startPosition }) => {
+const DriverMarker = ({ position, startPosition, rideStatus }) => {
   const markerRef = useRef(null);
   const map = useMap();
 
   useEffect(() => {
     if (markerRef.current && position) {
       markerRef.current.setLatLng(position);
+      map.setView(position, map.getZoom());
     }
-  }, [position]);
+  }, [position, map]);
 
   return (
     <>
-      {startPosition && (
+      {rideStatus === "arriving" && startPosition && (
         <Marker position={startPosition} icon={driverStartIcon}>
-          <Popup>Driver's Starting Position</Popup>
+          <Popup>Driver&apos;s Starting Position</Popup>
         </Marker>
       )}
       {position && (
@@ -87,8 +96,8 @@ const DriverMarker = ({ position, startPosition }) => {
 const RideStatusPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { driver, pick, Drop, ride } = location.state || {};
-
+  const { ride, driver, otp } = location.state || {};
+  const socket = useRef(null);
   const [pickupCoords, setPickupCoords] = useState(null);
   const [dropCoords, setDropCoords] = useState(null);
   const [driverData, setDriverData] = useState(null);
@@ -96,13 +105,34 @@ const RideStatusPage = () => {
   const [status, setStatus] = useState("Finding driver...");
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [showOtpDialog, setShowOtpDialog] = useState(false);
+  const [canStartRide, setCanStartRide] = useState(false);
+  const [rideStarted, setRideStarted] = useState(false);
+  const [rideCompleted, setRideCompleted] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [message, setMessage] = useState("");
+  const [chatMessages, setChatMessages] = useState([
+    {
+      sender: "driver",
+      text: "Hello! I'll be there in a few minutes.",
+      time: "10:30 AM",
+    },
+  ]);
+  const [pickupToDropRoute, setPickupToDropRoute] = useState([]);
   const movementInterval = useRef(null);
+
   const { setRideDriver } = useDriverDashboardC();
+
+  const otpInputRef = useRef(null);
+
 
   const statusMessages = {
     searching: "Finding driver...",
     arriving: "Driver is on the way...",
     arrived: "Driver has arrived!",
+    otpVerify: "Please verify OTP with driver",
     ongoing: "Ride in progress...",
     completed: "Ride Completed! 🎉",
   };
@@ -175,16 +205,54 @@ const RideStatusPage = () => {
   };
 
   useEffect(() => {
+    const initSocket = async () => {
+      const io = await import("socket.io-client");
+      socket.current = io.connect(server);
+      // Register this connection as a rider using the rider ID from the ride
+      if (ride && ride.riderId) {
+        socket.current.emit("register-rider", ride.riderId);
+      }
+      socket.current.on("connect", () =>
+        console.log("Rider socket connected:", socket.current.id)
+      );
+      socket.current.on("disconnect", () =>
+        console.log("Rider socket disconnected")
+      );
+
+      // Listen for the "otp-verified" event emitted by the driver.
+      socket.current.on("otp-verified", (data) => {
+        console.log("OTP verified event received:", data);
+        if (data.rideId === ride._id) {
+          setOtpVerified(true);
+          toast.success("OTP has been verified by the driver!");
+          setShowOtpDialog(false);
+        }
+      });
+    };
+
+    initSocket();
+    return () => {
+      if (socket.current) socket.current.disconnect();
+    };
+  }, [ride]);
+
+  useEffect(() => {
     const initializeRide = async () => {
-      if (!driver || !pick || !Drop || !ride) {
+      if (!driver || !ride) {
         setError("Missing ride information");
         return navigate("/ride-book");
       }
 
       try {
         // Extract coordinates from backend data - ensure [lat, lng] format for Leaflet
-        const pickupLocation = [pick.coordinates[1], pick.coordinates[0]]; // Swap to [lat, lng]
-        const dropLocation = [Drop.coordinates[1], Drop.coordinates[0]]; // Swap to [lat, lng]
+        const pickupLocation = [
+          ride.pickup.coordinates.coordinates[1],
+          ride.pickup.coordinates.coordinates[0],
+        ]; // Swap to [lat, lng]
+        const dropLocation = [
+          ride.drop.coordinates.coordinates[1],
+          ride.drop.coordinates.coordinates[0],
+        ]; // Swap to [lat, lng]
         const driverStartPosition = [
           driver.currentLocation.coordinates[1],
           driver.currentLocation.coordinates[0],
@@ -219,13 +287,32 @@ const RideStatusPage = () => {
         );
         if (!initialRoute) throw new Error("Failed to calculate route");
 
+        // Also fetch the pickup-to-drop route now so it's ready
+        const pickupToDropRoute = await fetchRoute(
+          pickupLocation,
+          dropLocation
+        );
+        if (pickupToDropRoute) {
+          setPickupToDropRoute(pickupToDropRoute);
+        }
+
         setRoute(initialRoute);
         setStatus(statusMessages.arriving);
 
         startMovement(initialRoute, statusMessages.arriving, async () => {
           setStatus(statusMessages.arrived);
-          const rideRoute = await fetchRoute(pickupLocation, dropLocation);
-          if (rideRoute) setRoute(rideRoute);
+          // After reaching pickup, show OTP verification dialog
+          setShowOtpDialog(true);
+          setStatus(statusMessages.otpVerify);
+
+          // Enable the Start Ride button after driver arrives and OTP dialog is shown
+          setCanStartRide(true);
+
+          setTimeout(() => {
+            if (otpInputRef.current) {
+              otpInputRef.current.focus();
+            }
+          }, 300);
         });
       } catch (error) {
         console.error("Ride initialization failed:", error);
@@ -235,37 +322,123 @@ const RideStatusPage = () => {
 
     initializeRide();
     return () => clearInterval(movementInterval.current);
-  }, [driver, pick, Drop, ride, navigate]);
+  }, [driver, ride, navigate]);
+
+  useEffect(() => {
+    if (showOtpDialog && otpInputRef.current) {
+      otpInputRef.current.focus();
+    }
+  }, [showOtpDialog]);
 
   const startMovement = (path, statusMessage, onComplete) => {
     clearInterval(movementInterval.current);
     setStatus(statusMessage);
     let currentStep = 0;
+    const totalSteps = path.length;
 
     movementInterval.current = setInterval(() => {
-      if (currentStep >= path.length) {
+      if (currentStep >= totalSteps) {
         clearInterval(movementInterval.current);
         onComplete?.();
         return;
       }
 
       setDriverData((prev) => ({ ...prev, position: path[currentStep] }));
-      setProgress((currentStep / path.length) * 100);
+      setProgress((currentStep / totalSteps) * 100);
       currentStep++;
     }, 150);
   };
 
   const startRide = () => {
+    // Only proceed if OTP was verified and driver has arrived
+    if (!otpVerified) {
+      setShowOtpDialog(true);
+      toast.error(
+        "OTP not verified yet. Please wait for the driver to verify OTP."
+      );
+      return;
+    }
     setStatus(statusMessages.ongoing);
-    startMovement(route, statusMessages.ongoing, () => {
-      setStatus(statusMessages.completed);
-    });
+    setShowOtpDialog(false); // Ensure dialog is closed
+    setRideStarted(true); // Set ride as started
+
+    // Use the pre-fetched route from pickup to drop
+    if (pickupToDropRoute.length > 0) {
+      setRoute(pickupToDropRoute); // Update the displayed route
+      startMovement(pickupToDropRoute, statusMessages.ongoing, () => {
+        setStatus(statusMessages.completed);
+        setRideCompleted(true);
+      });
+    } else {
+      // If somehow we don't have the route yet, calculate it
+      const calculateRideRoute = async () => {
+        try {
+          const rideRoute = await fetchRoute(pickupCoords, dropCoords);
+          if (rideRoute) {
+            setRoute(rideRoute);
+            startMovement(rideRoute, statusMessages.ongoing, () => {
+              setStatus(statusMessages.completed);
+              setRideCompleted(true);
+            });
+          } else {
+            toast.error("Could not calculate route to destination");
+          }
+        } catch (error) {
+          console.error("Failed to calculate ride route:", error);
+          toast.error("Error starting ride");
+        }
+      };
+      calculateRideRoute();
+    }
+  };
+
+  const cancelRide = () => {
+    // Simulate ride cancellation (in real app, this would be an API call)
+    toast.info("Ride cancelled successfully");
+    navigate("/ride-book");
+  };
+
+  const sendMessage = () => {
+    if (!message.trim()) return;
+
+    const newMessage = {
+      sender: "rider",
+      text: message,
+      time: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+
+    setChatMessages([...chatMessages, newMessage]);
+    setMessage("");
+
+    // Simulate driver response
+    setTimeout(() => {
+      const driverResponse = {
+        sender: "driver",
+        text: "I got your message. Will be there soon!",
+        time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+      setChatMessages((prevMessages) => [...prevMessages, driverResponse]);
+    }, 1500);
+  };
+
+  const handleOtpClose = () => {
+    setShowOtpDialog(false);
+    // The Start Ride button remains enabled even after closing the OTP dialog
+    // as long as the driver has reached the pickup location
   };
 
   if (error) {
     return (
       <div className="h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
-        <div className="text-2xl text-red-600">{error}</div>
+        <div className="text-2xl text-red-600 flex items-center">
+          <AlertTriangle className="mr-2" /> {error}
+        </div>
       </div>
     );
   }
@@ -273,14 +446,27 @@ const RideStatusPage = () => {
   if (!driverData || !pickupCoords || !dropCoords) {
     return (
       <div className="h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
-        <div className="animate-pulse text-2xl text-gray-600">Loading...</div>
+        <div className="animate-pulse text-2xl text-gray-600">
+          <div className="flex items-center justify-center space-x-2">
+            <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
+            <div
+              className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"
+              style={{ animationDelay: "0.2s" }}
+            ></div>
+            <div
+              className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"
+              style={{ animationDelay: "0.4s" }}
+            ></div>
+          </div>
+          <div className="mt-4">Loading ride information...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      <div className="max-w-2xl mx-auto px-4 pt-8">
+    <div className="h-screen bg-gradient-to-br from-blue-50 to-purple-50 overflow-y-auto">
+      <div className="max-w-2xl mx-auto px-4 pt-8 pb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -305,18 +491,35 @@ const RideStatusPage = () => {
 
           <div className="relative pt-2">
             <div className="h-2 bg-gray-200 rounded-full">
-              <div
+              <motion.div
                 className="h-2 bg-green-500 rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
+          </div>
+
+          <div className="mt-4 flex justify-end space-x-2">
+            <button
+              onClick={() => setShowChatModal(true)}
+              className="flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              <MessageSquare size={16} /> Message
+            </button>
+            {!rideStarted && (
+              <button
+                onClick={() => setShowCancelDialog(true)}
+                className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                <X size={16} /> Cancel Ride
+              </button>
+            )}
           </div>
         </motion.div>
 
         <div className="h-96 rounded-xl overflow-hidden shadow-lg">
           <MapContainer
             center={pickupCoords || [12.9716, 77.5946]}
-            zoom={13}
+            zoom={12}
             className="h-full w-full"
             zoomControl={false}
           >
@@ -325,28 +528,41 @@ const RideStatusPage = () => {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
-            {pickupCoords && (
+            {/* Only show pickup marker when arriving to pickup or at pickup */}
+            {!rideStarted && pickupCoords && (
               <Marker position={pickupCoords} icon={pickupIcon}>
-                <Popup>{pick.address}</Popup>
+                <Popup>{ride.pickup.address}</Popup>
               </Marker>
             )}
 
-            {dropCoords && (
-              <Marker position={dropCoords} icon={dropIcon}>
-                <Popup>{Drop.address}</Popup>
-              </Marker>
-            )}
+            {/* Always show drop marker once ride has started or when completed */}
+            {(rideStarted || status === statusMessages.completed) &&
+              dropCoords && (
+                <Marker position={dropCoords} icon={dropIcon}>
+                  <Popup>{ride.drop.address}</Popup>
+                </Marker>
+              )}
 
             {driverData?.position && (
               <DriverMarker
                 position={driverData.position}
                 startPosition={driverData.startPosition}
+                rideStatus={
+                  status === statusMessages.arriving
+                    ? "arriving"
+                    : status === statusMessages.ongoing
+                    ? "ongoing"
+                    : "other"
+                }
               />
             )}
 
-            {route.length > 0 && <Polyline positions={route} color="#3B82F6" />}
+            {route.length > 0 && (
+              <Polyline positions={route} color="#0000FF" weight={4} />
+            )}
           </MapContainer>
         </div>
+
         <motion.div
           className="bg-white rounded-xl shadow-lg p-6 mt-6"
           initial={{ opacity: 0 }}
@@ -354,15 +570,26 @@ const RideStatusPage = () => {
         >
           <div className="flex items-center space-x-4">
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl">🚕</span>
+              <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden">
+                <span className="text-3xl">🚕</span>
               </div>
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-lg">{driverData.name}</h3>
-              <p className="text-gray-600">{driverData.phone}</p>
               <div className="flex items-center gap-2">
-                <span className="text-yellow-500">
+                <p className="text-gray-600">{driverData.phone}</p>
+                <button
+                  className="text-blue-500 hover:text-blue-700"
+                  title="Call driver"
+                  onClick={() =>
+                    window.open(`tel:${driverData.phone}`, "_self")
+                  }
+                >
+                  <Phone size={16} />
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-yellow-500 flex items-center">
                   ★ {driverData.rating || "No ratings"}
                 </span>
                 <span className="text-sm text-gray-500">
@@ -370,7 +597,8 @@ const RideStatusPage = () => {
                 </span>
               </div>
             </div>
-            {status === statusMessages.arrived && (
+            {/* Show Start Ride button only when driver has arrived and ride hasn't started yet */}
+            {canStartRide && !rideStarted && !rideCompleted && (
               <button
                 onClick={startRide}
                 className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
@@ -378,7 +606,8 @@ const RideStatusPage = () => {
                 Start Ride
               </button>
             )}
-            {status === statusMessages.completed && (
+            {/* Show Pay button only when ride is completed */}
+            {rideCompleted && (
               <button
                 onClick={checkoutHandler}
                 className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
@@ -389,6 +618,194 @@ const RideStatusPage = () => {
           </div>
         </motion.div>
       </div>
+      {/* OTP Verification Modal in RideStatusPage */}
+      <AnimatePresence>
+        {showOtpDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-2xl font-bold">Verify Your Ride</h3>
+                <button
+                  onClick={() => setShowOtpDialog(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <p className="text-gray-600 text-center mb-6">
+                Please share this OTP with your driver. Wait until the driver
+                verifies it.
+              </p>
+
+              <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                <div className="text-center text-3xl font-bold tracking-wider text-blue-600">
+                  {otp || "1234"}
+                </div>
+              </div>
+
+              <div className="flex justify-center">
+                <button
+                  onClick={() => {
+                    if (otpVerified) {
+                      setShowOtpDialog(false);
+                    } else {
+                      toast.error(
+                        "OTP not verified yet by driver. Please wait."
+                      );
+                    }
+                  }}
+                  className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+                >
+                  Confirm OTP Shared
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Cancel Ride Confirmation Modal */}
+      <AnimatePresence>
+        {showCancelDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl"
+            >
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+                  <AlertTriangle size={32} className="text-red-500" />
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-center mb-2">
+                Cancel Ride?
+              </h3>
+              <p className="text-gray-600 text-center mb-6">
+                Are you sure you want to cancel this ride? Cancellation fees may
+                apply based on driver's travel time.
+              </p>
+
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setShowCancelDialog(false)}
+                  className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Go Back
+                </button>
+                <button
+                  onClick={cancelRide}
+                  className="flex-1 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
+                >
+                  Cancel Ride
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Chat Modal */}
+      <AnimatePresence>
+        {showChatModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-xl p-4 max-w-md w-full h-[70vh] shadow-2xl flex flex-col"
+            >
+              <div className="flex items-center justify-between border-b pb-3">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                    <span className="text-xl">🚕</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{driverData.name}</h3>
+                    <p className="text-sm text-gray-500">{driverData.car}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowChatModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto py-4 px-1">
+                {chatMessages.map((msg, index) => (
+                  <div
+                    key={index}
+                    className={`mb-3 flex ${
+                      msg.sender === "rider" ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    <div
+                      className={`max-w-[80%] rounded-lg px-3 py-2 ${
+                        msg.sender === "rider"
+                          ? "bg-blue-500 text-white rounded-tr-none"
+                          : "bg-gray-200 text-gray-800 rounded-tl-none"
+                      }`}
+                    >
+                      <p>{msg.text}</p>
+                      <p
+                        className={`text-xs mt-1 ${
+                          msg.sender === "rider"
+                            ? "text-blue-100"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {msg.time}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t pt-3">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="flex-1 px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Type a message..."
+                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                  />
+                  <button
+                    onClick={sendMessage}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

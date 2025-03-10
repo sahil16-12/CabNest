@@ -102,7 +102,6 @@ const DriverProfile = () => {
 
       await createDriverProfile(formData);
       toast.success("Driver profile created successfully!");
-      // localStorage.removeItem("userId");
       setIsAuth(true);
       navigate("/login");
     } catch (error) {

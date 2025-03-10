@@ -15,6 +15,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserData } from "../context/UserContext";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { io } from "socket.io-client";
 
 const center = [22.3072, 73.1812]; // Default center
 
@@ -95,6 +96,7 @@ const RideBookPage = () => {
   const [showDrivers, setShowDrivers] = useState(false);
   const [loading, setLoading] = useState(false);
   const driversRef = useRef(null);
+  const [socket, setSocket] = useState(null);
   const navigate = useNavigate();
   const { user, isAuth } = UserData();
 
@@ -200,35 +202,30 @@ const RideBookPage = () => {
         driverId: driver._id._id,
         pickup: {
           address: pickup,
-          coordinates: [markers.pickup.lng, markers.pickup.lat],
+          coordinates: {
+            type: "Point",
+            coordinates: [markers.pickup.lng, markers.pickup.lat],
+          },
         },
         drop: {
           address: drop,
-          coordinates: [markers.drop.lng, markers.drop.lat],
+          coordinates: {
+            type: "Point",
+            coordinates: [markers.drop.lng, markers.drop.lat],
+          },
         },
+
         distance: parseFloat(distance),
         fare: fare,
-        estimatedDuration: duration,
+        duration: duration,
         rideType: "standard",
+        ridername: user.name,
       };
-      const response = await axios.post(
-        `${server}/api/ride/request`,
-        rideData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      if (response.data.success) {
-        toast.success("Ride booked successfully!");
-        navigate("/ride-request", {
-          state: {
-            ride: response.data.ride,
-            driver,
-          },
+      const response = await axios.post(`${server}/api/ride/request`, rideData);
+      if (response.status === 201) {
+        toast.success("Ride booked successfully! Waiting for driver response.");
+        navigate("/ride-waiting", {
+          state: { ride: response.data.ride },
         });
       }
     } catch (error) {
@@ -473,8 +470,8 @@ const RideBookPage = () => {
               {route.length > 0 && (
                 <Polyline
                   positions={route.map((point) => [point.lat, point.lng])}
-                  color="red"
-                  weight={3}
+                  color="#FF0000"
+                  weight={1}
                 />
               )}
             </MapContainer>

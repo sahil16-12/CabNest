@@ -37,7 +37,7 @@ export const createRider = TryCatch(async (req, res) => {
  * @access  Public
  */
 export const getRiderById = TryCatch(async (req, res) => {
-  const rider = await Rider.findById(req.params.id);
+  const rider = await Rider.findById(req.params.id).populate("_id");
   if (!rider) return res.status(404).json({ message: "Rider not found" });
 
   res.status(200).json(rider);

@@ -1,41 +1,9 @@
-import { User } from "../models/User.js";
 import { Rider } from "../models/Rider.js";
 import { Driver } from "../models/Driver.js";
 import { Ride } from "../models/Ride.js";
-// Calculate estimated duration based on distance
-const calculateDuration = (distanceInKm) => {
-  // Average speed of 45 km/h
-  const averageSpeedKmph = 45;
+import { Notification } from "../models/Notification.js";
 
-  // Basic time calculation in seconds
-  const durationInSeconds = (distanceInKm / averageSpeedKmph) * 3600;
-
-  // Add time of day adjustment
-  const now = new Date();
-  const hour = now.getHours();
-  let multiplier = 1.0;
-
-  // Adjust for rush hour
-  if ((hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 19)) {
-    multiplier = 1.15; // 15% longer during rush hours
-  }
-
-  return Math.round(durationInSeconds * multiplier);
-};
-
-// Calculate fare based on distance and duration
-const calculateFare = (distanceInKm, durationInSeconds) => {
-  const baseFare = 50; // Base fare in currency units
-  const perKmRate = 10; // Rate per km
-  const perMinuteRate = 1; // Rate per minute
-
-  const distanceCost = distanceInKm * perKmRate;
-  const timeCost = (durationInSeconds / 60) * perMinuteRate;
-
-  return Math.round(baseFare + distanceCost + timeCost);
-};
-
-export const requestRide = async (req, res) => {
+export const createRideRequest = async (req, res) => {
   try {
     const {
       riderId,
@@ -43,66 +11,54 @@ export const requestRide = async (req, res) => {
       pickup,
       drop,
       distance,
-      rideType = "standard",
+      fare,
+      duration,
+      rideType,
+      ridername,
     } = req.body;
-    console.log("DTA" + riderId, driverId, pickup, drop, distance, rideType);
-    // Validate required fields
-    if (!riderId || !pickup || !drop || !distance) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing required fields",
+
+    // Create ride
+
+    const newRide = new Ride({
+      riderId,
+      driverId,
+      status: "requested",
+      fare,
+      paymentStatus: "pending",
+      distance,
+      duration,
+      pickup,
+      drop,
+      rideType,
+    });
+    await newRide.save();
+    // Create notification
+    const notification = new Notification({
+      sender: riderId,
+      recipient: driverId,
+      recipientType: "Driver",
+      message: `New ride request from ${ridername}`,
+      type: "ride_request",
+      ride: newRide._id,
+      status: "pending",
+    });
+    await notification.save();
+
+    const io = req.app.get("io");
+
+    const driverSocketId = io.connectedUsers.get(driverId.toString());
+
+    notification.rideData = newRide;
+    if (driverSocketId) {
+      io.to(driverSocketId).emit("new-ride-request", {
+        ...notification.toObject(),
+        ride: newRide,
       });
     }
 
-    // Calculate duration based on distance
-    const duration = calculateDuration(parseFloat(distance));
-
-    // Calculate fare based on distance and duration
-    const fare = calculateFare(parseFloat(distance), duration);
-
-    // Create new ride
-    const newRide = new Ride({
-      riderId,
-      driverId: driverId || null, // Driver may be assigned later
-      status: driverId ? "accepted" : "requested",
-      fare,
-      distance: parseFloat(distance),
-      duration,
-      pickup: {
-        address: pickup.address,
-        coordinates: {
-          coordinates: pickup.coordinates || [0, 0], // Default if not provided
-        },
-      },
-      drop: {
-        address: drop.address,
-        coordinates: {
-          coordinates: drop.coordinates || [0, 0],
-        },
-      },
-      rideType,
-      requestedTime: new Date(),
-    });
-
-    await newRide.save();
-
-    // If driver is already assigned, update their status
-    if (driverId) {
-      await Driver.findByIdAndUpdate(driverId, { status: "busy" });
-    }
-
-    return res.status(201).json({
-      success: true,
-      message: "Ride request created successfully",
-      ride: newRide,
-    });
+    res.status(201).json({ notification, ride: newRide });
   } catch (error) {
-    console.error("Error requesting ride:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to create ride request",
-      error: error.message,
-    });
+    res.status(500).json({ message: error.message });
   }
 };
 

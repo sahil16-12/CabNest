@@ -56,7 +56,6 @@ export const createDriver = async (req, res) => {
     });
 
     await driver.save();
-
     res.status(201).json({ message: "Driver created successfully", driver });
   } catch (error) {
     res
@@ -97,7 +96,7 @@ export const getAllDrivers = async (req, res) => {
         },
       },
     }).populate("_id");
-    console.log(drivers);
+
     res.status(200).json({ drivers });
   } catch (error) {
     res
