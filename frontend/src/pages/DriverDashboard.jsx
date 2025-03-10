@@ -415,12 +415,23 @@ L.Icon.Default.mergeOptions({
 const DriverDashboard = () => {
   const navigate = useNavigate();
   const {
+    isLoading,
+    isAvailable,
     earnings,
     totalDistance,
     overallRating,
-    currentLocation,
-    isAvailable,
+    completedRides,
+    canceledRides,
+    todayRideCount,
+    recentRides,
     toggleAvailability,
+    updateEarnings,
+    updateRating,
+    updateTotalDistance,
+    refreshData,
+    error,
+    fetchDriverRideData,
+    setRideDriver,
   } = useDriverDashboardC();
 
   const { driver } = useDriver();
@@ -430,32 +441,32 @@ const DriverDashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [socket, setSocket] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [recentRides, setRecentRides] = useState([
-    {
-      id: 1,
-      from: "Koramangala",
-      to: "Electronic City",
-      date: "Today, 11:32 AM",
-      amount: 245,
-      distance: 12.3,
-    },
-    {
-      id: 2,
-      from: "Whitefield",
-      to: "MG Road",
-      date: "Today, 9:15 AM",
-      amount: 350,
-      distance: 15.6,
-    },
-    {
-      id: 3,
-      from: "HSR Layout",
-      to: "Indiranagar",
-      date: "Yesterday, 7:45 PM",
-      amount: 180,
-      distance: 8.2,
-    },
-  ]);
+  // const [recentRides, setRecentRides] = useState([
+  //   {
+  //     id: 1,
+  //     from: "Koramangala",
+  //     to: "Electronic City",
+  //     date: "Today, 11:32 AM",
+  //     amount: 245,
+  //     distance: 12.3,
+  //   },
+  //   {
+  //     id: 2,
+  //     from: "Whitefield",
+  //     to: "MG Road",
+  //     date: "Today, 9:15 AM",
+  //     amount: 350,
+  //     distance: 15.6,
+  //   },
+  //   {
+  //     id: 3,
+  //     from: "HSR Layout",
+  //     to: "Indiranagar",
+  //     date: "Yesterday, 7:45 PM",
+  //     amount: 180,
+  //     distance: 8.2,
+  //   },
+  // ]);
 
   // Initialize the map
   useEffect(() => {
@@ -859,15 +870,15 @@ const DriverDashboard = () => {
                         <th className="px-6 py-3 border-b border-gray-200">
                           Distance
                         </th>
-                        <th className="px-6 py-3 border-b border-gray-200">
+                        {/* <th className="px-6 py-3 border-b border-gray-200">
                           Earnings
-                        </th>
+                        </th> */}
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {recentRides.map((ride) => (
                         <tr
-                          key={ride.id}
+                          key={ride._id}
                           className="hover:bg-gray-50 transition-colors text-sm"
                         >
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -885,11 +896,11 @@ const DriverDashboard = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-gray-500">
                             {ride.distance} km
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          {/* <td className="px-6 py-4 whitespace-nowrap">
                             <span className="text-green-600 font-medium">
                               ₹{ride.amount}
                             </span>
-                          </td>
+                          </td> */}
                         </tr>
                       ))}
                     </tbody>
@@ -921,9 +932,7 @@ const DriverDashboard = () => {
                     <span className="text-gray-600 flex items-center">
                       <Star className="h-4 w-4 mr-2 text-yellow-500" /> Rating
                     </span>
-                    <span className="font-medium text-gray-900">
-                      {overallRating}/5
-                    </span>
+                    <span className="font-medium text-gray-900">{}/5</span>
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -941,7 +950,9 @@ const DriverDashboard = () => {
                       <CheckCircle className="h-4 w-4 mr-2 text-green-500" />{" "}
                       Completed Rides
                     </span>
-                    <span className="font-medium text-gray-900">148</span>
+                    <span className="font-medium text-gray-900">
+                      {completedRides}
+                    </span>
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -949,7 +960,9 @@ const DriverDashboard = () => {
                       <XCircle className="h-4 w-4 mr-2 text-red-500" />{" "}
                       Cancelled Rides
                     </span>
-                    <span className="font-medium text-gray-900">4</span>
+                    <span className="font-medium text-gray-900">
+                      {canceledRides}
+                    </span>
                   </div>
                 </div>
 
@@ -964,8 +977,11 @@ const DriverDashboard = () => {
                     ></div>
                   </div>
                   <div className="flex justify-between mt-1 text-xs text-gray-500">
-                    <span>97% (Excellent)</span>
-                    <span>Target: 90%</span>
+                    <span>
+                      {(completedRides / (completedRides + canceledRides)) *
+                        100}
+                    </span>
+                    {/* <span>Target: 90%</span> */}
                   </div>
                 </div>
               </div>
@@ -976,7 +992,7 @@ const DriverDashboard = () => {
                   <div className="text-green-600 font-medium flex items-center text-sm">
                     <TrendingUp className="h-4 w-4 mr-1" /> Today's Rides
                   </div>
-                  <div className="text-2xl font-bold mt-1">8</div>
+                  <div className="text-2xl font-bold mt-1">todayRideCount</div>
                 </div>
 
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">

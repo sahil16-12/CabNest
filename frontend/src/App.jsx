@@ -17,12 +17,10 @@ import DriverRideRequests from "./pages/DriverRideRequests";
 import RideCompletionPage from "./pages/RideCompleted";
 import AdminDashboard from "./pages/AdminDashBoard";
 import PaymentSuccess from "./pages/PaymentSuccess";
-<<<<<<< HEAD
 import DriverDashboardTest from "./pages/DriverDashboardTest";
-=======
+
 import RideWaitingPage from "./pages/RideWaitingPage";
 import ActiveRidePage from "./pages/ActiveRidePage";
->>>>>>> 51c0debbe052732b37b9b17cf5697e6d796a499c
 
 const App = () => {
   return (
@@ -47,7 +45,7 @@ const App = () => {
         <Route path="/admin/dashBoard" element={<AdminDashboard />} />
         <Route path="/payment-successfull" element={<PaymentSuccess />} />
         <Route path="/dashboard-test" element={<DriverDashboardTest />} />
-        <Route path="/payment-successfull/:id" element={<PaymentSuccess />} />
+        {/* <Route path="/payment-successfull/:id" element={<PaymentSuccess />} /> */}
         <Route path="/ride-waiting" element={<RideWaitingPage />} />
         <Route path="/active-ride" element={<ActiveRidePage />} />
       </Routes>

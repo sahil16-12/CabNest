@@ -14,11 +14,8 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import { server } from "../main";
-<<<<<<< HEAD
 import { useDriverDashboardC } from "../context/DriverDashboardContext.";
-=======
 import { Phone, MessageSquare, AlertTriangle, X } from "lucide-react";
->>>>>>> 51c0debbe052732b37b9b17cf5697e6d796a499c
 
 // Fix for default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -126,7 +123,6 @@ const RideStatusPage = () => {
   const { setRideDriver } = useDriverDashboardC();
 
   const otpInputRef = useRef(null);
-
 
   const statusMessages = {
     searching: "Finding driver...",

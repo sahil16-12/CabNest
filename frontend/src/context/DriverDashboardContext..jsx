@@ -16,8 +16,7 @@ export const DriverDashboardProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const { driver: currentDriver } = useDriver();
   const _id = currentDriver?._id;
-
-  const [rideDriver, setRideDriver] = useState("67cd760142152f19081081e9");
+  const [rideDriver, setRideDriver] = useState();
 
   const [dashboardData, setDashboardData] = useState({
     earnings: { daily: 0, weekly: 0, monthly: 0, yearly: 0 },
@@ -35,10 +34,10 @@ export const DriverDashboardProvider = ({ children }) => {
       // Fetch all data in parallel
       const [earningsRes, ratingRes, distanceRes, statusRes] =
         await Promise.all([
-          axios.get(`${server}/api/driver/${rideDriver}/earnings`),
-          axios.get(`${server}/api/driver/${rideDriver}/rating`),
-          axios.get(`${server}/api/driver/${rideDriver}/total-distance`),
-          axios.get(`${server}/api/driver/${rideDriver}/status`),
+          axios.get(`${server}/api/driver/${_id}/earnings`),
+          axios.get(`${server}/api/driver/${_id}/rating`),
+          axios.get(`${server}/api/driver/${_id}/total-distance`),
+          axios.get(`${server}/api/driver/${_id}/status`),
         ]);
 
       // Update state with fetched data
@@ -96,7 +95,7 @@ export const DriverDashboardProvider = ({ children }) => {
     try {
       const newStatus =
         dashboardData.status === "online" ? "offline" : "online";
-      await axios.post(`${server}/api/driver/${rideDriver}/update-status`, {
+      await axios.post(`${server}/api/driver/${_id}/update-status`, {
         status: newStatus,
       });
       await fetchDashboardData(); // Refresh data
@@ -121,12 +120,10 @@ export const DriverDashboardProvider = ({ children }) => {
     }
   };
   // Fetch completed rides for a driver
-  const fetchCompletedRides = async (driverId) => {
-    setLoading(true);
+  const fetchCompletedRides = async (_id) => {
+    setIsLoading(true);
     try {
-      const response = await axios.get(
-        `/dashboard/rides/completed/${driverId}`
-      );
+      const response = await axios.get(`/dashboard/rides/completed/${_id}`);
       setCompletedRides(response.data);
       setError(null);
     } catch (err) {
@@ -134,29 +131,29 @@ export const DriverDashboardProvider = ({ children }) => {
         err.response?.data?.message || "Failed to fetch completed rides"
       );
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   // Fetch canceled rides for a driver
-  const fetchCanceledRides = async (driverId) => {
-    setLoading(true);
+  const fetchCanceledRides = async (_id) => {
+    setIsLoading(true);
     try {
-      const response = await axios.get(`/dashboard/rides/canceled/${driverId}`);
+      const response = await axios.get(`/dashboard/rides/canceled/${_id}`);
       setCanceledRides(response.data);
       setError(null);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch canceled rides");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   // Fetch today's ride count for a driver
-  const fetchTodayRideCount = async (driverId) => {
-    setLoading(true);
+  const fetchTodayRideCount = async (_id) => {
+    setIsLoading(true);
     try {
-      const response = await axios.get(`/dashboard/rides/today/${driverId}`);
+      const response = await axios.get(`/dashboard/rides/today/${_id}`);
       setTodayRideCount(response.data.count);
       setError(null);
     } catch (err) {
@@ -164,30 +161,30 @@ export const DriverDashboardProvider = ({ children }) => {
         err.response?.data?.message || "Failed to fetch today's ride count"
       );
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   // Fetch recent rides for a driver
-  const fetchRecentRides = async (driverId) => {
-    setLoading(true);
+  const fetchRecentRides = async (_id) => {
+    setIsLoading(true);
     try {
-      const response = await axios.get(`/dashboard/rides/recent/${driverId}`);
+      const response = await axios.get(`/dashboard/rides/recent/${_id}`);
       setRecentRides(response.data);
       setError(null);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch recent rides");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   // Fetch all ride data for a driver
-  const fetchDriverRideData = async (driverId) => {
-    await fetchCompletedRides(driverId);
-    await fetchCanceledRides(driverId);
-    await fetchTodayRideCount(driverId);
-    await fetchRecentRides(driverId);
+  const fetchDriverRideData = async (_id) => {
+    await fetchCompletedRides(_id);
+    await fetchCanceledRides(_id);
+    await fetchTodayRideCount(_id);
+    await fetchRecentRides(_id);
   };
   return (
     <DriverDashboardContext.Provider

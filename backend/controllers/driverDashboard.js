@@ -261,12 +261,10 @@ export const getRecentRides = async (req, res) => {
       .sort({ requestedTime: -1 })
       .limit(10)
       .select("pickup drop requestedTime distance duration");
-
     const formattedRides = recentRides.map((ride) => ({
+      id:ride._id,
       fromAddress: ride.pickup.address,
-      fromCoordinates: ride.pickup.coordinates.coordinates,
       toAddress: ride.drop.address,
-      toCoordinates: ride.drop.coordinates.coordinates,
       date: ride.requestedTime,
       distance: ride.distance,
       duration: ride.duration,
