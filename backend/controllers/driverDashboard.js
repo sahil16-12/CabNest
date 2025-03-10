@@ -1,4 +1,5 @@
 import { Driver } from "../models/Driver.js";
+import { Ride } from "../models/Ride.js";
 
 // Utility function to calculate time-based earnings
 const calculateTimeBasedEarnings = (transactions) => {
@@ -86,7 +87,6 @@ export const getRating = async (req, res) => {
       return res.status(404).json({ success: false, message: "Driver not found" });
     }
 
-    // Calculate average rating if not already stored
     let averageRating = driver.overallRating;
     if (!averageRating && driver.ratings.length > 0) {
       const sumRatings = driver.ratings.reduce((sum, r) => sum + r.value, 0);
@@ -268,4 +268,89 @@ export const updateTotalDistance = async (req, res) => {
       message: "Server error" 
     });
   }
+};
+import Ride from '../models/rideModel.js';
+
+// Get completed rides for a particular driver
+const getCompletedRides = async (req, res) => {
+  try {
+    const { driverId } = req.params;
+    const completedRides = await Ride.find({ 
+      status: 'completed', 
+      driverId: driverId 
+    });
+    res.status(200).json(completedRides);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get canceled rides for a particular driver
+const getCanceledRides = async (req, res) => {
+  try {
+    const { driverId } = req.params;
+    const canceledRides = await Ride.find({ 
+      status: 'canceled', 
+      driverId: driverId 
+    });
+    res.status(200).json(canceledRides);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get today's ride count for a particular driver
+const getTodayRideCount = async (req, res) => {
+  try {
+    const { driverId } = req.params;
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
+    const count = await Ride.countDocuments({
+      driverId: driverId,
+      requestedTime: { 
+        $gte: startOfToday,
+        $lte: endOfToday 
+      }
+    });
+    
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get recent rides for a particular driver
+const getRecentRides = async (req, res) => {
+  try {
+    const { driverId } = req.params;
+    const recentRides = await Ride.find({ driverId: driverId })
+      .sort({ requestedTime: -1 })
+      .limit(10)
+      .select('pickup drop requestedTime distance duration');
+
+    const formattedRides = recentRides.map(ride => ({
+      fromAddress: ride.pickup.address,
+      fromCoordinates: ride.pickup.coordinates.coordinates,
+      toAddress: ride.drop.address,
+      toCoordinates: ride.drop.coordinates.coordinates,
+      date: ride.requestedTime,
+      distance: ride.distance,
+      duration: ride.duration
+    }));
+
+    res.status(200).json(formattedRides);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export {
+  getCompletedRides,
+  getCanceledRides,
+  getTodayRideCount,
+  getRecentRides
 };

@@ -9,13 +9,16 @@ const DriverDashboardContext = createContext();
 export const DriverDashboardProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const { fetchDriverProfile } = useDriver();
+  const [completedRides, setCompletedRides] = useState([]);
+  const [canceledRides, setCanceledRides] = useState([]);
+  const [todayRideCount, setTodayRideCount] = useState(0);
+  const [recentRides, setRecentRides] = useState([]);
+  const [error, setError] = useState(null);
   const { driver: currentDriver } = useDriver();
   const _id = currentDriver?._id;
 
-  // Static driver ID for testing
   const [rideDriver, setRideDriver] = useState("67cd760142152f19081081e9");
 
-  // State for dashboard data
   const [dashboardData, setDashboardData] = useState({
     earnings: { daily: 0, weekly: 0, monthly: 0, yearly: 0 },
     totalDistance: 0,
@@ -23,7 +26,6 @@ export const DriverDashboardProvider = ({ children }) => {
     status: "offline",
   });
 
-  // Fetch all dashboard data
   const fetchDashboardData = async () => {
     if (!rideDriver) return; // Use static driver ID
 
@@ -118,7 +120,75 @@ export const DriverDashboardProvider = ({ children }) => {
       console.error("Distance error:", err);
     }
   };
+  // Fetch completed rides for a driver
+  const fetchCompletedRides = async (driverId) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `/dashboard/rides/completed/${driverId}`
+      );
+      setCompletedRides(response.data);
+      setError(null);
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Failed to fetch completed rides"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // Fetch canceled rides for a driver
+  const fetchCanceledRides = async (driverId) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`/dashboard/rides/canceled/${driverId}`);
+      setCanceledRides(response.data);
+      setError(null);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to fetch canceled rides");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch today's ride count for a driver
+  const fetchTodayRideCount = async (driverId) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`/dashboard/rides/today/${driverId}`);
+      setTodayRideCount(response.data.count);
+      setError(null);
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Failed to fetch today's ride count"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch recent rides for a driver
+  const fetchRecentRides = async (driverId) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`/dashboard/rides/recent/${driverId}`);
+      setRecentRides(response.data);
+      setError(null);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to fetch recent rides");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch all ride data for a driver
+  const fetchDriverRideData = async (driverId) => {
+    await fetchCompletedRides(driverId);
+    await fetchCanceledRides(driverId);
+    await fetchTodayRideCount(driverId);
+    await fetchRecentRides(driverId);
+  };
   return (
     <DriverDashboardContext.Provider
       value={{
@@ -126,11 +196,17 @@ export const DriverDashboardProvider = ({ children }) => {
         setRideDriver,
         isLoading,
         isAvailable: dashboardData.status === "online",
+        completedRides,
+        canceledRides,
+        todayRideCount,
+        recentRides,
         toggleAvailability,
         updateEarnings,
         updateRating,
         updateTotalDistance,
-        refreshData: fetchDashboardData, // Function to manually refresh data
+        refreshData: fetchDashboardData,
+        error,
+        fetchDriverRideData, // Function to manually refresh data
       }}
     >
       {children}

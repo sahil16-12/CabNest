@@ -8,9 +8,13 @@ import {
 } from "../controllers/driver.js";
 import { uploadFiles } from "../middlewares/multer.js";
 import {
+  getCanceledRides,
+  getCompletedRides,
   getEarnings,
   getRating,
+  getRecentRides,
   getStatus,
+  getTodayRideCount,
   getTotalDistance,
   updateEarnings,
   updateRating,
@@ -34,4 +38,8 @@ router.get("/:id/status", getStatus); // Get driver status
 router.post("/:id/update-status", updateStatus); // Update driver status
 router.get("/:id/total-distance", getTotalDistance); // Get total distance
 router.post("/:id/update-distance", updateTotalDistance); 
+router.get('/rides/completed/:driverId', getCompletedRides);
+router.get('/rides/canceled/:driverId', getCanceledRides);
+router.get('/rides/today/:driverId', getTodayRideCount);
+router.get('/rides/recent/:driverId', getRecentRides);
 export default router;
