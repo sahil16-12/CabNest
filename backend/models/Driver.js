@@ -32,7 +32,6 @@ const driverSchema = new mongoose.Schema(
     address: {
       type: String,
       required: true,
-      unique: true,
     },
     vehicleMake: {
       type: String,
@@ -76,26 +75,30 @@ const driverSchema = new mongoose.Schema(
       default: null,
     },
     earnings: {
-      daily: {
-        type: Number,
-        default: 0,
+      transactions: [
+        {
+          amount: { type: Number, default: 0, min: 0 }, // Ensure amount is non-negative
+          timestamp: { type: Date, default: Date.now },
+        },
+      ],
+      default: [], // Default to empty array
+    },
+    ratings: [
+      {
+        value: { type: Number, default: 0, min: 1, max: 5 }, // Ensure rating is between 1 and 5
+        timestamp: { type: Date, default: Date.now },
       },
-      weekly: {
-        type: Number,
-        default: 0,
-      },
-      monthly: {
-        type: Number,
-        default: 0,
-      },
+    ],
+    overallRating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5,
     },
     totalDistance: {
       type: Number,
       default: 0,
-    },
-    overallRating: {
-      type: Number,
-      default: 0,
+      min: 0, // Ensure distance is non-negative
     },
   },
   {
@@ -103,5 +106,11 @@ const driverSchema = new mongoose.Schema(
   }
 );
 
+// Index for geospatial queries
 driverSchema.index({ currentLocation: "2dsphere" });
+
+// Index for frequently queried fields
+driverSchema.index({ licenseNumber: 1 });
+driverSchema.index({ regNumber: 1 });
+
 export const Driver = mongoose.model("Driver", driverSchema);

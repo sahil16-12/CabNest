@@ -27,7 +27,7 @@ const DriverProfile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const fileInputRef = useRef(null);
 
-  const userId = localStorage.getItem("userId");
+  const userId = sessionStorage.getItem("userId");
 
   const handleChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });

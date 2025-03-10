@@ -12,7 +12,10 @@ import {
   getRating,
   getStatus,
   getTotalDistance,
+  updateEarnings,
+  updateRating,
   updateStatus,
+  updateTotalDistance,
 } from "../controllers/driverDashboard.js";
 
 const router = express.Router();
@@ -23,9 +26,12 @@ router.post("/", uploadFiles, createDriver); // Create a driver with image uploa
 router.get("/:id", getDriverById); // Get driver by ID
 router.put("/:id", uploadFiles, updateDriver); // Update driver details
 router.delete("/:id", deleteDriver); // Delete driver
-router.get("/earnings/:id", getEarnings);
-router.get("/rating/:id", getRating);
-router.get("/status/:id", getStatus);
-router.put("/status/:id", updateStatus);
-router.get("/total-distance/:id", getTotalDistance);
+router.get("/:id/earnings", getEarnings); // Get earnings data
+router.post("/:id/update-earnings", updateEarnings); // Update earnings with a new payment
+router.get("/:id/rating", getRating); // Get average rating
+router.post("/:id/update-rating", updateRating); // Update rating with a new rating
+router.get("/:id/status", getStatus); // Get driver status
+router.post("/:id/update-status", updateStatus); // Update driver status
+router.get("/:id/total-distance", getTotalDistance); // Get total distance
+router.post("/:id/update-distance", updateTotalDistance); 
 export default router;

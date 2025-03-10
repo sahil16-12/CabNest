@@ -17,6 +17,7 @@ import DriverRideRequests from "./pages/DriverRideRequests";
 import RideCompletionPage from "./pages/RideCompleted";
 import AdminDashboard from "./pages/AdminDashBoard";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import DriverDashboardTest from "./pages/DriverDashboardTest";
 
 const App = () => {
   return (
@@ -39,7 +40,8 @@ const App = () => {
         <Route path="/profile-page" element={<ProfilePage />} />
         <Route path="/ride-completed" element={<RideCompletionPage />} />
         <Route path="/admin/dashBoard" element={<AdminDashboard />} />
-        <Route path="/payment-successfull/:id" element={<PaymentSuccess />} />
+        <Route path="/payment-successfull" element={<PaymentSuccess />} />
+        <Route path="/dashboard-test" element={<DriverDashboardTest />} />
       </Routes>
     </Router>
   );

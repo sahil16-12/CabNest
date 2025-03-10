@@ -14,6 +14,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { server } from "../main";
+import { useDriverDashboardC } from "../context/DriverDashboardContext.";
 
 // Fix for default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -96,6 +97,7 @@ const RideStatusPage = () => {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
   const movementInterval = useRef(null);
+  const { setRideDriver } = useDriverDashboardC();
 
   const statusMessages = {
     searching: "Finding driver...",
@@ -107,6 +109,7 @@ const RideStatusPage = () => {
 
   const checkoutHandler = async () => {
     const token = sessionStorage.getItem("token");
+    setRideDriver(driver);
     try {
       const {
         data: { order },
