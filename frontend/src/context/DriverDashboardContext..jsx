@@ -8,7 +8,6 @@ const DriverDashboardContext = createContext();
 
 export const DriverDashboardProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const { fetchDriverProfile } = useDriver();
   const [completedRides, setCompletedRides] = useState([]);
   const [canceledRides, setCanceledRides] = useState([]);
   const [todayRideCount, setTodayRideCount] = useState(0);
@@ -16,17 +15,14 @@ export const DriverDashboardProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const { driver: currentDriver } = useDriver();
   const _id = currentDriver?._id;
-  const [rideDriver, setRideDriver] = useState();
-
   const [dashboardData, setDashboardData] = useState({
     earnings: { daily: 0, weekly: 0, monthly: 0, yearly: 0 },
     totalDistance: 0,
     overallRating: 0,
     status: "offline",
   });
-
   const fetchDashboardData = async () => {
-    if (!rideDriver) return; // Use static driver ID
+    if (!_id) return; // Use static driver ID
 
     try {
       setIsLoading(true);
@@ -55,20 +51,17 @@ export const DriverDashboardProvider = ({ children }) => {
     }
   };
 
-  // Initial data fetch
-  useEffect(() => {
-    if (rideDriver) {
-      fetchDashboardData();
-    }
-  }, [rideDriver]);
-
-  // Update earnings
-  const updateEarnings = async (payment) => {
+  // useEffect(() => {
+  //   if (rideDriver) {
+  //     fetchDashboardData();
+  //   }
+  // }, [_id]);
+  const updateEarnings = async (payment, id) => {
     try {
-      await axios.post(`${server}/api/driver/${rideDriver}/update-earnings`, {
+      await axios.post(`${server}/api/driver/${id}/update-earnings`, {
         payment,
       });
-      await fetchDashboardData(); // Refresh data
+      // await fetchDashboardData(); // Refresh data
       toast.success("Earnings updated successfully");
     } catch (err) {
       toast.error("Failed to update earnings");
@@ -77,12 +70,12 @@ export const DriverDashboardProvider = ({ children }) => {
   };
 
   // Update rating
-  const updateRating = async (rating) => {
+  const updateRating = async (rating, id) => {
     try {
-      await axios.post(`${server}/api/driver/${rideDriver}/update-rating`, {
+      await axios.post(`${server}/api/driver/${id}/update-rating`, {
         rating,
       });
-      await fetchDashboardData(); // Refresh data
+      // await fetchDashboardData(); // Refresh data
       toast.success("Rating updated successfully");
     } catch (err) {
       toast.error("Failed to update rating");
@@ -98,21 +91,19 @@ export const DriverDashboardProvider = ({ children }) => {
       await axios.post(`${server}/api/driver/${_id}/update-status`, {
         status: newStatus,
       });
-      await fetchDashboardData(); // Refresh data
+      // await fetchDashboardData(); // Refresh data
       toast.success(`Status updated to ${newStatus}`);
     } catch (err) {
       toast.error("Failed to update status");
       console.error("Status error:", err);
     }
   };
-
-  // Update total distance
-  const updateTotalDistance = async (distance) => {
+  const updateTotalDistance = async (distance, id) => {
     try {
-      await axios.post(`${server}/api/driver/${rideDriver}/update-distance`, {
+      await axios.post(`${server}/api/driver/${id}/update-distance`, {
         distance,
       });
-      await fetchDashboardData(); // Refresh data
+      // await fetchDashboardData(); // Refresh data
       toast.success("Distance updated successfully");
     } catch (err) {
       toast.error("Failed to update distance");
@@ -190,7 +181,6 @@ export const DriverDashboardProvider = ({ children }) => {
     <DriverDashboardContext.Provider
       value={{
         ...dashboardData,
-        setRideDriver,
         isLoading,
         isAvailable: dashboardData.status === "online",
         completedRides,

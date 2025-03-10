@@ -417,6 +417,7 @@ const DriverDashboard = () => {
   const {
     isLoading,
     isAvailable,
+    status,
     earnings,
     totalDistance,
     overallRating,
@@ -870,9 +871,6 @@ const DriverDashboard = () => {
                         <th className="px-6 py-3 border-b border-gray-200">
                           Distance
                         </th>
-                        {/* <th className="px-6 py-3 border-b border-gray-200">
-                          Earnings
-                        </th> */}
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -883,15 +881,15 @@ const DriverDashboard = () => {
                         >
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="font-medium text-gray-900">
-                              {ride.from}
+                              {ride.fromAddress}
                             </div>
                             <div className="text-gray-500 flex items-center mt-1">
                               <Circle className="h-3 w-3 mr-2 text-gray-400 inline" />
-                              {ride.to}
+                              {ride.toAddress}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                            {ride.date}
+                            {new Date(ride.date).toLocaleString()}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-gray-500">
                             {ride.distance} km
@@ -932,7 +930,9 @@ const DriverDashboard = () => {
                     <span className="text-gray-600 flex items-center">
                       <Star className="h-4 w-4 mr-2 text-yellow-500" /> Rating
                     </span>
-                    <span className="font-medium text-gray-900">{}/5</span>
+                    <span className="font-medium text-gray-900">
+                      {overallRating}/5
+                    </span>
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -951,7 +951,7 @@ const DriverDashboard = () => {
                       Completed Rides
                     </span>
                     <span className="font-medium text-gray-900">
-                      {completedRides}
+                      {completedRides.length}
                     </span>
                   </div>
 
@@ -961,7 +961,7 @@ const DriverDashboard = () => {
                       Cancelled Rides
                     </span>
                     <span className="font-medium text-gray-900">
-                      {canceledRides}
+                      {canceledRides.length}
                     </span>
                   </div>
                 </div>
@@ -973,15 +973,14 @@ const DriverDashboard = () => {
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-green-500 h-2 rounded-full"
-                      style={{ width: "97%" }}
+                      style={{
+                        width: `${
+                          (completedRides.length /
+                            (completedRides.length + canceledRides.length)) *
+                          100
+                        }%`,
+                      }}
                     ></div>
-                  </div>
-                  <div className="flex justify-between mt-1 text-xs text-gray-500">
-                    <span>
-                      {(completedRides / (completedRides + canceledRides)) *
-                        100}
-                    </span>
-                    {/* <span>Target: 90%</span> */}
                   </div>
                 </div>
               </div>
@@ -992,7 +991,9 @@ const DriverDashboard = () => {
                   <div className="text-green-600 font-medium flex items-center text-sm">
                     <TrendingUp className="h-4 w-4 mr-1" /> Today's Rides
                   </div>
-                  <div className="text-2xl font-bold mt-1">todayRideCount</div>
+                  <div className="text-2xl font-bold mt-1">
+                    {todayRideCount}
+                  </div>
                 </div>
 
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">

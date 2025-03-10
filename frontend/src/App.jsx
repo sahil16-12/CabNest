@@ -43,9 +43,12 @@ const App = () => {
         <Route path="/profile-page" element={<ProfilePage />} />
         <Route path="/ride-completed" element={<RideCompletionPage />} />
         <Route path="/admin/dashBoard" element={<AdminDashboard />} />
-        <Route path="/payment-successfull" element={<PaymentSuccess />} />
+
         <Route path="/dashboard-test" element={<DriverDashboardTest />} />
-        {/* <Route path="/payment-successfull/:id" element={<PaymentSuccess />} /> */}
+        <Route
+          path="/payment-successful/:paymentId"
+          element={<PaymentSuccess />}
+        />
         <Route path="/ride-waiting" element={<RideWaitingPage />} />
         <Route path="/active-ride" element={<ActiveRidePage />} />
       </Routes>

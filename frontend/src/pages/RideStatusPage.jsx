@@ -16,6 +16,10 @@ import { toast } from "react-toastify";
 import { server } from "../main";
 import { useDriverDashboardC } from "../context/DriverDashboardContext.";
 import { Phone, MessageSquare, AlertTriangle, X } from "lucide-react";
+import {
+  updateEarnings,
+  updateTotalDistance,
+} from "../../../backend/controllers/driverDashboard";
 
 // Fix for default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -134,6 +138,9 @@ const RideStatusPage = () => {
   };
 
   const checkoutHandler = async () => {
+    const earning = ride.fare * 0.8;
+    await updateEarnings(earning, driver._id);
+    await updateTotalDistance(ride.distance, driver._id);
     const token = sessionStorage.getItem("token");
     setRideDriver(driver);
     try {
@@ -147,7 +154,7 @@ const RideStatusPage = () => {
 
       const options = {
         key: "rzp_test_RktGm4504pCbPL",
-        amount: order.amount,
+        amount: ride.fare,
         currency: "INR",
         name: "CabNest",
         description: `Ride ${ride._id}`,
@@ -164,7 +171,10 @@ const RideStatusPage = () => {
             { headers: { Authorization: `Bearer ${token}` } }
           );
           toast.success("Payment successful!");
-          navigate(`/payment-successfull/${response.razorpay_payment_id}`);
+          const driverId = "12345"; // Replace with the actual driver ID
+          navigate(
+            `/payment-successful/${response.razorpay_payment_id}?driverId=${driver._id}`
+          );
         },
         theme: { color: "#3399cc" },
       };
