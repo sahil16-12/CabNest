@@ -6,15 +6,11 @@ import AboutUs from "./pages/AboutUs";
 import Register from "./pages/Register";
 import Verify from "./pages/Verify";
 import RideBookPage from "./pages/RideBookPage";
-import RideRequestPage from "./pages/RideRequestPage";
 import RideStatusPage from "./pages/RideStatusPage";
 import RiderProfile from "./pages/RiderProfile";
 import DriverProfile from "./pages/DriverProfile";
-import DriverStatus from "./pages/DriverStatus";
 import ProfilePage from "./pages/ProfilePage";
 import DriverDashboard from "./pages/DriverDashboard";
-import DriverRideRequests from "./pages/DriverRideRequests";
-import RideCompletionPage from "./pages/RideCompleted";
 import AdminDashboard from "./pages/AdminDashBoard";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import RideWaitingPage from "./pages/RideWaitingPage";
@@ -33,13 +29,9 @@ const App = () => {
         <Route path="/about" element={<AboutUs />} />
         <Route path="/rider-profile" element={<RiderProfile />} />
         <Route path="/driver-profile" element={<DriverProfile />} />
-        <Route path="/ride-request" element={<RideRequestPage />} />
         <Route path="/ride-status" element={<RideStatusPage />} />
         <Route path="/driver-dashboard" element={<DriverDashboard />} />
-        <Route path="/ride-requests" element={<DriverRideRequests />} />
-        <Route path="/driver-status" element={<DriverStatus />} />
         <Route path="/profile-page" element={<ProfilePage />} />
-        <Route path="/ride-completed" element={<RideCompletionPage />} />
         <Route path="/admin/dashBoard" element={<AdminDashboard />} />
         <Route path="/payment-successfull/:id" element={<PaymentSuccess />} />
         <Route path="/ride-waiting" element={<RideWaitingPage />} />

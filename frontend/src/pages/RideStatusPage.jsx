@@ -26,7 +26,7 @@ L.Icon.Default.mergeOptions({
 
 // Custom icons
 const carIcon = new L.Icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/3097/3097144.png", // Modern taxi/cab icon
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/3097/3097144.png",
   iconSize: [40, 40],
   iconAnchor: [20, 20],
   popupAnchor: [0, -20],
@@ -38,14 +38,12 @@ const pickupIcon = new L.Icon({
   iconAnchor: [19, 38],
   popupAnchor: [0, -38],
 });
-
 const dropIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
   iconSize: [38, 38],
   iconAnchor: [19, 38],
   popupAnchor: [0, -38],
 });
-
 const driverStartIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
   iconSize: [38, 38],
@@ -58,14 +56,12 @@ const OSRM_API_URL = "https://router.project-osrm.org/route/v1/driving/";
 const DriverMarker = ({ position, startPosition, rideStatus }) => {
   const markerRef = useRef(null);
   const map = useMap();
-
   useEffect(() => {
     if (markerRef.current && position) {
       markerRef.current.setLatLng(position);
       map.setView(position, map.getZoom());
     }
   }, [position, map]);
-
   return (
     <>
       {rideStatus === "arriving" && startPosition && (
@@ -109,13 +105,7 @@ const RideStatusPage = () => {
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showChatModal, setShowChatModal] = useState(false);
   const [message, setMessage] = useState("");
-  const [chatMessages, setChatMessages] = useState([
-    {
-      sender: "driver",
-      text: "Hello! I'll be there in a few minutes.",
-      time: "10:30 AM",
-    },
-  ]);
+  const [chatMessages, setChatMessages] = useState([]);
   const [pickupToDropRoute, setPickupToDropRoute] = useState([]);
   const movementInterval = useRef(null);
   const otpInputRef = useRef(null);
@@ -139,7 +129,6 @@ const RideStatusPage = () => {
         { amount: ride.fare * 100 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       const options = {
         key: "rzp_test_RktGm4504pCbPL",
         amount: order.amount,
@@ -163,7 +152,6 @@ const RideStatusPage = () => {
         },
         theme: { color: "#3399cc" },
       };
-
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error) {
@@ -173,16 +161,12 @@ const RideStatusPage = () => {
 
   const fetchRoute = async (start, end) => {
     try {
-      // Ensure coordinates are in the correct format for OSRM: [longitude, latitude]
       const startLngLat = `${start[1]},${start[0]}`;
       const endLngLat = `${end[1]},${end[0]}`;
-
       const response = await axios.get(
         `${OSRM_API_URL}${startLngLat};${endLngLat}?overview=full&geometries=geojson`
       );
-
       if (response.data.routes?.[0]?.geometry?.coordinates) {
-        // Convert back to [latitude, longitude] for Leaflet
         return response.data.routes[0].geometry.coordinates.map(
           ([lng, lat]) => [lat, lng]
         );
@@ -199,7 +183,6 @@ const RideStatusPage = () => {
     const initSocket = async () => {
       const io = await import("socket.io-client");
       socket.current = io.connect(server);
-      // Register this connection as a rider using the rider ID from the ride
       if (ride && ride.riderId) {
         socket.current.emit("register-rider", ride.riderId);
       }
@@ -209,10 +192,26 @@ const RideStatusPage = () => {
       socket.current.on("disconnect", () =>
         console.log("Rider socket disconnected")
       );
+      socket.current.on("receive-message", (messageData) => {
+        setChatMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            sender: messageData.senderRole,
+            text: messageData.text,
+            time: new Date(messageData.time).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            isFromRider: messageData.senderRole === "rider",
+          },
+        ]);
+      });
 
-      // Listen for the "otp-verified" event emitted by the driver.
+      socket.current.on("message-sent", (messageData) => {
+        console.log("Message delivered to server:", messageData);
+      });
+
       socket.current.on("otp-verified", (data) => {
-        console.log("OTP verified event received:", data);
         if (data.rideId === ride._id) {
           setOtpVerified(true);
           toast.success("OTP has been verified by the driver!");
@@ -233,30 +232,21 @@ const RideStatusPage = () => {
         setError("Missing ride information");
         return navigate("/ride-book");
       }
-
       try {
-        // Extract coordinates from backend data - ensure [lat, lng] format for Leaflet
         const pickupLocation = [
           ride.pickup.coordinates.coordinates[1],
           ride.pickup.coordinates.coordinates[0],
-        ]; // Swap to [lat, lng]
+        ];
         const dropLocation = [
           ride.drop.coordinates.coordinates[1],
           ride.drop.coordinates.coordinates[0],
-        ]; // Swap to [lat, lng]
+        ];
         const driverStartPosition = [
           driver.currentLocation.coordinates[1],
           driver.currentLocation.coordinates[0],
-        ]; // Swap to [lat, lng]
-
-        console.log("Pickup coordinates:", pickupLocation);
-        console.log("Drop coordinates:", dropLocation);
-        console.log("Driver start position:", driverStartPosition);
-
+        ];
         setPickupCoords(pickupLocation);
         setDropCoords(dropLocation);
-
-        // Set driver data from backend response
         setDriverData({
           id: driver._id,
           name: driver.name,
@@ -269,16 +259,11 @@ const RideStatusPage = () => {
           vehicleColor: driver.vehicleColor,
           licenseNumber: driver.licenseNumber,
         });
-
-        // Fetch initial route - we pass coordinates in [lat, lng] format,
-        // but fetchRoute will handle conversion to the format OSRM needs
         const initialRoute = await fetchRoute(
           driverStartPosition,
           pickupLocation
         );
         if (!initialRoute) throw new Error("Failed to calculate route");
-
-        // Also fetch the pickup-to-drop route now so it's ready
         const pickupToDropRoute = await fetchRoute(
           pickupLocation,
           dropLocation
@@ -286,19 +271,13 @@ const RideStatusPage = () => {
         if (pickupToDropRoute) {
           setPickupToDropRoute(pickupToDropRoute);
         }
-
         setRoute(initialRoute);
         setStatus(statusMessages.arriving);
-
         startMovement(initialRoute, statusMessages.arriving, async () => {
           setStatus(statusMessages.arrived);
-          // After reaching pickup, show OTP verification dialog
           setShowOtpDialog(true);
           setStatus(statusMessages.otpVerify);
-
-          // Enable the Start Ride button after driver arrives and OTP dialog is shown
           setCanStartRide(true);
-
           setTimeout(() => {
             if (otpInputRef.current) {
               otpInputRef.current.focus();
@@ -315,25 +294,17 @@ const RideStatusPage = () => {
     return () => clearInterval(movementInterval.current);
   }, [driver, ride, navigate]);
 
-  useEffect(() => {
-    if (showOtpDialog && otpInputRef.current) {
-      otpInputRef.current.focus();
-    }
-  }, [showOtpDialog]);
-
   const startMovement = (path, statusMessage, onComplete) => {
     clearInterval(movementInterval.current);
     setStatus(statusMessage);
     let currentStep = 0;
     const totalSteps = path.length;
-
     movementInterval.current = setInterval(() => {
       if (currentStep >= totalSteps) {
         clearInterval(movementInterval.current);
         onComplete?.();
         return;
       }
-
       setDriverData((prev) => ({ ...prev, position: path[currentStep] }));
       setProgress((currentStep / totalSteps) * 100);
       currentStep++;
@@ -341,7 +312,6 @@ const RideStatusPage = () => {
   };
 
   const startRide = () => {
-    // Only proceed if OTP was verified and driver has arrived
     if (!otpVerified) {
       setShowOtpDialog(true);
       toast.error(
@@ -350,18 +320,15 @@ const RideStatusPage = () => {
       return;
     }
     setStatus(statusMessages.ongoing);
-    setShowOtpDialog(false); // Ensure dialog is closed
-    setRideStarted(true); // Set ride as started
-
-    // Use the pre-fetched route from pickup to drop
+    setShowOtpDialog(false);
+    setRideStarted(true);
     if (pickupToDropRoute.length > 0) {
-      setRoute(pickupToDropRoute); // Update the displayed route
+      setRoute(pickupToDropRoute);
       startMovement(pickupToDropRoute, statusMessages.ongoing, () => {
         setStatus(statusMessages.completed);
         setRideCompleted(true);
       });
     } else {
-      // If somehow we don't have the route yet, calculate it
       const calculateRideRoute = async () => {
         try {
           const rideRoute = await fetchRoute(pickupCoords, dropCoords);
@@ -384,44 +351,42 @@ const RideStatusPage = () => {
   };
 
   const cancelRide = () => {
-    // Simulate ride cancellation (in real app, this would be an API call)
     toast.info("Ride cancelled successfully");
     navigate("/ride-book");
   };
 
+  // Real-time chat send function for rider
   const sendMessage = () => {
     if (!message.trim()) return;
 
+    const currentTime = new Date();
+    const formattedTime = currentTime.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    // Add to local state first with isFromRider flag set to true
     const newMessage = {
       sender: "rider",
       text: message,
-      time: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
+      time: formattedTime,
+      isFromRider: true, // explicitly mark this as from rider
     };
 
-    setChatMessages([...chatMessages, newMessage]);
+    setChatMessages((prevMessages) => [...prevMessages, newMessage]);
+
+    // Send via socket
+    if (socket.current && ride && ride.driverId) {
+      socket.current.emit("send-message", {
+        senderId: ride.riderId,
+        receiverId: ride.driverId,
+        message: message,
+        rideId: ride._id,
+        senderRole: "rider",
+      });
+    }
+
     setMessage("");
-
-    // Simulate driver response
-    setTimeout(() => {
-      const driverResponse = {
-        sender: "driver",
-        text: "I got your message. Will be there soon!",
-        time: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      };
-      setChatMessages((prevMessages) => [...prevMessages, driverResponse]);
-    }, 1500);
-  };
-
-  const handleOtpClose = () => {
-    setShowOtpDialog(false);
-    // The Start Ride button remains enabled even after closing the OTP dialog
-    // as long as the driver has reached the pickup location
   };
 
   if (error) {
@@ -475,11 +440,10 @@ const RideStatusPage = () => {
               <p className="text-lg font-semibold text-purple-600">
                 {driverData.fare}
               </p>
-              <p className="text-sm text-gray-500">Estimated Fare</p>
+              <p className="text-sm text-gray-500">Fare</p>
               <p className="text-sm text-gray-500">{ride.distance} km</p>
             </div>
           </div>
-
           <div className="relative pt-2">
             <div className="h-2 bg-gray-200 rounded-full">
               <motion.div
@@ -488,7 +452,6 @@ const RideStatusPage = () => {
               />
             </div>
           </div>
-
           <div className="mt-4 flex justify-end space-x-2">
             <button
               onClick={() => setShowChatModal(true)}
@@ -506,7 +469,6 @@ const RideStatusPage = () => {
             )}
           </div>
         </motion.div>
-
         <div className="h-96 rounded-xl overflow-hidden shadow-lg">
           <MapContainer
             center={pickupCoords || [12.9716, 77.5946]}
@@ -518,22 +480,17 @@ const RideStatusPage = () => {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-
-            {/* Only show pickup marker when arriving to pickup or at pickup */}
             {!rideStarted && pickupCoords && (
               <Marker position={pickupCoords} icon={pickupIcon}>
                 <Popup>{ride.pickup.address}</Popup>
               </Marker>
             )}
-
-            {/* Always show drop marker once ride has started or when completed */}
             {(rideStarted || status === statusMessages.completed) &&
               dropCoords && (
                 <Marker position={dropCoords} icon={dropIcon}>
                   <Popup>{ride.drop.address}</Popup>
                 </Marker>
               )}
-
             {driverData?.position && (
               <DriverMarker
                 position={driverData.position}
@@ -547,13 +504,11 @@ const RideStatusPage = () => {
                 }
               />
             )}
-
             {route.length > 0 && (
               <Polyline positions={route} color="#0000FF" weight={4} />
             )}
           </MapContainer>
         </div>
-
         <motion.div
           className="bg-white rounded-xl shadow-lg p-6 mt-6"
           initial={{ opacity: 0 }}
@@ -588,7 +543,6 @@ const RideStatusPage = () => {
                 </span>
               </div>
             </div>
-            {/* Show Start Ride button only when driver has arrived and ride hasn't started yet */}
             {canStartRide && !rideStarted && !rideCompleted && (
               <button
                 onClick={startRide}
@@ -597,7 +551,6 @@ const RideStatusPage = () => {
                 Start Ride
               </button>
             )}
-            {/* Show Pay button only when ride is completed */}
             {rideCompleted && (
               <button
                 onClick={checkoutHandler}
@@ -609,7 +562,7 @@ const RideStatusPage = () => {
           </div>
         </motion.div>
       </div>
-      {/* OTP Verification Modal in RideStatusPage */}
+
       <AnimatePresence>
         {showOtpDialog && (
           <motion.div
@@ -637,13 +590,11 @@ const RideStatusPage = () => {
                 Please share this OTP with your driver. Wait until the driver
                 verifies it.
               </p>
-
               <div className="bg-blue-50 p-4 rounded-lg mb-6">
                 <div className="text-center text-3xl font-bold tracking-wider text-blue-600">
                   {otp || "1234"}
                 </div>
               </div>
-
               <div className="flex justify-center">
                 <button
                   onClick={() => {
@@ -665,7 +616,6 @@ const RideStatusPage = () => {
         )}
       </AnimatePresence>
 
-      {/* Cancel Ride Confirmation Modal */}
       <AnimatePresence>
         {showCancelDialog && (
           <motion.div
@@ -692,7 +642,6 @@ const RideStatusPage = () => {
                 Are you sure you want to cancel this ride? Cancellation fees may
                 apply based on driver's travel time.
               </p>
-
               <div className="flex gap-4">
                 <button
                   onClick={() => setShowCancelDialog(false)}
@@ -712,7 +661,6 @@ const RideStatusPage = () => {
         )}
       </AnimatePresence>
 
-      {/* Chat Modal */}
       <AnimatePresence>
         {showChatModal && (
           <motion.div
@@ -733,7 +681,7 @@ const RideStatusPage = () => {
                     <span className="text-xl">🚕</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold">{driverData.name}</h3>
+                    <h3 className="font-semibold">{driver._id.name}</h3>
                     <p className="text-sm text-gray-500">{driverData.car}</p>
                   </div>
                 </div>
@@ -744,18 +692,17 @@ const RideStatusPage = () => {
                   <X size={20} />
                 </button>
               </div>
-
               <div className="flex-1 overflow-y-auto py-4 px-1">
                 {chatMessages.map((msg, index) => (
                   <div
                     key={index}
                     className={`mb-3 flex ${
-                      msg.sender === "rider" ? "justify-end" : "justify-start"
+                      msg.isFromRider ? "justify-end" : "justify-start"
                     }`}
                   >
                     <div
                       className={`max-w-[80%] rounded-lg px-3 py-2 ${
-                        msg.sender === "rider"
+                        msg.isFromRider
                           ? "bg-blue-500 text-white rounded-tr-none"
                           : "bg-gray-200 text-gray-800 rounded-tl-none"
                       }`}
@@ -763,9 +710,7 @@ const RideStatusPage = () => {
                       <p>{msg.text}</p>
                       <p
                         className={`text-xs mt-1 ${
-                          msg.sender === "rider"
-                            ? "text-blue-100"
-                            : "text-gray-500"
+                          msg.isFromRider ? "text-blue-100" : "text-gray-500"
                         }`}
                       >
                         {msg.time}
@@ -774,7 +719,6 @@ const RideStatusPage = () => {
                   </div>
                 ))}
               </div>
-
               <div className="border-t pt-3">
                 <div className="flex gap-2">
                   <input

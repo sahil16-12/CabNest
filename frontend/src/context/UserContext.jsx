@@ -32,7 +32,6 @@ export const UserContextProvider = ({ children }) => {
         sessionStorage.setItem("driver", JSON.stringify(response.data));
         navigate("/driver-dashboard");
       }
-      navigate("/");
     } catch (error) {
       setIsAuth(false);
     } finally {

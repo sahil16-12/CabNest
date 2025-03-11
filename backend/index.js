@@ -51,7 +51,7 @@ io.on("connection", (socket) => {
         lastLocationUpdate: new Date(),
       });
 
-      console.log(`Updated location for driver ${driverId}`);
+      // console.log(`Updated location for driver ${driverId}`);
     } catch (error) {
       console.error("Error updating driver location:", error);
     }
@@ -59,13 +59,57 @@ io.on("connection", (socket) => {
   // Handle driver connection
   socket.on("register-driver", (driverId) => {
     connectedUsers.set(driverId.toString(), socket.id);
-    console.log(`Driver ${driverId} connected`);
+    //console.log(`Driver ${driverId} connected`);
   });
   // Register rider socket
   socket.on("register-rider", (riderId) => {
     connectedUsers.set(riderId.toString(), socket.id);
     console.log(`Rider ${riderId} connected`);
   });
+  socket.on("otp-verified", ({ rideId, riderId }) => {
+    // Check if the rider is connected
+    const riderSocketId = connectedUsers.get(riderId.toString());
+    if (riderSocketId) {
+      io.to(riderSocketId).emit("otp-verified", { rideId });
+    }
+  });
+
+  socket.on(
+    "send-message",
+    ({ senderId, receiverId, message, rideId, senderRole }) => {
+      console.log(
+        `Message from ${senderRole} ${senderId} to ${receiverId}: ${message}`
+      );
+
+      // Store the message in database if needed
+      // This could be implemented to persist chat history
+
+      // Find the receiver's socket ID
+      const receiverSocketId = connectedUsers.get(receiverId.toString());
+
+      // Create message object with metadata
+      const messageObj = {
+        senderId,
+        text: message,
+        time: new Date().toISOString(),
+        rideId,
+        senderRole, // 'driver' or 'rider'
+      };
+
+      // Send to receiver if they're connected
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("receive-message", messageObj);
+        console.log(`Message sent to ${receiverId}`);
+      } else {
+        console.log(`Receiver ${receiverId} not connected`);
+        // You could store undelivered messages in the database here
+      }
+
+      // Also send back to sender for confirmation
+      socket.emit("message-sent", messageObj);
+    }
+  );
+
   socket.on("disconnect", () => {
     console.log("A driver disconnected:", socket.id);
     for (const [userId, socketId] of connectedUsers.entries()) {
