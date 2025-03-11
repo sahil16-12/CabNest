@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { server } from "../main";
 import { Toaster, toast } from "react-hot-toast";
+import { useDriver } from "./DriverContext";
 
 const UserContext = createContext();
 
@@ -10,6 +11,7 @@ export const UserContextProvider = ({ children }) => {
   const [isAuth, setIsAuth] = useState(!!sessionStorage.getItem("token"));
   const [btnLoading, setBtnLoading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { fetchDriverProfile, driver, setDriver } = useDriver();
   async function loginUser(email, password, currentLocation, navigate) {
     setBtnLoading(true);
     try {
@@ -22,6 +24,7 @@ export const UserContextProvider = ({ children }) => {
       sessionStorage.setItem("token", data.token);
       setUser(data.user);
       setIsAuth(true);
+
       if (data.user.role === "rider") {
         sessionStorage.setItem("rider", JSON.stringify(data.user));
         navigate("/");
@@ -30,11 +33,15 @@ export const UserContextProvider = ({ children }) => {
           `${server}/api/driver/${data.user.id}`
         );
         sessionStorage.setItem("driver", JSON.stringify(response.data));
+        const driver2 = response.data;
+        setDriver(driver2);
+        console.log(driver);
+        await fetchDriverProfile(driver2._id); // Ensure this completes before navigating
         navigate("/driver-dashboard");
       }
-      navigate("/");
     } catch (error) {
       setIsAuth(false);
+      toast.error("Login failed");
     } finally {
       setBtnLoading(false);
     }

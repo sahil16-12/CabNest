@@ -9,16 +9,16 @@ import { DriverDashboardProvider } from "./context/DriverDashboardContext..jsx";
 export const server = "http://localhost:5000";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <UserContextProvider>
-      <RiderProvider>
-        <DriverProvider>
+    <RiderProvider>
+      <DriverProvider>
+        <UserContextProvider>
           <DriverDashboardProvider>
             <AdminProvider>
               <App />
             </AdminProvider>
           </DriverDashboardProvider>
-        </DriverProvider>
-      </RiderProvider>
-    </UserContextProvider>
+        </UserContextProvider>
+      </DriverProvider>
+    </RiderProvider>
   </StrictMode>
 );

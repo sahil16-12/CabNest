@@ -470,94 +470,94 @@ const DriverDashboard = () => {
   // ]);
 
   // Initialize the map
-  useEffect(() => {
-    if (mapRef.current && !mapInstanceRef.current) {
-      mapInstanceRef.current = L.map(mapRef.current, {
-        zoomControl: false,
-      }).setView([currentLocation.lat, currentLocation.lng], 14);
+  // useEffect(() => {
+  //   if (mapRef.current && !mapInstanceRef.current) {
+  //     mapInstanceRef.current = L.map(mapRef.current, {
+  //       zoomControl: false,
+  //     }).setView([currentLocation.lat, currentLocation.lng], 14);
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(mapInstanceRef.current);
+  //     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  //       attribution:
+  //         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  //     }).addTo(mapInstanceRef.current);
 
-      const customIcon = L.divIcon({
-        className: "custom-div-icon",
-        html: `<div style="background-color: rgba(37, 99, 235, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
-                <div style="background-color: rgba(37, 99, 235, 0.4); width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
-                  <div style="color: rgb(37, 99, 235); transform: translate(0, -4px);">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                  </div>
-                </div>
-              </div>`,
-        iconSize: [48, 48],
-        iconAnchor: [24, 24],
-      });
+  //     const customIcon = L.divIcon({
+  //       className: "custom-div-icon",
+  //       html: `<div style="background-color: rgba(37, 99, 235, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
+  //               <div style="background-color: rgba(37, 99, 235, 0.4); width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
+  //                 <div style="color: rgb(37, 99, 235); transform: translate(0, -4px);">
+  //                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+  //                 </div>
+  //               </div>
+  //             </div>`,
+  //       iconSize: [48, 48],
+  //       iconAnchor: [24, 24],
+  //     });
 
-      markerRef.current = L.marker([currentLocation.lat, currentLocation.lng], {
-        icon: customIcon,
-      })
-        .addTo(mapInstanceRef.current)
-        .bindPopup("Your current location");
+  //     markerRef.current = L.marker([currentLocation.lat, currentLocation.lng], {
+  //       icon: customIcon,
+  //     })
+  //       .addTo(mapInstanceRef.current)
+  //       .bindPopup("Your current location");
 
-      const zoomControl = L.control.zoom({
-        position: "bottomright",
-      });
-      zoomControl.addTo(mapInstanceRef.current);
+  //     const zoomControl = L.control.zoom({
+  //       position: "bottomright",
+  //     });
+  //     zoomControl.addTo(mapInstanceRef.current);
 
-      return () => {
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.remove();
-          mapInstanceRef.current = null;
-        }
-      };
-    }
-  }, [currentLocation]);
+  //     return () => {
+  //       if (mapInstanceRef.current) {
+  //         mapInstanceRef.current.remove();
+  //         mapInstanceRef.current = null;
+  //       }
+  //     };
+  //   }
+  // }, [currentLocation]);
 
   // Update the map marker and pan to the new location
-  useEffect(() => {
-    if (mapInstanceRef.current && markerRef.current) {
-      markerRef.current.setLatLng([currentLocation.lat, currentLocation.lng]);
-      mapInstanceRef.current.panTo([currentLocation.lat, currentLocation.lng]);
-    }
-  }, [currentLocation]);
+  // useEffect(() => {
+  //   if (mapInstanceRef.current && markerRef.current) {
+  //     markerRef.current.setLatLng([currentLocation.lat, currentLocation.lng]);
+  //     mapInstanceRef.current.panTo([currentLocation.lat, currentLocation.lng]);
+  //   }
+  // }, [currentLocation]);
 
-  useEffect(() => {
-    // Initialize WebSocket connection
-    const newSocket = io(`${server}`);
+  // useEffect(() => {
+  //   // Initialize WebSocket connection
+  //   const newSocket = io(`${server}`);
 
-    setSocket(newSocket);
+  //   setSocket(newSocket);
 
-    // Register driver with WebSocket server
-    const driverData = sessionStorage.getItem("driver");
-    if (driverData) {
-      const parsedDriver = JSON.parse(driverData);
-      newSocket.emit("register-driver", parsedDriver._id);
+  //   // Register driver with WebSocket server
+  //   const driverData = sessionStorage.getItem("driver");
+  //   if (driverData) {
+  //     const parsedDriver = JSON.parse(driverData);
+  //     newSocket.emit("register-driver", parsedDriver._id);
 
-      // Handle new ride requests
-      newSocket.on("new-ride-request", (data) => {
-        setNotifications((prev) => [data, ...prev]);
+  //     // Handle new ride requests
+  //     newSocket.on("new-ride-request", (data) => {
+  //       setNotifications((prev) => [data, ...prev]);
 
-        // Play notification sound
-        try {
-          const audio = new Audio("../assets/notification-sound.mp3");
-          audio.play();
-        } catch (error) {
-          console.error("Could not play notification sound", error);
-        }
+  //       // Play notification sound
+  //       try {
+  //         const audio = new Audio("../assets/notification-sound.mp3");
+  //         audio.play();
+  //       } catch (error) {
+  //         console.error("Could not play notification sound", error);
+  //       }
 
-        // Show toast notification
-        toast.info("New ride request received!", {
-          position: "top-right",
-          autoClose: 5000,
-        });
-      });
+  //       // Show toast notification
+  //       toast.info("New ride request received!", {
+  //         position: "top-right",
+  //         autoClose: 5000,
+  //       });
+  //     });
 
-      return () => {
-        newSocket.disconnect();
-      };
-    }
-  }, [currentLocation]);
+  //     return () => {
+  //       newSocket.disconnect();
+  //     };
+  //   }
+  // }, [currentLocation]);
 
   const handleResponse = async (notificationId, response) => {
     const driverData = sessionStorage.getItem("driver");
@@ -821,7 +821,7 @@ const DriverDashboard = () => {
               </div>
 
               {/* Map Preview */}
-              <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6 border border-gray-100">
+              {/* <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6 border border-gray-100">
                 <div className="p-6 pb-4">
                   <div className="flex items-center justify-between">
                     <h2 className="text-xl font-bold text-gray-800">
@@ -841,14 +841,14 @@ const DriverDashboard = () => {
                       {currentLocation.lng.toFixed(4)}°W
                     </span>
                   </div>
-                </div>
+                </div> */}
 
-                <div
+              {/* <div
                   className="h-[400px] relative"
                   ref={mapRef}
                   style={{ zIndex: 0 }}
                 ></div>
-              </div>
+              </div> */}
 
               {/* Recent Rides */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">

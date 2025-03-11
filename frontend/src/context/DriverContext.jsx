@@ -15,7 +15,11 @@ export const DriverProvider = ({ children }) => {
   const fetchDriverProfile = async (userId) => {
     try {
       const response = await axios.get(`${server}/api/driver/${userId}`);
+      console.log(response.data);
       setDriver(response.data);
+      sessionStorage.setItem("driverD", JSON.stringify(response.data));
+
+      console.log(response.data);
     } catch (error) {
       console.error("Error fetching driver profile:", error);
     }
@@ -57,6 +61,7 @@ export const DriverProvider = ({ children }) => {
     <DriverContext.Provider
       value={{
         driver,
+        setDriver,
         fetchDriverProfile,
         createDriverProfile,
         updateDriverProfile,
