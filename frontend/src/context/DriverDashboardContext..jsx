@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
-import { useDriver } from "./DriverContext"; // Import the driver context
 import { server } from "../main";
 import { toast } from "react-toastify";
 
@@ -13,22 +12,23 @@ export const DriverDashboardProvider = ({ children }) => {
   const [todayRideCount, setTodayRideCount] = useState(0);
   const [recentRides, setRecentRides] = useState([]);
   const [error, setError] = useState(null);
+
+  // Get current driver from sessionStorage
   const currentDriver = JSON.parse(sessionStorage.getItem("driverD"));
   const _id = currentDriver?._id;
-  console.log(_id);
+
   const [dashboardData, setDashboardData] = useState({
     earnings: { daily: 0, weekly: 0, monthly: 0, yearly: 0 },
     totalDistance: 0,
     overallRating: 0,
     status: "offline",
   });
-  const fetchDashboardData = async (_id) => {
-    if (!_id) return; // Use static driver ID
+
+  const fetchDashboardData = async () => {
+    if (!_id) return;
 
     try {
       setIsLoading(true);
-
-      // Fetch all data in parallel
       const [earningsRes, ratingRes, distanceRes, statusRes] =
         await Promise.all([
           axios.get(`${server}/api/driver/${_id}/earnings`),
@@ -37,7 +37,6 @@ export const DriverDashboardProvider = ({ children }) => {
           axios.get(`${server}/api/driver/${_id}/status`),
         ]);
 
-      // Update state with fetched data
       setDashboardData({
         earnings: earningsRes.data.data,
         overallRating: ratingRes.data.data.averageRating,
@@ -52,15 +51,27 @@ export const DriverDashboardProvider = ({ children }) => {
     }
   };
 
+  // Refresh data whenever _id changes or manual refresh
   useEffect(() => {
-    fetchDashboardData();
+    if (_id) {
+      fetchDashboardData();
+      fetchDriverRideData();
+    }
   }, [_id]);
+
+  // Unified refresh function
+  const refreshAllData = async () => {
+    await fetchDashboardData();
+    await fetchDriverRideData();
+  };
+
+  // Update functions
   const updateEarnings = async (payment, id) => {
     try {
       await axios.post(`${server}/api/driver/${id}/update-earnings`, {
         payment,
       });
-      await fetchDashboardData(id); // Refresh data
+      // await fetchDashboardData(); // Refresh after update
       toast.success("Earnings updated successfully");
     } catch (err) {
       toast.error("Failed to update earnings");
@@ -68,13 +79,10 @@ export const DriverDashboardProvider = ({ children }) => {
     }
   };
 
-  // Update rating
   const updateRating = async (rating, id) => {
     try {
-      await axios.post(`${server}/api/driver/${id}/update-rating`, {
-        rating,
-      });
-      await fetchDashboardData(id); // Refresh data
+      await axios.post(`${server}/api/driver/${id}/update-rating`, { rating });
+      // await fetchDashboardData(); // Refresh after update
       toast.success("Rating updated successfully");
     } catch (err) {
       toast.error("Failed to update rating");
@@ -82,7 +90,6 @@ export const DriverDashboardProvider = ({ children }) => {
     }
   };
 
-  // Update status
   const toggleAvailability = async () => {
     try {
       const newStatus =
@@ -90,92 +97,92 @@ export const DriverDashboardProvider = ({ children }) => {
       await axios.post(`${server}/api/driver/${_id}/update-status`, {
         status: newStatus,
       });
-      await fetchDashboardData(_id); // Refresh data
+      await fetchDashboardData(); // Refresh after update
       toast.success(`Status updated to ${newStatus}`);
     } catch (err) {
       toast.error("Failed to update status");
       console.error("Status error:", err);
     }
   };
+
   const updateTotalDistance = async (distance, id) => {
     try {
       await axios.post(`${server}/api/driver/${id}/update-distance`, {
         distance,
       });
-      await fetchDashboardData(id); // Refresh data
+      // await fetchDashboardData(); // Refresh after update
       toast.success("Distance updated successfully");
     } catch (err) {
       toast.error("Failed to update distance");
       console.error("Distance error:", err);
     }
   };
-  // Fetch completed rides for a driver
-  const fetchCompletedRides = async (_id) => {
-    setIsLoading(true);
+
+  // Ride data fetching functions
+  const fetchCompletedRides = async () => {
     try {
-      const response = await axios.get(`/dashboard/rides/completed/${_id}`);
+      const response = await axios.get(
+        `${server}/dashboard/rides/completed/${_id}`
+      );
       setCompletedRides(response.data);
-      setError(null);
     } catch (err) {
       setError(
         err.response?.data?.message || "Failed to fetch completed rides"
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  // Fetch canceled rides for a driver
-  const fetchCanceledRides = async (_id) => {
-    setIsLoading(true);
+  const fetchCanceledRides = async () => {
     try {
-      const response = await axios.get(`/dashboard/rides/canceled/${_id}`);
+      const response = await axios.get(
+        `${server}/dashboard/rides/canceled/${_id}`
+      );
       setCanceledRides(response.data);
-      setError(null);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch canceled rides");
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  // Fetch today's ride count for a driver
-  const fetchTodayRideCount = async (_id) => {
-    setIsLoading(true);
+  const fetchTodayRideCount = async () => {
     try {
-      const response = await axios.get(`/dashboard/rides/today/${_id}`);
+      const response = await axios.get(
+        `${server}/dashboard/rides/today/${_id}`
+      );
       setTodayRideCount(response.data.count);
-      setError(null);
     } catch (err) {
       setError(
         err.response?.data?.message || "Failed to fetch today's ride count"
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  // Fetch recent rides for a driver
-  const fetchRecentRides = async (_id) => {
-    setIsLoading(true);
+  const fetchRecentRides = async () => {
     try {
-      const response = await axios.get(`/dashboard/rides/recent/${_id}`);
+      const response = await axios.get(
+        `${server}/dashboard/rides/recent/${_id}`
+      );
       setRecentRides(response.data);
-      setError(null);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch recent rides");
+    }
+  };
+
+  const fetchDriverRideData = async () => {
+    setIsLoading(true);
+    try {
+      await Promise.all([
+        fetchCompletedRides(),
+        fetchCanceledRides(),
+        fetchTodayRideCount(),
+        fetchRecentRides(),
+      ]);
+    } catch (err) {
+      setError("Failed to fetch some ride data");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Fetch all ride data for a driver
-  const fetchDriverRideData = async (_id) => {
-    await fetchCompletedRides(_id);
-    await fetchCanceledRides(_id);
-    await fetchTodayRideCount(_id);
-    await fetchRecentRides(_id);
-  };
   return (
     <DriverDashboardContext.Provider
       value={{
@@ -190,9 +197,9 @@ export const DriverDashboardProvider = ({ children }) => {
         updateEarnings,
         updateRating,
         updateTotalDistance,
-        refreshData: fetchDashboardData,
+        refreshData: refreshAllData,
         error,
-        fetchDriverRideData, // Function to manually refresh data
+        fetchDriverRideData,
       }}
     >
       {children}

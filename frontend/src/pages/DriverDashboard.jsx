@@ -404,13 +404,13 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 // Fix for default marker icons
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
-});
+// delete L.Icon.Default.prototype._getIconUrl;
+// L.Icon.Default.mergeOptions({
+//   iconRetinaUrl:
+//     "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+//   iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+//   shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
+// });
 
 const DriverDashboard = () => {
   const navigate = useNavigate();
@@ -436,40 +436,14 @@ const DriverDashboard = () => {
   } = useDriverDashboardC();
 
   const { driver } = useDriver();
+  const { currentLocation } = useDriverDashboardC();
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
   const [notifications, setNotifications] = useState([]);
   const [socket, setSocket] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
-  // const [recentRides, setRecentRides] = useState([
-  //   {
-  //     id: 1,
-  //     from: "Koramangala",
-  //     to: "Electronic City",
-  //     date: "Today, 11:32 AM",
-  //     amount: 245,
-  //     distance: 12.3,
-  //   },
-  //   {
-  //     id: 2,
-  //     from: "Whitefield",
-  //     to: "MG Road",
-  //     date: "Today, 9:15 AM",
-  //     amount: 350,
-  //     distance: 15.6,
-  //   },
-  //   {
-  //     id: 3,
-  //     from: "HSR Layout",
-  //     to: "Indiranagar",
-  //     date: "Yesterday, 7:45 PM",
-  //     amount: 180,
-  //     distance: 8.2,
-  //   },
-  // ]);
 
-  // Initialize the map
   // useEffect(() => {
   //   if (mapRef.current && !mapInstanceRef.current) {
   //     mapInstanceRef.current = L.map(mapRef.current, {
@@ -514,7 +488,7 @@ const DriverDashboard = () => {
   //   }
   // }, [currentLocation]);
 
-  // Update the map marker and pan to the new location
+  // //Update the map marker and pan to the new location
   // useEffect(() => {
   //   if (mapInstanceRef.current && markerRef.current) {
   //     markerRef.current.setLatLng([currentLocation.lat, currentLocation.lng]);
@@ -522,42 +496,42 @@ const DriverDashboard = () => {
   //   }
   // }, [currentLocation]);
 
-  // useEffect(() => {
-  //   // Initialize WebSocket connection
-  //   const newSocket = io(`${server}`);
+  useEffect(() => {
+    // Initialize WebSocket connection
+    const newSocket = io(`${server}`);
 
-  //   setSocket(newSocket);
+    setSocket(newSocket);
 
-  //   // Register driver with WebSocket server
-  //   const driverData = sessionStorage.getItem("driver");
-  //   if (driverData) {
-  //     const parsedDriver = JSON.parse(driverData);
-  //     newSocket.emit("register-driver", parsedDriver._id);
+    // Register driver with WebSocket server
+    const driverData = sessionStorage.getItem("driver");
+    if (driverData) {
+      const parsedDriver = JSON.parse(driverData);
+      newSocket.emit("register-driver", parsedDriver._id);
 
-  //     // Handle new ride requests
-  //     newSocket.on("new-ride-request", (data) => {
-  //       setNotifications((prev) => [data, ...prev]);
+      // Handle new ride requests
+      newSocket.on("new-ride-request", (data) => {
+        setNotifications((prev) => [data, ...prev]);
 
-  //       // Play notification sound
-  //       try {
-  //         const audio = new Audio("../assets/notification-sound.mp3");
-  //         audio.play();
-  //       } catch (error) {
-  //         console.error("Could not play notification sound", error);
-  //       }
+        // Play notification sound
+        try {
+          const audio = new Audio("../assets/notification-sound.mp3");
+          audio.play();
+        } catch (error) {
+          console.error("Could not play notification sound", error);
+        }
 
-  //       // Show toast notification
-  //       toast.info("New ride request received!", {
-  //         position: "top-right",
-  //         autoClose: 5000,
-  //       });
-  //     });
+        // Show toast notification
+        toast.info("New ride request received!", {
+          position: "top-right",
+          autoClose: 5000,
+        });
+      });
 
-  //     return () => {
-  //       newSocket.disconnect();
-  //     };
-  //   }
-  // }, [currentLocation]);
+      return () => {
+        newSocket.disconnect();
+      };
+    }
+  }, [currentLocation]);
 
   const handleResponse = async (notificationId, response) => {
     const driverData = sessionStorage.getItem("driver");
@@ -841,9 +815,9 @@ const DriverDashboard = () => {
                       {currentLocation.lng.toFixed(4)}°W
                     </span>
                   </div>
-                </div> */}
+                </div>
 
-              {/* <div
+                <div
                   className="h-[400px] relative"
                   ref={mapRef}
                   style={{ zIndex: 0 }}
