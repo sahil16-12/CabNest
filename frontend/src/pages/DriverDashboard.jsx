@@ -552,8 +552,6 @@ const DriverDashboard = () => {
         driver
       );
 
-      console.log("DRIVER PAR OTP");
-      console.log(res);
       toast.dismiss(toastId);
 
       if (response === "accepted") {
@@ -564,11 +562,6 @@ const DriverDashboard = () => {
         );
 
         if (acceptedNotification) {
-          // Navigate to ride detail page with ride data
-          console.log("ACCEPTED NOTIFICATION");
-          console.log(acceptedNotification);
-          console.log(res);
-
           navigate("/active-ride", {
             state: {
               ride: acceptedNotification.ride,
