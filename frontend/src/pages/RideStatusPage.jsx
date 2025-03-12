@@ -16,10 +16,6 @@ import { toast } from "react-toastify";
 import { server } from "../main";
 import { useDriverDashboardC } from "../context/DriverDashboardContext.";
 import { Phone, MessageSquare, AlertTriangle, X } from "lucide-react";
-import {
-  updateEarnings,
-  updateTotalDistance,
-} from "../../../backend/controllers/driverDashboard";
 
 // Fix for default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -113,8 +109,7 @@ const RideStatusPage = () => {
   const [chatMessages, setChatMessages] = useState([]);
   const [pickupToDropRoute, setPickupToDropRoute] = useState([]);
   const movementInterval = useRef(null);
-
-  const { setRideDriver } = useDriverDashboardC();
+  const { updateEarnings, updateTotalDistance } = useDriverDashboardC();
 
   const otpInputRef = useRef(null);
 
@@ -129,10 +124,11 @@ const RideStatusPage = () => {
 
   const checkoutHandler = async () => {
     const earning = ride.fare * 0.8;
-    await updateEarnings(earning, driver._id);
-    await updateTotalDistance(ride.distance, driver._id);
+    console.log("checkoutHandler me");
+    console.log(driver._id);
+    await updateEarnings(earning, driver._id._id);
+    await updateTotalDistance(ride.distance, driver._id._id);
     const token = sessionStorage.getItem("token");
-    setRideDriver(driver);
     try {
       const {
         data: { order },
@@ -162,7 +158,7 @@ const RideStatusPage = () => {
           toast.success("Payment successful!");
           const driverId = "12345"; // Replace with the actual driver ID
           navigate(
-            `/payment-successful/${response.razorpay_payment_id}?driverId=${driver._id}`
+            `/payment-successful/${response.razorpay_payment_id}?driverId=${driver._id._id}`
           );
         },
         theme: { color: "#3399cc" },

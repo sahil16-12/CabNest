@@ -82,7 +82,7 @@ export const DriverDashboardProvider = ({ children }) => {
   const updateRating = async (rating, id) => {
     try {
       await axios.post(`${server}/api/driver/${id}/update-rating`, { rating });
-      // await fetchDashboardData(); // Refresh after update
+
       toast.success("Rating updated successfully");
     } catch (err) {
       toast.error("Failed to update rating");

@@ -860,11 +860,11 @@ const DriverDashboard = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-gray-500">
                             {ride.distance} km
                           </td>
-                          {/* <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-6 py-4 whitespace-nowrap">
                             <span className="text-green-600 font-medium">
-                              ₹{ride.amount}
+                              ₹{ride.fare}
                             </span>
-                          </td> */}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
