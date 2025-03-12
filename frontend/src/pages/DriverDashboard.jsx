@@ -497,7 +497,6 @@ const DriverDashboard = () => {
   // }, [currentLocation]);
 
   useEffect(() => {
-    // Initialize WebSocket connection
     const newSocket = io(`${server}`);
 
     setSocket(newSocket);
