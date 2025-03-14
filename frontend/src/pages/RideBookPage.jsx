@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { server } from "../main";
 import {
   MapContainer,
@@ -16,6 +17,13 @@ import { UserData } from "../context/UserContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { io } from "socket.io-client";
+import { ChevronDownIcon, UserCircleIcon } from "@heroicons/react/20/solid";
+
+// Animation variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
 
 const center = [22.3072, 73.1812]; // Default center
 
@@ -99,7 +107,11 @@ const RideBookPage = () => {
   const [socket, setSocket] = useState(null);
   const navigate = useNavigate();
   const { user, isAuth } = UserData();
+  const { logout } = UserData();
 
+  const handleLogout = () => {
+    logout();
+  };
   useEffect(() => {
     if (markers.pickup && markers.drop) {
       calculateRoute();
@@ -296,15 +308,14 @@ const RideBookPage = () => {
 
   const blueIcon = new L.Icon({
     iconUrl:
-      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+      "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
     shadowUrl:
-      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-    iconSize: [30, 45],
-    iconAnchor: [15, 45],
-    popupAnchor: [1, -38],
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
     shadowSize: [41, 41],
   });
-
   const handleMarkerDrag = (e, type) => {
     const newLatLng = e.target.getLatLng();
     if (type === "pickup") {
@@ -328,179 +339,230 @@ const RideBookPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <header className="bg-gray-900 text-white p-6 flex items-center justify-between">
-        <div className="flex items-center">
-          <Link to={"/"} className="text-2xl font-bold text-blue-400">
-            CabNest
-          </Link>
-        </div>
-        <div className="flex items-center">
-          <span className="mr-3">{user?.name}</span>
-          <button
-            onClick={() => navigate("/rider-profile")}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Profile
-          </button>
-        </div>
-      </header>
-
-      <div className="flex flex-col md:flex-row flex-grow p-6">
-        <div className="w-full md:w-1/3 p-6 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-semibold text-blue-600 mb-6">
-            Enter Trip Details
-          </h2>
-
-          <label className="block mb-2 text-gray-600">Pickup Location</label>
-          <input
-            type="text"
-            value={pickup}
-            onChange={(e) => handleLocationChange(e.target.value, "pickup")}
-            className="w-full border border-gray-300 rounded-md p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter pickup location"
-          />
-
-          <button
-            onClick={setPickupToCurrentLocation}
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 mb-4"
-          >
-            Set Pickup to Current Location
-          </button>
-
-          <div className="flex justify-center items-center my-4">
-            <button
-              onClick={swapLocations}
-              className="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600"
-              title="Swap Locations"
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Header */}
+      <motion.header
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className="sticky top-0 bg-white/80 backdrop-blur-md shadow-sm z-50"
+      >
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <Link
+              to="/"
+              className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
             >
-              ⇅
-            </button>
-          </div>
+              CabNest
+            </Link>
 
-          <label className="block mb-2 text-gray-600">Drop Location</label>
-          <input
-            type="text"
-            value={drop}
-            onChange={(e) => handleLocationChange(e.target.value, "drop")}
-            className="w-full border border-gray-300 rounded-md p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter drop location"
-          />
-
-          <div className="mt-4 text-gray-700 space-y-2">
-            <p className="text-lg">
-              <strong>Total Distance:</strong>{" "}
-              {distance ? `${distance} km` : "N/A"}
-            </p>
-            <p className="text-lg">
-              <strong>Estimated Duration:</strong>{" "}
-              {duration ? `${Math.floor(duration / 60)} min` : "N/A"}
-            </p>
-            <p className="text-lg">
-              <strong>Estimated Fare:</strong> {fare ? `₹${fare}` : "N/A"}
-            </p>
-          </div>
-
-          <div className="mt-6">
-            <div className="flex justify-between">
+            <div className="flex items-center gap-4">
               <button
-                onClick={clearMarkers}
-                className="bg-red-500 text-white py-2 px-6 rounded-md hover:bg-red-600 disabled:bg-gray-400"
-                disabled={loading}
+                onClick={handleLogout}
+                className="flex items-center gap-2 bg-red-600 px-4 py-2 rounded-full hover:bg-blue-200 transition-colors"
               >
-                Clear Map
-              </button>
-
-              <button
-                onClick={handleBookCab}
-                className="bg-green-500 text-white py-2 px-6 rounded-md hover:bg-green-600 disabled:bg-gray-400"
-                disabled={loading || !distance}
-              >
-                {loading ? "Processing..." : "Book a Cab"}
+                <span className="text-white">Logout</span>
               </button>
             </div>
           </div>
         </div>
+      </motion.header>
 
-        <div className="w-full md:w-2/3 p-6 flex justify-center items-center">
-          <div className="w-full h-[500px] bg-white rounded-lg shadow-xl overflow-hidden">
-            <MapContainer
-              center={center}
-              zoom={12}
-              style={{
-                height: "100%",
-                width: "100%",
-                borderRadius: "12px",
-              }}
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              />
-              <MapEvents
-                setMarkers={setMarkers}
-                markers={markers}
-                setPickup={setPickup}
-                setDrop={setDrop}
-              />
-              {markers.pickup && (
-                <Marker
-                  position={markers.pickup}
-                  icon={blueIcon}
-                  draggable={true}
-                  eventHandlers={{
-                    dragend: (e) => handleMarkerDrag(e, "pickup"),
-                  }}
-                >
-                  <Popup>{pickup}</Popup>
-                </Marker>
-              )}
-              {markers.drop && (
-                <Marker
-                  position={markers.drop}
-                  icon={blueIcon}
-                  draggable={true}
-                  eventHandlers={{
-                    dragend: (e) => handleMarkerDrag(e, "drop"),
-                  }}
-                >
-                  <Popup>{drop}</Popup>
-                </Marker>
-              )}
-              {route.length > 0 && (
-                <Polyline
-                  positions={route.map((point) => [point.lat, point.lng])}
-                  color="#FF0000"
-                  weight={1}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="container mx-auto px-6 py-12"
+      >
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Form Section */}
+          <motion.div
+            variants={fadeInUp}
+            className="bg-white rounded-2xl shadow-xl p-8"
+          >
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-8">
+              Plan Your Journey
+            </h2>
+
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Pickup Location
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={pickup}
+                    onChange={(e) =>
+                      handleLocationChange(e.target.value, "pickup")
+                    }
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter pickup location"
+                  />
+                  <button
+                    onClick={setPickupToCurrentLocation}
+                    className="px-4 bg-blue-100 text-blue-600 rounded-xl hover:bg-blue-200 transition-colors"
+                    title="Use Current Location"
+                  >
+                    📍
+                  </button>
+                </div>
+              </div>
+
+              <button
+                onClick={swapLocations}
+                className="mx-auto flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
+              >
+                ⇅
+              </button>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Drop Location
+                </label>
+                <input
+                  type="text"
+                  value={drop}
+                  onChange={(e) => handleLocationChange(e.target.value, "drop")}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter drop location"
                 />
-              )}
-            </MapContainer>
-          </div>
-        </div>
-      </div>
+              </div>
 
-      {showDrivers && (
-        <div
-          className="w-full p-6 bg-white shadow-lg rounded-lg mb-6"
-          ref={driversRef}
-        >
-          <AvailableDrivers
-            distance={distance}
-            duration={duration}
-            fare={fare}
-            pickup={markers.pickup}
-            drop={markers.drop}
-            onClose={() => setShowDrivers(false)}
-            onBook={handleConfirmBooking}
-          />
-        </div>
-      )}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-4 bg-gray-50 p-6 rounded-xl"
+              >
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Distance:</span>
+                  <span className="font-medium">
+                    {distance ? `${distance} km` : "-"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Duration:</span>
+                  <span className="font-medium">
+                    {duration ? `${Math.floor(duration / 60)} min` : "-"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Estimated Fare:</span>
+                  <span className="font-medium text-blue-600">
+                    {fare ? `₹${fare}` : "-"}
+                  </span>
+                </div>
+              </motion.div>
 
-      <footer className="bg-gray-900 text-white p-4 text-center">
-        <p className="text-lg">
-          © 2025 <span className="text-blue-400">CabNest</span>. All rights
-          reserved.
-        </p>
+              <div className="flex gap-4 justify-end">
+                <button
+                  onClick={clearMarkers}
+                  className="px-6 py-3 text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+                >
+                  Clear
+                </button>
+                <button
+                  onClick={handleBookCab}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:opacity-90 transition-opacity"
+                  disabled={loading || !distance}
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="animate-spin">🌀</span> Searching...
+                    </span>
+                  ) : (
+                    "Find Rides"
+                  )}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Map Section */}
+          <motion.div
+            variants={fadeInUp}
+            className="bg-white rounded-2xl shadow-xl overflow-hidden"
+          >
+            <div className="h-[600px]">
+              <MapContainer
+                center={center}
+                zoom={12}
+                className="h-full w-full rounded-2xl"
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                <MapEvents
+                  setMarkers={setMarkers}
+                  markers={markers}
+                  setPickup={setPickup}
+                  setDrop={setDrop}
+                />
+                {markers.pickup && (
+                  <Marker
+                    position={markers.pickup}
+                    icon={blueIcon}
+                    draggable={true}
+                    eventHandlers={{
+                      dragend: (e) => handleMarkerDrag(e, "pickup"),
+                    }}
+                  >
+                    <Popup className="text-sm font-medium">{pickup}</Popup>
+                  </Marker>
+                )}
+                {markers.drop && (
+                  <Marker
+                    position={markers.drop}
+                    icon={blueIcon}
+                    draggable={true}
+                    eventHandlers={{
+                      dragend: (e) => handleMarkerDrag(e, "drop"),
+                    }}
+                  >
+                    <Popup className="text-sm font-medium">{drop}</Popup>
+                  </Marker>
+                )}
+                {route.length > 0 && (
+                  <Polyline
+                    positions={route.map((point) => [point.lat, point.lng])}
+                    color="#4F46E5"
+                    weight={3}
+                  />
+                )}
+              </MapContainer>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Drivers Section */}
+        <AnimatePresence>
+          {showDrivers && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="mt-12"
+              ref={driversRef}
+            >
+              <AvailableDrivers
+                distance={distance}
+                duration={duration}
+                fare={fare}
+                pickup={markers.pickup}
+                drop={markers.drop}
+                onClose={() => setShowDrivers(false)}
+                onBook={handleConfirmBooking}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      <footer className="bg-gray-900 text-gray-300 py-8 mt-12">
+        <div className="container mx-auto px-6 text-center">
+          <p className="text-sm">
+            © {new Date().getFullYear()} CabNest. All rights reserved.
+          </p>
+        </div>
       </footer>
     </div>
   );

@@ -243,9 +243,10 @@ export const getCompletedRides = async (req, res) => {
   try {
     const { driverId } = req.params;
     const completedRides = await Ride.find({
-      status: "completed",
+      status: "accepted",
       driverId: driverId,
     });
+
     res.status(200).json(completedRides);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -260,6 +261,7 @@ export const getCanceledRides = async (req, res) => {
       status: "canceled",
       driverId: driverId,
     });
+
     res.status(200).json(canceledRides);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -291,10 +293,14 @@ export const getTodayRideCount = async (req, res) => {
 export const getRecentRides = async (req, res) => {
   try {
     const { driverId } = req.params;
-    const recentRides = await Ride.find({ driverId: driverId })
+    const recentRides = await Ride.find({
+      driverId: driverId,
+      status: { $ne: "canceled" },
+    })
       .sort({ requestedTime: -1 })
       .limit(10)
       .select("pickup drop requestedTime distance duration");
+
     const formattedRides = recentRides.map((ride) => ({
       id: ride._id,
       fromAddress: ride.pickup.address,

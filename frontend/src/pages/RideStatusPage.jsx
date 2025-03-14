@@ -470,20 +470,12 @@ const RideStatusPage = () => {
             >
               <MessageSquare size={16} /> Message
             </button>
-            {!rideStarted && (
-              <button
-                onClick={() => setShowCancelDialog(true)}
-                className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-              >
-                <X size={16} /> Cancel Ride
-              </button>
-            )}
           </div>
         </motion.div>
         <div className="h-96 rounded-xl overflow-hidden shadow-lg">
           <MapContainer
             center={pickupCoords || [12.9716, 77.5946]}
-            zoom={12}
+            zoom={14}
             className="h-full w-full"
             zoomControl={false}
           >

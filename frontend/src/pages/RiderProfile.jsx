@@ -13,6 +13,7 @@ const RiderProfile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const fileInputRef = useRef(null);
   const { isAuth, setIsAuth } = UserData();
+
   useEffect(() => {
     const storedUserId = sessionStorage.getItem("userId");
     if (!storedUserId) {
@@ -27,7 +28,7 @@ const RiderProfile = () => {
     if (file) {
       setPreviewImage(URL.createObjectURL(file));
     }
-    setIsModalOpen(false); // Close modal after selecting a file
+    setIsModalOpen(false);
   };
 
   const handleCameraClick = async () => {
@@ -50,7 +51,7 @@ const RiderProfile = () => {
             type: "image/png",
           });
           setPreviewImage(URL.createObjectURL(file));
-          setIsModalOpen(false); // Close modal after taking a photo
+          setIsModalOpen(false);
         }, "image/png");
 
         stream.getTracks().forEach((track) => track.stop());
@@ -89,95 +90,94 @@ const RiderProfile = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-black">
-      <div className="bg-yellow-500 shadow-lg rounded-lg p-8 w-full max-w-md relative">
-        <h2 className="text-2xl font-bold text-center text-black mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
+      <div className="bg-white shadow-xl rounded-2xl p-10 w-full max-w-md relative">
+        <h2 className="text-2xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6">
           Complete Your Profile
         </h2>
-
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Profile Image Field */}
           <div>
-            <label className="block text-sm font-medium text-black mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Profile Image
             </label>
             <div
-              className="flex items-center justify-center border border-gray-300 rounded-md p-2 bg-white cursor-pointer"
+              className="flex items-center justify-center w-24 h-24 border border-gray-300 rounded-full bg-white cursor-pointer overflow-hidden"
               onClick={() => setIsModalOpen(true)}
             >
               {previewImage ? (
                 <img
                   src={previewImage}
                   alt="Profile Preview"
-                  className="w-24 h-24 rounded-full object-cover"
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 <Camera className="w-12 h-12 text-gray-500" />
               )}
             </div>
           </div>
-
+          {/* Date of Birth */}
           <div>
-            <label className="block text-sm font-medium text-black mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Date of Birth
             </label>
             <input
               type="date"
               name="dateOfBirth"
-              className="w-full border border-gray-300 rounded-md p-2 focus:ring-yellow-500 focus:border-yellow-500"
+              className="w-full border border-gray-300 rounded-xl p-2 focus:ring-blue-500 focus:border-blue-500"
               required
             />
           </div>
-
+          {/* Phone Number */}
           <div>
-            <label className="block text-sm font-medium text-black mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Phone Number
             </label>
             <input
               type="tel"
               name="phoneNumber"
-              className="w-full border border-gray-300 rounded-md p-2 focus:ring-yellow-500 focus:border-yellow-500"
+              className="w-full border border-gray-300 rounded-xl p-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="+1234567890"
               required
             />
           </div>
-
+          {/* Address */}
           <div>
-            <label className="block text-sm font-medium text-black mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Address
             </label>
             <input
               type="text"
               name="address"
-              className="w-full border border-gray-300 rounded-md p-2 focus:ring-yellow-500 focus:border-yellow-500"
+              className="w-full border border-gray-300 rounded-xl p-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter your full address"
               required
             />
           </div>
-
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-lg font-semibold transition duration-300 
-              ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-black text-yellow-500 hover:bg-gray-800"
-              }`}
+            className={`w-full py-3 rounded-xl font-semibold transition duration-300 ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-indigo-600 hover:to-purple-600"
+            }`}
           >
             {loading ? "Creating Profile..." : "Complete Registration"}
           </button>
-
           {error && (
-            <p className="text-red-500 text-sm mt-2 text-center bg-red-100 py-2 rounded-lg">
+            <p className="bg-red-100 text-red-500 text-sm mt-2 text-center py-2 rounded-xl">
               {error}
             </p>
           )}
         </form>
       </div>
 
+      {/* Modal for Uploading Profile Photo */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
+          <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-sm">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold">Upload Profile Photo</h3>
               <button onClick={() => setIsModalOpen(false)}>
@@ -187,14 +187,14 @@ const RiderProfile = () => {
             <div className="space-y-4">
               <button
                 onClick={handleCameraClick}
-                className="w-full flex items-center justify-center space-x-2 bg-yellow-500 text-black py-2 rounded-md hover:bg-yellow-600 transition duration-300"
+                className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 rounded-xl hover:from-indigo-600 hover:to-purple-600 transition duration-300"
               >
                 <Camera className="w-5 h-5" />
                 <span>Take Photo</span>
               </button>
               <button
                 onClick={() => fileInputRef.current.click()}
-                className="w-full flex items-center justify-center space-x-2 bg-yellow-500 text-black py-2 rounded-md hover:bg-yellow-600 transition duration-300"
+                className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 rounded-xl hover:from-indigo-600 hover:to-purple-600 transition duration-300"
               >
                 <Upload className="w-5 h-5" />
                 <span>Upload from Computer</span>

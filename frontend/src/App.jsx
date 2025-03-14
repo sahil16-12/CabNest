@@ -13,8 +13,6 @@ import ProfilePage from "./pages/ProfilePage";
 import DriverDashboard from "./pages/DriverDashboard";
 import AdminDashboard from "./pages/AdminDashBoard";
 import PaymentSuccess from "./pages/PaymentSuccess";
-import DriverDashboardTest from "./pages/DriverDashboardTest";
-
 import RideWaitingPage from "./pages/RideWaitingPage";
 import ActiveRidePage from "./pages/ActiveRidePage";
 
@@ -35,8 +33,6 @@ const App = () => {
         <Route path="/driver-dashboard" element={<DriverDashboard />} />
         <Route path="/profile-page" element={<ProfilePage />} />
         <Route path="/admin/dashBoard" element={<AdminDashboard />} />
-
-        <Route path="/dashboard-test" element={<DriverDashboardTest />} />
         <Route
           path="/payment-successful/:paymentId"
           element={<PaymentSuccess />}

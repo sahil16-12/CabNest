@@ -24,8 +24,12 @@ export const DriverDashboardProvider = ({ children }) => {
     status: "offline",
   });
 
+  // Fetch dashboard data (earnings, rating, distance, status)
   const fetchDashboardData = async () => {
-    if (!_id) return;
+    if (!_id) {
+      toast.error("Driver ID not found. Please log in again.");
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -44,34 +48,55 @@ export const DriverDashboardProvider = ({ children }) => {
         status: statusRes.data.data.status,
       });
     } catch (err) {
-      toast.error("Failed to fetch dashboard data");
+      if (err.response?.status === 404) {
+        toast.error("Driver not found");
+      } else {
+        toast.error("Failed to fetch dashboard data");
+      }
       console.error("Dashboard error:", err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Refresh data whenever _id changes or manual refresh
-  useEffect(() => {
-    if (_id) {
-      fetchDashboardData();
-      fetchDriverRideData();
-    }
-  }, [_id]);
+  // Fetch ride-related data (completed, canceled, today's count, recent rides)
+  const fetchDriverRideData = async () => {
+    if (!_id) return;
 
-  // Unified refresh function
+    try {
+      setIsLoading(true);
+      const [completedRes, canceledRes, todayCountRes, recentRes] =
+        await Promise.all([
+          axios.get(`${server}/api/driver/rides/completed/${_id}`),
+          axios.get(`${server}/api/driver/rides/canceled/${_id}`),
+          axios.get(`${server}/api/driver/rides/today/${_id}`),
+          axios.get(`${server}/api/driver/rides/recent/${_id}`),
+        ]);
+
+      setCompletedRides(completedRes.data);
+      setCanceledRides(canceledRes.data);
+      setTodayRideCount(todayCountRes.data.count);
+      setRecentRides(recentRes.data);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to fetch ride data");
+      console.error("Ride data error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Refresh all data (dashboard and ride data)
   const refreshAllData = async () => {
     await fetchDashboardData();
     await fetchDriverRideData();
   };
 
-  // Update functions
+  // Update earnings
   const updateEarnings = async (payment, id) => {
     try {
       await axios.post(`${server}/api/driver/${id}/update-earnings`, {
         payment,
       });
-      // await fetchDashboardData(); // Refresh after update
       toast.success("Earnings updated successfully");
     } catch (err) {
       toast.error("Failed to update earnings");
@@ -79,10 +104,10 @@ export const DriverDashboardProvider = ({ children }) => {
     }
   };
 
+  // Update rating
   const updateRating = async (rating, id) => {
     try {
       await axios.post(`${server}/api/driver/${id}/update-rating`, { rating });
-
       toast.success("Rating updated successfully");
     } catch (err) {
       toast.error("Failed to update rating");
@@ -90,6 +115,7 @@ export const DriverDashboardProvider = ({ children }) => {
     }
   };
 
+  // Toggle driver availability (online/offline)
   const toggleAvailability = async () => {
     try {
       const newStatus =
@@ -97,7 +123,7 @@ export const DriverDashboardProvider = ({ children }) => {
       await axios.post(`${server}/api/driver/${_id}/update-status`, {
         status: newStatus,
       });
-      await fetchDashboardData(); // Refresh after update
+      setDashboardData((prev) => ({ ...prev, status: newStatus }));
       toast.success(`Status updated to ${newStatus}`);
     } catch (err) {
       toast.error("Failed to update status");
@@ -105,12 +131,12 @@ export const DriverDashboardProvider = ({ children }) => {
     }
   };
 
+  // Update total distance
   const updateTotalDistance = async (distance, id) => {
     try {
       await axios.post(`${server}/api/driver/${id}/update-distance`, {
         distance,
       });
-      // await fetchDashboardData(); // Refresh after update
       toast.success("Distance updated successfully");
     } catch (err) {
       toast.error("Failed to update distance");
@@ -118,70 +144,14 @@ export const DriverDashboardProvider = ({ children }) => {
     }
   };
 
-  // Ride data fetching functions
-  const fetchCompletedRides = async () => {
-    try {
-      const response = await axios.get(
-        `${server}/dashboard/rides/completed/${_id}`
-      );
-      setCompletedRides(response.data);
-    } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to fetch completed rides"
-      );
+  // Fetch data on component mount or when _id changes
+  useEffect(() => {
+    if (_id) {
+      refreshAllData();
+    } else {
+      toast.error("Driver ID not found. Please log in again.");
     }
-  };
-
-  const fetchCanceledRides = async () => {
-    try {
-      const response = await axios.get(
-        `${server}/dashboard/rides/canceled/${_id}`
-      );
-      setCanceledRides(response.data);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch canceled rides");
-    }
-  };
-
-  const fetchTodayRideCount = async () => {
-    try {
-      const response = await axios.get(
-        `${server}/dashboard/rides/today/${_id}`
-      );
-      setTodayRideCount(response.data.count);
-    } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to fetch today's ride count"
-      );
-    }
-  };
-
-  const fetchRecentRides = async () => {
-    try {
-      const response = await axios.get(
-        `${server}/dashboard/rides/recent/${_id}`
-      );
-      setRecentRides(response.data);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch recent rides");
-    }
-  };
-
-  const fetchDriverRideData = async () => {
-    setIsLoading(true);
-    try {
-      await Promise.all([
-        fetchCompletedRides(),
-        fetchCanceledRides(),
-        fetchTodayRideCount(),
-        fetchRecentRides(),
-      ]);
-    } catch (err) {
-      setError("Failed to fetch some ride data");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [_id]);
 
   return (
     <DriverDashboardContext.Provider

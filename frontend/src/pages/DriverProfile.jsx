@@ -39,7 +39,7 @@ const DriverProfile = () => {
       setProfile({ ...profile, profileImage: file });
       setPreviewImage(URL.createObjectURL(file));
     }
-    setIsModalOpen(false); // Close modal after selecting a file
+    setIsModalOpen(false);
   };
 
   const handleCameraClick = async () => {
@@ -63,7 +63,7 @@ const DriverProfile = () => {
           });
           setProfile({ ...profile, profileImage: file });
           setPreviewImage(URL.createObjectURL(file));
-          setIsModalOpen(false); // Close modal after taking a photo
+          setIsModalOpen(false);
         }, "image/png");
 
         stream.getTracks().forEach((track) => track.stop());
@@ -83,11 +83,7 @@ const DriverProfile = () => {
       if (profile.profileImage instanceof File) {
         formData.append("profileImage", profile.profileImage);
       }
-
-      console.log(profile.profileImage);
-
       // Append other fields
-      // formData.append("fullName", profile.fullName);
       formData.append("phoneNumber", profile.phoneNumber);
       formData.append("dateOfBirth", profile.dateOfBirth);
       formData.append("licenseNumber", profile.licenseNumber);
@@ -111,15 +107,15 @@ const DriverProfile = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
-      {/* Main Form */}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Main Form Card */}
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-lg w-full bg-white p-8 rounded-xl shadow-2xl"
+        className="max-w-lg w-full bg-white p-8 rounded-2xl shadow-2xl"
       >
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
+        <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-8">
           Complete Your Driver Profile
         </h2>
         <form
@@ -150,21 +146,6 @@ const DriverProfile = () => {
             </motion.div>
           </div>
 
-          {/* Full Name */}
-          {/* <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Full Name
-            </label>
-            <input
-              type="text"
-              name="fullName"
-              value={profile.fullName}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-            />
-          </div> */}
-
           {/* Date of Birth */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -176,7 +157,7 @@ const DriverProfile = () => {
               value={profile.dateOfBirth}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
 
@@ -191,7 +172,7 @@ const DriverProfile = () => {
               value={profile.phoneNumber}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
 
@@ -206,7 +187,7 @@ const DriverProfile = () => {
               value={profile.licenseNumber}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
 
@@ -221,7 +202,7 @@ const DriverProfile = () => {
               value={profile.address}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
 
@@ -236,7 +217,7 @@ const DriverProfile = () => {
               value={profile.vehicleMake}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
 
@@ -251,7 +232,7 @@ const DriverProfile = () => {
               value={profile.vehicleModel}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
 
@@ -266,7 +247,7 @@ const DriverProfile = () => {
               value={profile.vehicleYear}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
 
@@ -281,7 +262,21 @@ const DriverProfile = () => {
               value={profile.vehicleColor}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            />
+          </div>
+          {/* Registration Number */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Registration Number
+            </label>
+            <input
+              type="text"
+              name="regNumber"
+              value={profile.regNumber}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
 
@@ -295,30 +290,14 @@ const DriverProfile = () => {
               value={profile.vehicleType}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             >
               <option value="">Select Vehicle Type</option>
               <option value="bike">Bike</option>
               <option value="auto">Auto</option>
               <option value="car">Car</option>
-              {/* <option value="truck">Truck</option> */}
               <option value="scooter">Scooter</option>
             </select>
-          </div>
-
-          {/* Registration Number */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Registration Number
-            </label>
-            <input
-              type="text"
-              name="regNumber"
-              value={profile.regNumber}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-            />
           </div>
 
           {/* Submit Button */}
@@ -326,7 +305,7 @@ const DriverProfile = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-all"
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl hover:from-indigo-600 hover:to-purple-600 transition-all"
           >
             Save & Continue
           </motion.button>
@@ -343,7 +322,7 @@ const DriverProfile = () => {
           <motion.div
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
-            className="bg-white p-6 rounded-xl shadow-lg w-96"
+            className="bg-white p-6 rounded-2xl shadow-lg w-96"
           >
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold text-gray-900">
@@ -358,7 +337,7 @@ const DriverProfile = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleCameraClick}
-                className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-all"
+                className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 rounded-xl hover:from-indigo-600 hover:to-purple-600 transition-all"
               >
                 <Camera className="w-5 h-5" />
                 <span>Take Photo</span>
@@ -367,7 +346,7 @@ const DriverProfile = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => fileInputRef.current.click()}
-                className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-all"
+                className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 rounded-xl hover:from-indigo-600 hover:to-purple-600 transition-all"
               >
                 <Upload className="w-5 h-5" />
                 <span>Upload from Computer</span>

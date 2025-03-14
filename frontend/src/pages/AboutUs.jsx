@@ -11,12 +11,15 @@ const AboutUs = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-blue-600 to-indigo-800 text-white py-6 px-8 shadow-lg">
-        <h1 className="text-4xl font-extrabold text-center tracking-wide">
-          CabNest
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex flex-col">
+      {/* Sticky Header */}
+      <header className="sticky top-0 bg-white/80 backdrop-blur-md shadow-sm z-50">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            CabNest
+          </h1>
+          {/* Optional navigation can be added here */}
+        </div>
       </header>
 
       {/* Hero Section */}
@@ -28,9 +31,11 @@ const AboutUs = () => {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70"></div>
-        <div className="relative z-10 text-center text-white">
-          <h2 className="text-5xl font-bold mb-4">About Us</h2>
-          <p className="text-lg max-w-2xl mx-auto">
+        <div className="relative z-10 text-center">
+          <h2 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+            About Us
+          </h2>
+          <p className="text-lg text-white max-w-2xl mx-auto">
             Discover how CabNest is redefining modern transportation with
             cutting-edge technology and customer-focused solutions.
           </p>
@@ -38,9 +43,9 @@ const AboutUs = () => {
       </section>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 md:px-12 lg:px-20 py-10">
-        <div className="bg-white p-10 rounded-lg shadow-xl max-w-5xl w-full">
-          <h2 className="text-4xl font-bold text-blue-600 mb-8 text-center">
+      <main className="container mx-auto px-6 py-12 flex-1">
+        <div className="bg-white p-10 rounded-2xl shadow-xl max-w-5xl w-full mx-auto">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-8 text-center">
             Who We Are
           </h2>
           <p className="text-gray-700 leading-8 text-lg mb-10 text-center">
@@ -50,7 +55,7 @@ const AboutUs = () => {
             experience for everyone.
           </p>
 
-          {/* Vision & Mission Section */}
+          {/* Vision & Mission */}
           <div className="grid md:grid-cols-2 gap-10 mb-12">
             <div className="flex items-start space-x-4">
               <FaRocket className="text-blue-600 text-4xl" />
@@ -73,7 +78,7 @@ const AboutUs = () => {
                 </h3>
                 <p className="text-gray-600 leading-7">
                   At CabNest, we strive to:
-                  <ul className="list-disc ml-5 mt-3 text-gray-600">
+                  <ul className="list-disc ml-5 mt-3">
                     <li>Deliver hassle-free rides for all.</li>
                     <li>Empower drivers with fair opportunities.</li>
                     <li>
@@ -85,8 +90,8 @@ const AboutUs = () => {
             </div>
           </div>
 
-          {/* Why Choose Us Section */}
-          <h3 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+          {/* Why Choose Us */}
+          <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6 text-center">
             Why Choose CabNest?
           </h3>
           <ul className="grid md:grid-cols-2 gap-8 text-gray-600 mb-10">
@@ -127,8 +132,10 @@ const AboutUs = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-gray-400 text-center py-6">
-        <p>© {new Date().getFullYear()} CabNest. All rights reserved.</p>
+      <footer className="bg-gray-900 text-gray-300 py-8">
+        <div className="container mx-auto text-center">
+          <p>© {new Date().getFullYear()} CabNest. All rights reserved.</p>
+        </div>
       </footer>
     </div>
   );

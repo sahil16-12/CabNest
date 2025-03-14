@@ -24,7 +24,7 @@ export const UserContextProvider = ({ children }) => {
       sessionStorage.setItem("token", data.token);
       setUser(data.user);
       setIsAuth(true);
-
+      sessionStorage.setItem("USER", JSON.stringify(data.user));
       if (data.user.role === "rider") {
         sessionStorage.setItem("rider", JSON.stringify(data.user));
         navigate("/");
@@ -36,8 +36,10 @@ export const UserContextProvider = ({ children }) => {
         const driver2 = response.data;
         setDriver(driver2);
         console.log(driver);
-        await fetchDriverProfile(driver2._id); // Ensure this completes before navigating
+        await fetchDriverProfile(driver2._id);
         navigate("/driver-dashboard");
+      } else if (data.user.role === "admin") {
+        navigate("/");
       }
     } catch (error) {
       setIsAuth(false);

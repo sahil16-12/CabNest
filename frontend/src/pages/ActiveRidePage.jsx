@@ -87,13 +87,18 @@ const ActiveRidePage = () => {
   const [dropCoords, setDropCoords] = useState(null);
   const [rider, setRider] = useState(null);
   const [route, setRoute] = useState([]);
-  const [rideStatus, setRideStatus] = useState("to_pickup"); // to_pickup, at_pickup, ongoing, completed
+  const [instructions, setInstructions] = useState([]);
+  const [totalDistance, setTotalDistance] = useState(0);
+  const [cumulativeDistances, setCumulativeDistances] = useState([]);
+  const [currentInstructionIndex, setCurrentInstructionIndex] = useState(0);
+  const [rideStatus, setRideStatus] = useState("to_pickup"); // to_pickup, at_pickup, ongoing, at_destination, completed
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
   const [otpVerified, setOtpVerified] = useState(false);
   const [showOtpDialog, setShowOtpDialog] = useState(false);
   const [enteredOtp, setEnteredOtp] = useState("");
   const [showChatModal, setShowChatModal] = useState(false);
+  const [showRouteModal, setShowRouteModal] = useState(false);
   const [message, setMessage] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
   const [rideStarted, setRideStarted] = useState(false);
@@ -107,20 +112,27 @@ const ActiveRidePage = () => {
     to_pickup: "Heading to pickup location",
     at_pickup: "Arrived at pickup location",
     ongoing: "Ride in progress",
+    at_destination: "Arrived at destination",
     completed: "Ride completed",
   };
 
+  // Fetch route along with step‑by‑step instructions
   const fetchRoute = async (start, end) => {
     try {
       const startLngLat = `${start[1]},${start[0]}`;
       const endLngLat = `${end[1]},${end[0]}`;
       const response = await axios.get(
-        `${OSRM_API_URL}${startLngLat};${endLngLat}?overview=full&geometries=geojson`
+        `${OSRM_API_URL}${startLngLat};${endLngLat}?overview=full&geometries=geojson&steps=true`
       );
-      if (response.data.routes?.[0]?.geometry?.coordinates) {
-        return response.data.routes[0].geometry.coordinates.map(
-          ([lng, lat]) => [lat, lng]
-        );
+      if (response.data.routes?.[0]) {
+        const routeData = response.data.routes[0];
+        const coordinates = routeData.geometry.coordinates.map(([lng, lat]) => [
+          lat,
+          lng,
+        ]);
+        const steps = routeData.legs[0].steps;
+        const totalDist = routeData.distance;
+        return { coordinates, steps, totalDistance: totalDist };
       }
       throw new Error("No route found");
     } catch (error) {
@@ -129,6 +141,19 @@ const ActiveRidePage = () => {
       return null;
     }
   };
+
+  // Compute cumulative distances from the steps for tracking
+  useEffect(() => {
+    if (instructions.length > 0) {
+      let cum = [];
+      let sum = 0;
+      instructions.forEach((step) => {
+        sum += step.distance;
+        cum.push(sum);
+      });
+      setCumulativeDistances(cum);
+    }
+  }, [instructions]);
 
   useEffect(() => {
     const initSocket = async () => {
@@ -152,7 +177,6 @@ const ActiveRidePage = () => {
         ]);
       });
 
-      // Confirmation that our message was sent (helps with UI feedback)
       socket.current.on("message-sent", (messageData) => {
         console.log("Message delivered to server:", messageData);
       });
@@ -198,22 +222,24 @@ const ActiveRidePage = () => {
         setPickupCoords(pickupLocation);
         setDropCoords(dropLocation);
         setDriverPosition(initialDriverPosition);
-        const initialRoute = await fetchRoute(
+        const initialRouteData = await fetchRoute(
           initialDriverPosition,
           pickupLocation
         );
-        if (!initialRoute) throw new Error("Failed to calculate route");
-        setRoute(initialRoute);
-        startMovement(initialRoute, "to_pickup", async () => {
+        if (!initialRouteData) throw new Error("Failed to calculate route");
+        setRoute(initialRouteData.coordinates);
+        setInstructions(initialRouteData.steps);
+        setTotalDistance(initialRouteData.totalDistance);
+        startMovement(initialRouteData.coordinates, "to_pickup", async () => {
           setRideStatus("at_pickup");
           setShowOtpDialog(true);
         });
-        const pickupToDropRoute = await fetchRoute(
+        const pickupToDropRouteData = await fetchRoute(
           pickupLocation,
           dropLocation
         );
-        if (pickupToDropRoute) {
-          window.pickupToDropRoute = pickupToDropRoute;
+        if (pickupToDropRouteData) {
+          window.pickupToDropRouteData = pickupToDropRouteData;
         }
       } catch (error) {
         console.error("Ride initialization failed:", error);
@@ -249,6 +275,17 @@ const ActiveRidePage = () => {
         });
       }
       setProgress((currentStep / totalSteps) * 100);
+
+      // Update current instruction index based on traveled distance
+      if (totalDistance && cumulativeDistances.length > 0) {
+        const traveledDistance = (currentStep / totalSteps) * totalDistance;
+        const nextInstructionIndex = cumulativeDistances.findIndex(
+          (d) => d > traveledDistance
+        );
+        if (nextInstructionIndex !== -1) {
+          setCurrentInstructionIndex(nextInstructionIndex);
+        }
+      }
       currentStep++;
     }, 150);
   };
@@ -283,18 +320,22 @@ const ActiveRidePage = () => {
       );
       setElapsedTime(elapsedSeconds);
     }, 1000);
-    const pickupToDropRoute = window.pickupToDropRoute;
-    if (pickupToDropRoute && pickupToDropRoute.length > 0) {
-      setRoute(pickupToDropRoute);
-      startMovement(pickupToDropRoute, "ongoing", () => {
-        completeRide();
+    const pickupToDropRouteData = window.pickupToDropRouteData;
+    if (pickupToDropRouteData && pickupToDropRouteData.coordinates.length > 0) {
+      setRoute(pickupToDropRouteData.coordinates);
+      setInstructions(pickupToDropRouteData.steps);
+      setTotalDistance(pickupToDropRouteData.totalDistance);
+      startMovement(pickupToDropRouteData.coordinates, "ongoing", () => {
+        setRideStatus("at_destination");
       });
     } else {
-      fetchRoute(pickupCoords, dropCoords).then((newRoute) => {
-        if (newRoute) {
-          setRoute(newRoute);
-          startMovement(newRoute, "ongoing", () => {
-            completeRide();
+      fetchRoute(pickupCoords, dropCoords).then((newRouteData) => {
+        if (newRouteData) {
+          setRoute(newRouteData.coordinates);
+          setInstructions(newRouteData.steps);
+          setTotalDistance(newRouteData.totalDistance);
+          startMovement(newRouteData.coordinates, "ongoing", () => {
+            setRideStatus("at_destination");
           });
         } else {
           toast.error("Could not calculate route to destination");
@@ -311,7 +352,7 @@ const ActiveRidePage = () => {
       try {
         const token = sessionStorage.getItem("token");
         await axios.post(
-          `${server}/api/rides/${ride._id}/complete`,
+          `${server}/api/ride/${ride._id}/complete`,
           { driverId: driver._id },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -322,6 +363,7 @@ const ActiveRidePage = () => {
       }
     };
     updateRideStatus();
+    navigate("/driver-dashboard");
   };
 
   // Real-time chat send function for driver
@@ -334,7 +376,6 @@ const ActiveRidePage = () => {
       minute: "2-digit",
     });
 
-    // Add message to local state for immediate display
     const newMessage = {
       sender: "driver",
       text: message,
@@ -343,7 +384,6 @@ const ActiveRidePage = () => {
 
     setChatMessages((prevMessages) => [...prevMessages, newMessage]);
 
-    // Send via socket
     if (socket.current && ride) {
       socket.current.emit("send-message", {
         senderId: driver._id,
@@ -422,6 +462,11 @@ const ActiveRidePage = () => {
                     <Navigation size={16} className="mr-1" /> Navigating to
                     destination
                   </span>
+                ) : rideStatus === "at_destination" ? (
+                  <span className="flex items-center">
+                    <Navigation size={16} className="mr-1" /> Arrived at
+                    destination
+                  </span>
                 ) : (
                   <span className="flex items-center">
                     <Check size={16} className="mr-1" /> Ride completed
@@ -465,18 +510,10 @@ const ActiveRidePage = () => {
                 <Navigation size={16} /> Start Ride
               </button>
             )}
-            {rideStatus === "completed" && (
-              <button
-                onClick={() => navigate("/driver-dashboard")}
-                className="flex items-center gap-1 bg-purple-500 hover:bg-purple-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-              >
-                <Check size={16} /> Back to Dashboard
-              </button>
-            )}
           </div>
         </motion.div>
 
-        <div className="h-96 rounded-xl overflow-hidden shadow-lg">
+        <div className="relative h-96 rounded-xl overflow-hidden shadow-lg">
           <MapContainer
             center={driverPosition || [12.9716, 77.5946]}
             zoom={14}
@@ -496,6 +533,7 @@ const ActiveRidePage = () => {
             )}
             {(rideStarted ||
               rideStatus === "ongoing" ||
+              rideStatus === "at_destination" ||
               rideStatus === "completed") && (
               <Marker position={dropCoords} icon={dropIcon}>
                 <Popup>{ride.drop.address}</Popup>
@@ -507,6 +545,13 @@ const ActiveRidePage = () => {
               <Polyline positions={route} color="#0000FF" weight={4} />
             )}
           </MapContainer>
+          {/* Button overlay on the map for route info */}
+          <button
+            onClick={() => setShowRouteModal(true)}
+            className="absolute top-2 right-2 bg-white px-3 py-2 rounded shadow-md text-sm font-medium"
+          >
+            Route Info
+          </button>
         </div>
 
         <motion.div
@@ -547,7 +592,7 @@ const ActiveRidePage = () => {
                 </div>
               </div>
             </div>
-            {rideStatus === "at_pickup" && !rideStarted && (
+            {rideStatus === "at_pickup" && !rideStarted && !otpVerified && (
               <button
                 onClick={() => setShowOtpDialog(true)}
                 className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
@@ -555,7 +600,7 @@ const ActiveRidePage = () => {
                 Verify OTP
               </button>
             )}
-            {rideStatus === "ongoing" && !rideCompleted && (
+            {rideStatus === "at_destination" && (
               <button
                 onClick={completeRide}
                 className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
@@ -567,6 +612,7 @@ const ActiveRidePage = () => {
         </motion.div>
       </div>
 
+      {/* OTP verification modal */}
       <AnimatePresence>
         {showOtpDialog && (
           <motion.div
@@ -621,6 +667,7 @@ const ActiveRidePage = () => {
         )}
       </AnimatePresence>
 
+      {/* Chat modal */}
       <AnimatePresence>
         {showChatModal && (
           <motion.div
@@ -658,9 +705,7 @@ const ActiveRidePage = () => {
               </div>
               <div className="flex-1 overflow-y-auto py-4 px-1">
                 {chatMessages.map((msg, index) => {
-                  // Check if message is from driver
                   const isDriverMessage = msg.sender === "driver";
-
                   return (
                     <div
                       key={index}
@@ -705,6 +750,48 @@ const ActiveRidePage = () => {
                     Send
                   </button>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Route Info modal */}
+      <AnimatePresence>
+        {showRouteModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold">Route Details</h3>
+                <button
+                  onClick={() => setShowRouteModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div>
+                {instructions.length > 0 ? (
+                  <ul className="space-y-2">
+                    {instructions.map((step, index) => (
+                      <li key={index} className="text-sm">
+                        {step.maneuver.instruction} {Math.round(step.distance)}m
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm">No route details available</p>
+                )}
               </div>
             </motion.div>
           </motion.div>
