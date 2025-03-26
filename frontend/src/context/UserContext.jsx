@@ -27,7 +27,7 @@ export const UserContextProvider = ({ children }) => {
       sessionStorage.setItem("USER", JSON.stringify(data.user));
       if (data.user.role === "rider") {
         sessionStorage.setItem("rider", JSON.stringify(data.user));
-        navigate("/");
+        navigate("/admin/dashboard");
       } else if (data.user.role === "driver") {
         const response = await axios.get(
           `${server}/api/driver/${data.user.id}`

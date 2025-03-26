@@ -503,7 +503,7 @@ const DriverDashboard = () => {
                       Distance
                     </span>
                     <span className="font-medium text-gray-900">
-                      {totalDistance} km
+                      {totalDistance.toFixed(2)} km
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
