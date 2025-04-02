@@ -75,7 +75,7 @@ export const createDriver = async (req, res) => {
  */
 export const getAllDrivers = async (req, res) => {
   try {
-    const { pickupLat, pickupLng } = req.query;
+    const { pickupLat, pickupLng, vehicleType } = req.query;
 
     if (!pickupLat || !pickupLng) {
       return res
@@ -90,6 +90,7 @@ export const getAllDrivers = async (req, res) => {
     // Find online drivers within 5km radius of pickup location
     const drivers = await Driver.find({
       status: "online",
+      vehicleType: vehicleType,
       currentLocation: {
         $near: {
           $geometry: {
