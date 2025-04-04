@@ -4,6 +4,7 @@ import { RiderContext } from "../context/RiderContext";
 import { useDriver } from "../context/DriverContext";
 import { UserData } from "../context/UserContext";
 import { toast } from "react-hot-toast";
+import { Link } from "react-router-dom";
 import {
   Camera,
   Upload,
@@ -13,7 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-const ProfilePage = () => {
+const ProfilePage = (user1) => {
   const navigate = useNavigate();
   const { user } = UserData();
   const {
@@ -47,19 +48,21 @@ const ProfilePage = () => {
     { label: "Vehicle Type", value: currentProfile?.vehicleType },
     { label: "Registration Number", value: currentProfile?.regNumber },
   ];
-
+  console.log(user1.user);
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        if (!user) return;
-        if (user.role === "rider") await getRiderById(user._id);
-        else if (user.role === "driver") await fetchDriverProfile(user._id);
+        if (!user1.user) return;
+
+        if (user1.user.role == "rider") await getRiderById(user1.user.id);
+        else if (user1.user.role == "driver")
+          await fetchDriverProfile(user1.user.id);
       } catch (error) {
         toast.error("Failed to load profile");
       }
     };
     fetchProfile();
-  }, [user?._id, user?.role]);
+  }, [user1.user?._id, user1.user?.role]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -150,6 +153,7 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-gray-100">
       {/* Profile Header with Stats */}
+
       <div className="relative bg-gray-800 py-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center gap-8">
@@ -165,6 +169,7 @@ const ProfilePage = () => {
                   }}
                 />
               </div>
+
               {user?.role === "driver" && currentProfile?.verified && (
                 <div className="absolute bottom-0 right-0 bg-green-500 rounded-full p-1.5 shadow-lg">
                   <ShieldCheck className="w-6 h-6 text-white" />
@@ -190,6 +195,39 @@ const ProfilePage = () => {
                     {currentProfile.tripsCount || 0}
                   </p>
                 </div>
+
+                <Link
+                  to="/"
+                  className="
+    inline-flex items-center 
+    px-4 py-2 
+    text-sm font-medium text-white 
+    bg-gradient-to-r from-red-600 to-red-700 
+    rounded-lg 
+    shadow-md 
+    hover:from-red-700 hover:to-red-800 
+    transition-all duration-200 
+    hover:shadow-lg 
+    focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50
+    active:scale-95
+    group
+  "
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Back to Home
+                </Link>
+
                 {/* {user?.role === "driver" && (
                   <>
                     <div className="bg-gray-700/30 p-4 rounded-xl">

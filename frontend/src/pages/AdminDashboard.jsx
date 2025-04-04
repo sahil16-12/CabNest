@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserData } from "../context/UserContext";
 import { useAdmin } from "../context/AdminContext";
 
@@ -67,6 +67,52 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-teal-50 to-indigo-50 p-6">
       <h1 className="text-4xl font-bold text-gray-900 mb-8">Admin Dashboard</h1>
+      <div className="fixed bottom-6 right-6 z-50 group">
+        <Link
+          to="/"
+          className="flex items-center justify-center gap-2 px-6 py-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
+          style={{
+            background: "linear-gradient(135deg, #ef4444 0%, #991b1b 100%)",
+            boxShadow: "0 4px 15px rgba(239, 68, 68, 0.3)",
+          }}
+        >
+          {/* Animated arrow icon */}
+          <div className="relative w-5 h-5">
+            <div className="absolute inset-0 flex items-center justify-center transition-all duration-300 group-hover:-translate-x-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-gray-100"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-gray-100"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <span className="text-gray-100 font-medium tracking-wide text-sm">
+            Back to Home
+          </span>
+        </Link>
+      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -114,7 +160,6 @@ const AdminDashboard = () => {
               onChange={(e) => setRoleFilter(e.target.value)}
             >
               <option value="">All Roles</option>
-              <option value="user">User</option>
               <option value="driver">Driver</option>
               <option value="rider">Rider</option>
             </select>
@@ -142,49 +187,52 @@ const AdminDashboard = () => {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filteredUsers.length > 0 ? (
-                filteredUsers.map((user) => (
-                  <tr
-                    key={user._id}
-                    className="hover:bg-gray-50 transition-colors duration-200"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-800">
-                      {user.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-                      {user.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          user.role === "driver"
-                            ? "bg-indigo-100 text-indigo-800"
-                            : user.role === "rider"
-                            ? "bg-purple-100 text-purple-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
+                filteredUsers.map(
+                  (user) =>
+                    user.role !== "admin" && (
+                      <tr
+                        key={user._id}
+                        className="hover:bg-gray-50 transition-colors duration-200"
                       >
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => {
-                          setSelectedUser(user);
-                          setShowModal(true);
-                        }}
-                        className="text-teal-600 hover:text-teal-800 mr-4"
-                      >
-                        View
-                      </button>
-                      <button
-                        onClick={() => handleDelete(user._id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-800">
+                          {user.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-600">
+                          {user.email}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              user.role === "driver"
+                                ? "bg-indigo-100 text-indigo-800"
+                                : user.role === "rider"
+                                ? "bg-purple-100 text-purple-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {user.role}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setShowModal(true);
+                            }}
+                            className="text-teal-600 hover:text-teal-800 mr-4"
+                          >
+                            View
+                          </button>
+                          <button
+                            onClick={() => handleDelete(user._id)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                )
               ) : (
                 <tr>
                   <td

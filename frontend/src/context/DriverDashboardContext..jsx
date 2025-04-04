@@ -12,11 +12,9 @@ export const DriverDashboardProvider = ({ children }) => {
   const [todayRideCount, setTodayRideCount] = useState(0);
   const [recentRides, setRecentRides] = useState([]);
   const [error, setError] = useState(null);
-
+  const [currentDriver, setCurrentDriver] = useState(null);
   // Get current driver from sessionStorage
-  const currentDriver = JSON.parse(sessionStorage.getItem("driverD"));
-  const _id = currentDriver?._id;
-
+  const _id = currentDriver?.id;
   const [dashboardData, setDashboardData] = useState({
     earnings: { daily: 0, weekly: 0, monthly: 0, yearly: 0 },
     totalDistance: 0,
@@ -120,9 +118,14 @@ export const DriverDashboardProvider = ({ children }) => {
     try {
       const newStatus =
         dashboardData.status === "online" ? "offline" : "online";
-      await axios.post(`${server}/api/driver/${_id}/update-status`, {
-        status: newStatus,
-      });
+      await axios.post(
+        `${server}/api/driver/${
+          currentDriver._id || currentDriver.id
+        }/update-status`,
+        {
+          status: newStatus,
+        }
+      );
       setDashboardData((prev) => ({ ...prev, status: newStatus }));
       toast.success(`Status updated to ${newStatus}`);
     } catch (err) {
@@ -169,6 +172,8 @@ export const DriverDashboardProvider = ({ children }) => {
         updateTotalDistance,
         refreshData: refreshAllData,
         error,
+        currentDriver,
+        setCurrentDriver,
         fetchDriverRideData,
       }}
     >

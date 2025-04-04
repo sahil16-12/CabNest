@@ -15,8 +15,15 @@ import AdminDashboard from "./pages/AdminDashBoard";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import RideWaitingPage from "./pages/RideWaitingPage";
 import ActiveRidePage from "./pages/ActiveRidePage";
+import { UserData } from "./context/UserContext";
+import { useDriverDashboardC } from "./context/DriverDashboardContext.";
 
 const App = () => {
+  const { isAuth, isregistered, isAdmin, user } = UserData();
+  if (user?.role == "driver") {
+    const { setCurrentDriver } = useDriverDashboardC();
+    setCurrentDriver(user);
+  }
   return (
     <Router>
       <Routes>
@@ -27,18 +34,42 @@ const App = () => {
         <Route path="/verify" element={<Verify />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/about" element={<AboutUs />} />
-        <Route path="/rider-profile" element={<RiderProfile />} />
-        <Route path="/driver-profile" element={<DriverProfile />} />
-        <Route path="/ride-status" element={<RideStatusPage />} />
-        <Route path="/driver-dashboard" element={<DriverDashboard />} />
-        <Route path="/profile-page" element={<ProfilePage />} />
-        <Route path="/admin/dashBoard" element={<AdminDashboard />} />
+        <Route
+          path="/rider-profile"
+          element={isregistered ? <RiderProfile /> : <Login />}
+        />
+        <Route
+          path="/driver-profile"
+          element={isregistered ? <DriverProfile /> : <Login />}
+        />
+        <Route
+          path="/ride-status"
+          element={isAuth ? <RideStatusPage /> : <Login />}
+        />
+        <Route
+          path="/driver-dashboard"
+          element={isAuth ? <DriverDashboard user={user} /> : <Login />}
+        />
+        <Route
+          path="/profile-page"
+          element={isAuth ? <ProfilePage user={user} /> : <Login />}
+        />
+        <Route
+          path="/admin/dashBoard"
+          element={isAuth ? <AdminDashboard /> : <Login />}
+        />
         <Route
           path="/payment-successful/:paymentId"
-          element={<PaymentSuccess />}
+          element={isAuth ? <PaymentSuccess /> : <Login />}
         />
-        <Route path="/ride-waiting" element={<RideWaitingPage />} />
-        <Route path="/active-ride" element={<ActiveRidePage />} />
+        <Route
+          path="/ride-waiting"
+          element={isAuth ? <RideWaitingPage /> : <Login />}
+        />
+        <Route
+          path="/active-ride"
+          element={isAuth ? <ActiveRidePage /> : <Login />}
+        />
       </Routes>
     </Router>
   );

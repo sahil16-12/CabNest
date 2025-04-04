@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
   MapPin,
   DollarSign,
@@ -24,7 +25,7 @@ import { useDriverDashboardC } from "../context/DriverDashboardContext.";
 import { io } from "socket.io-client";
 import axios from "axios";
 import { server } from "../main";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { UserData } from "../context/UserContext";
 
@@ -37,7 +38,7 @@ function RecenterAutomatically({ lat, lng }) {
   return null;
 }
 
-const DriverDashboard = () => {
+const DriverDashboard = (user) => {
   const navigate = useNavigate();
   const {
     isLoading,
@@ -304,6 +305,53 @@ const DriverDashboard = () => {
                 <User className="h-4 w-4 mr-2" />
                 Profile
               </a>
+              <div className="fixed bottom-6 right-6 z-50 group">
+                <Link
+                  to="/"
+                  className="flex items-center justify-center gap-2 px-6 py-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #ef4444 0%, #991b1b 100%)",
+                    boxShadow: "0 4px 15px rgba(239, 68, 68, 0.3)",
+                  }}
+                >
+                  {/* Animated arrow icon */}
+                  <div className="relative w-5 h-5">
+                    <div className="absolute inset-0 flex items-center justify-center transition-all duration-300 group-hover:-translate-x-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-gray-100"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-gray-100"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <span className="text-gray-100 font-medium tracking-wide text-sm">
+                    Back to Home
+                  </span>
+                </Link>
+              </div>
               <button
                 onClick={handleLogout}
                 className="flex items-center px-4 py-2 rounded-lg bg-gray-600 text-white text-sm font-medium hover:bg-gray-700 transition-colors"
