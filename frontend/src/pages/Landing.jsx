@@ -116,34 +116,52 @@ const Landing = () => {
                   to="/admin/dashboard"
                   className="text-purple-600 hover:text-purple-700 font-medium"
                 >
-                  Admin
+                  AdminDasbBoard
                 </Link>
               )}
-
+              {user?.role === "driver" && (
+                <Link
+                  to="/driver-dashboard"
+                  className="text-purple-600 hover:text-purple-700 font-medium"
+                >
+                  DriverDashBoard
+                </Link>
+              )}
               {isAuth ? (
-                <div className="relative">
-                  <button
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="flex items-center gap-1 hover:text-blue-600"
-                  >
-                    <UserCircleIcon className="w-6 h-6" />
-                    <ChevronDownIcon className="w-4 h-4 mt-0.5" />
-                  </button>
-                  {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2">
-                      <Link
-                        to="/profile-page"
-                        className="block px-4 py-2 hover:bg-gray-50"
-                      >
-                        Profile
-                      </Link>
+                <div>
+                  {user.role !== "admin" ? (
+                    <div className="relative">
                       <button
-                        onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-50"
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="flex items-center gap-1 hover:text-blue-600"
                       >
-                        Logout
+                        <UserCircleIcon className="w-6 h-6" />
+                        <ChevronDownIcon className="w-4 h-4 mt-0.5" />
                       </button>
+                      {isDropdownOpen && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2">
+                          <Link
+                            to="/profile-page"
+                            className="block px-4 py-2 hover:bg-gray-50"
+                          >
+                            Profile
+                          </Link>
+                          <button
+                            onClick={handleLogout}
+                            className="w-full text-left px-4 py-2 hover:bg-gray-50"
+                          >
+                            Logout
+                          </button>
+                        </div>
+                      )}
                     </div>
+                  ) : (
+                    <button
+                      onClick={handleLogout}
+                      className="hover:text-blue-600 transition-colors font-medium"
+                    >
+                      <span>Logout</span>
+                    </button>
                   )}
                 </div>
               ) : (

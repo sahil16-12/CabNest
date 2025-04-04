@@ -8,10 +8,13 @@ const UserContext = createContext();
 
 export const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isAuth, setIsAuth] = useState(!!sessionStorage.getItem("token"));
+  const [isAuth, setIsAuth] = useState(false);
+  const [isregistered, setIsRegistered] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [btnLoading, setBtnLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const { fetchDriverProfile, driver, setDriver } = useDriver();
+  console.log(user);
   async function loginUser(email, password, currentLocation, navigate) {
     setBtnLoading(true);
     try {
@@ -23,6 +26,7 @@ export const UserContextProvider = ({ children }) => {
       toast.success(data.message);
       sessionStorage.setItem("token", data.token);
       setUser(data.user);
+      console.log(user);
       setIsAuth(true);
       sessionStorage.setItem("USER", JSON.stringify(data.user));
       if (data.user.role === "rider") {
@@ -39,6 +43,7 @@ export const UserContextProvider = ({ children }) => {
         await fetchDriverProfile(driver2._id);
         navigate("/driver-dashboard");
       } else if (data.user.role === "admin") {
+        setIsAdmin(true);
         navigate("/");
       }
     } catch (error) {
@@ -48,7 +53,21 @@ export const UserContextProvider = ({ children }) => {
       setBtnLoading(false);
     }
   }
-
+  useEffect(() => {
+    const user = JSON.parse(sessionStorage.getItem("USER"));
+    if (user) {
+      setUser(user);
+      setIsAuth(true);
+      if (user.role === "rider") {
+        setIsRegistered(true);
+      } else if (user.role === "driver") {
+        setIsRegistered(true);
+      } else if (user.role === "admin") {
+        setIsAdmin(true);
+      }
+    }
+    setLoading(false);
+  }, [setUser]);
   async function RegisterUser(name, email, password, role, navigate) {
     setBtnLoading(true);
     try {
@@ -77,6 +96,8 @@ export const UserContextProvider = ({ children }) => {
         activationToken,
       });
       toast.success(data.message);
+      setIsRegistered(true);
+      setIsAuth(true);
       setUser(data.user);
       sessionStorage.setItem("userId", data.userId);
       if (data.role === "rider") {
@@ -129,6 +150,10 @@ export const UserContextProvider = ({ children }) => {
         loginUser,
         btnLoading,
         loading,
+        isAdmin,
+        setIsAdmin,
+        isregistered,
+        setIsRegistered,
         RegisterUser,
         verifyOtp,
         fetchUser,
