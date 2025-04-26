@@ -542,7 +542,7 @@ const DriverDashboard = (user) => {
                       <Star className="h-4 w-4 mr-2 text-yellow-500" /> Rating
                     </span>
                     <span className="font-medium text-gray-900">
-                      {overallRating}/5
+                      {overallRating.toFixed(2)}/5
                     </span>
                   </div>
                   <div className="flex items-center justify-between">

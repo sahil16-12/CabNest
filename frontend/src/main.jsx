@@ -6,7 +6,7 @@ import { RiderProvider } from "./context/RiderContext.jsx";
 import { DriverProvider } from "./context/DriverContext.jsx";
 import { AdminProvider } from "./context/AdminContext.jsx";
 import { DriverDashboardProvider } from "./context/DriverDashboardContext..jsx";
-export const server = "http://localhost:5000";
+export const server = import.meta.env.VITE_BACKEND_URL;
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <RiderProvider>

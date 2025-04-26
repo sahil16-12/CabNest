@@ -19,7 +19,7 @@ import { UserData } from "./context/UserContext";
 import { useDriverDashboardC } from "./context/DriverDashboardContext.";
 
 const App = () => {
-  const { isAuth, isregistered, isAdmin, user } = UserData();
+  const { isAuth, isregistered, user } = UserData();
   if (user?.role == "driver") {
     const { setCurrentDriver } = useDriverDashboardC();
     setCurrentDriver(user);
