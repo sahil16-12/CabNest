@@ -1,25 +1,6 @@
 import { Driver } from "../models/Driver.js";
 import { Ride } from "../models/Ride.js";
 
-// Utility function to calculate time-based earnings
-const calculateTimeBasedEarnings = (transactions) => {
-  const now = new Date();
-  return {
-    daily: transactions
-      .filter((t) => t.timestamp > new Date(now - 24 * 60 * 60 * 1000))
-      .reduce((sum, t) => sum + t.amount, 0),
-    weekly: transactions
-      .filter((t) => t.timestamp > new Date(now - 7 * 24 * 60 * 60 * 1000))
-      .reduce((sum, t) => sum + t.amount, 0),
-    monthly: transactions
-      .filter((t) => t.timestamp > new Date(now - 30 * 24 * 60 * 60 * 1000))
-      .reduce((sum, t) => sum + t.amount, 0),
-    yearly: transactions
-      .filter((t) => t.timestamp > new Date(now - 365 * 24 * 60 * 60 * 1000))
-      .reduce((sum, t) => sum + t.amount, 0),
-  };
-};
-
 // Get earnings data with dynamic time-based calculations
 export const getEarnings = async (req, res) => {
   try {
@@ -314,4 +295,22 @@ export const getRecentRides = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+const calculateTimeBasedEarnings = (transactions) => {
+  const now = new Date();
+  return {
+    total: transactions.reduce((sum, t) => sum + t.amount, 0),
+    daily: transactions
+      .filter((t) => t.timestamp > new Date(now - 24 * 60 * 60 * 1000))
+      .reduce((sum, t) => sum + t.amount, 0),
+    weekly: transactions
+      .filter((t) => t.timestamp > new Date(now - 7 * 24 * 60 * 60 * 1000))
+      .reduce((sum, t) => sum + t.amount, 0),
+    monthly: transactions
+      .filter((t) => t.timestamp > new Date(now - 30 * 24 * 60 * 60 * 1000))
+      .reduce((sum, t) => sum + t.amount, 0),
+    yearly: transactions
+      .filter((t) => t.timestamp > new Date(now - 365 * 24 * 60 * 60 * 1000))
+      .reduce((sum, t) => sum + t.amount, 0),
+  };
 };

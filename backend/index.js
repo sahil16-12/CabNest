@@ -31,7 +31,7 @@ const app = express();
 const server = createServer(app); // Create an HTTP server for Socket.io
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", // Update with frontend URL
+    origin: "http://localhost:5173",
     methods: ["GET", "POST"],
   },
 });
@@ -80,9 +80,6 @@ io.on("connection", (socket) => {
       console.log(
         `Message from ${senderRole} ${senderId} to ${receiverId}: ${message}`
       );
-
-      // Store the message in database if needed
-      // This could be implemented to persist chat history
 
       // Find the receiver's socket ID
       const receiverSocketId = connectedUsers.get(receiverId.toString());
@@ -138,24 +135,6 @@ app.use("/api/driver", DriverRoutes);
 app.use("/api/admin", AdminRoutes);
 app.use("/api/ride", rideRoutes);
 app.use("/api/notifications", notificationRoutes);
-
-// const createAdminUser = async () => {
-//   try {
-//       const newAdmin = new User({
-//           name: "Admin User",
-//           email: "admin@example.com", // Replace with actual admin email
-//           password: "hashed_password", // Make sure to hash the password before saving
-//           role: "admin", // Set role to "admin"
-//       });
-
-//       await newAdmin.save();
-//       console.log("Admin user created successfully.");
-//   } catch (error) {
-//       console.error("Error creating admin user:", error);
-//   }
-// }
-// createAdminUser();
-// Start the server
 
 // Error handling middleware
 app.use((err, req, res, next) => {

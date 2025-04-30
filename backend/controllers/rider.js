@@ -19,15 +19,21 @@ export const createRider = TryCatch(async (req, res) => {
   if (existingRider) {
     return res.status(400).json({ message: "Rider already registered" });
   }
-
-  const rider = await Rider.create({
-    _id,
-    dateOfBirth,
-    phoneNumber,
-    address,
-    profileImage,
-  });
-
+  console.log("Rider is");
+  console.log(req.body);
+  try {
+    const rider = await Rider.create({
+      _id,
+      profileImage,
+      dateOfBirth,
+      phoneNumber,
+      address,
+    });
+    res.status(201).json({ message: "Rider created successfully", rider });
+  } catch (error) {
+    console.error("Error creating rider:", error);
+    res.status(500).json({ message: error.message });
+  }
   res.status(201).json({ message: "Rider created successfully", rider });
 });
 

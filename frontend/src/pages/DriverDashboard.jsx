@@ -366,17 +366,17 @@ const DriverDashboard = (user) => {
               {/* Stats Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
                 {/* Daily Earnings */}
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between">
                     <div>
                       <h3 className="text-gray-500 text-sm font-medium flex items-center">
-                        <Clock className="h-4 w-4 mr-1" /> Daily Earnings
+                        <Clock className="h-4 w-4 mr-2" /> Daily Earnings
                       </h3>
-                      <p className="text-3xl font-bold text-gray-800 mt-2">
+                      <p className="text-3xl font-bold text-gray-900 mt-3">
                         ₹{earnings.daily.toFixed(2)}
                       </p>
-                      <span className="text-green-500 text-sm flex items-center mt-2">
-                        <TrendingUp className="h-4 w-4 mr-1" />
+                      <span className="text-green-600 text-sm flex items-center mt-2">
+                        <TrendingUp className="h-4 w-4 mr-1.5" />
                         12% more than yesterday
                       </span>
                     </div>
@@ -387,17 +387,17 @@ const DriverDashboard = (user) => {
                 </div>
 
                 {/* Weekly Earnings */}
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between">
                     <div>
                       <h3 className="text-gray-500 text-sm font-medium flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" /> Weekly Earnings
+                        <Calendar className="h-4 w-4 mr-2" /> Weekly Earnings
                       </h3>
-                      <p className="text-3xl font-bold text-gray-800 mt-2">
+                      <p className="text-3xl font-bold text-gray-900 mt-3">
                         ₹{earnings.weekly.toFixed(2)}
                       </p>
-                      <span className="text-green-500 text-sm flex items-center mt-2">
-                        <TrendingUp className="h-4 w-4 mr-1" />
+                      <span className="text-green-600 text-sm flex items-center mt-2">
+                        <TrendingUp className="h-4 w-4 mr-1.5" />
                         8% more than last week
                       </span>
                     </div>
@@ -408,18 +408,60 @@ const DriverDashboard = (user) => {
                 </div>
 
                 {/* Monthly Earnings */}
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between">
                     <div>
                       <h3 className="text-gray-500 text-sm font-medium flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" /> Monthly Earnings
+                        <Calendar className="h-4 w-4 mr-2" /> Monthly Earnings
                       </h3>
-                      <p className="text-3xl font-bold text-gray-800 mt-2">
+                      <p className="text-3xl font-bold text-gray-900 mt-3">
                         ₹{earnings.monthly.toFixed(2)}
                       </p>
-                      <span className="text-green-500 text-sm flex items-center mt-2">
-                        <TrendingUp className="h-4 w-4 mr-1" />
+                      <span className="text-green-600 text-sm flex items-center mt-2">
+                        <TrendingUp className="h-4 w-4 mr-1.5" />
                         5% more than last month
+                      </span>
+                    </div>
+                    <div className="p-3 rounded-full bg-blue-50 text-blue-600">
+                      <DollarSign className="h-6 w-6" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Yearly Earnings */}
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="text-gray-500 text-sm font-medium flex items-center">
+                        <Clock className="h-4 w-4 mr-2" /> Yearly Earnings
+                      </h3>
+                      <p className="text-3xl font-bold text-gray-900 mt-3">
+                        ₹{earnings.yearly.toFixed(2)}
+                      </p>
+                      <span className="text-green-600 text-sm flex items-center mt-2">
+                        <TrendingUp className="h-4 w-4 mr-1.5" />
+                        12% more than last year
+                      </span>
+                    </div>
+                    <div className="p-3 rounded-full bg-blue-50 text-blue-600">
+                      <DollarSign className="h-6 w-6" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Total Earnings */}
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="text-gray-500 text-sm font-medium flex items-center">
+                        <Clock className="h-4 w-4 mr-2" /> Total Earnings
+                      </h3>
+                      <p className="text-3xl font-bold text-gray-900 mt-3">
+                        ₹{Number(earnings.total || 0).toFixed(2)}
+                      </p>
+                      <span className="text-green-600 text-sm flex items-center mt-2">
+                        <TrendingUp className="h-4 w-4 mr-1.5" />
+                        12.5% overall growth
                       </span>
                     </div>
                     <div className="p-3 rounded-full bg-blue-50 text-blue-600">
@@ -542,7 +584,7 @@ const DriverDashboard = (user) => {
                       <Star className="h-4 w-4 mr-2 text-yellow-500" /> Rating
                     </span>
                     <span className="font-medium text-gray-900">
-                      {overallRating}/5
+                      {overallRating.toFixed(2)}/5
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
