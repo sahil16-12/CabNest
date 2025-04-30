@@ -156,7 +156,7 @@ const RideStatusPage = () => {
             { headers: { Authorization: `Bearer ${token}` } }
           );
           toast.success("Payment successful!");
-          const driverId = "12345"; // Replace with the actual driver ID
+
           navigate(
             `/payment-successful/${response.razorpay_payment_id}?driverId=${driver._id._id}`
           );
@@ -539,7 +539,7 @@ const RideStatusPage = () => {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-yellow-500 flex items-center">
-                  ★ {driverData.rating || "No ratings"}
+                  ★ {driverData.rating.toFixed(2) || "No ratings"}
                 </span>
                 <span className="text-sm text-gray-500">
                   License: {driverData.licenseNumber}

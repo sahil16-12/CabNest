@@ -57,11 +57,10 @@ export const createDriver = async (req, res) => {
       overallRating: 0,
       totalDistance: 0,
     });
-    console.log("================================");
     await driver.save();
-    console.log("=========================5454=======");
     res.status(201).json({ message: "Driver created successfully", driver });
   } catch (error) {
+    console.error("Error message", error);
     res
       .status(500)
       .json({ message: "Error creating driver", error: error.message });
